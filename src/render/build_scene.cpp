@@ -127,7 +127,7 @@ bool build_3(Scene& scene)
 	scene.add_object(plane_ptr);
 
 	SmoothSurface* surface = new SmoothSurface(&materials["gray"]);
-	if (!load_ply_file("./models/bunny/reconstruction/bun_zipper.ply", surface)) return false;
+	if (!load_ply_file("../../models/bunny/reconstruction/bun_zipper.ply", surface)) return false;
 	surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
 	surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
 	Object* surface_ptr = static_cast<Object*>(surface);
@@ -164,7 +164,7 @@ bool build_4(Scene& scene)
 
 	// IBL
 	Image* image_ptr = new Image();
-	load_hdr_image("hdr_image/Tokyo_BigSight_3k.hdr", *image_ptr);
+	load_hdr_image("../../hdr_image/Tokyo_BigSight_3k.hdr", *image_ptr);
 	image_ptr->flip();
 	Mapping* mapping_ptr = new SphericalMap(45.);
 	Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
@@ -176,7 +176,7 @@ bool build_4(Scene& scene)
 	scene.add_object(box_ptr);
 
 	SmoothSurface* surface = new SmoothSurface(&materials["specular"]);
-	if (!load_ply_file("./models/dragon_recon/dragon_vrip_res2.ply", surface)) return false;
+	if (!load_ply_file("../../models/dragon_recon/dragon_vrip_res2.ply", surface)) return false;
 	surface->scale(2. / (surface->bbox.corner1.x - surface->bbox.corner0.x));
 	surface->move(Vec(-surface->bbox.center.x, -surface->bbox.corner0.y, -surface->bbox.center.z));
 	Object* surface_ptr = static_cast<Object*>(surface);
@@ -193,14 +193,14 @@ bool build_5(Scene& scene)
 
 	// IBL
 	Image* image_ptr = new Image();
-	load_hdr_image("hdr_image/aristea_wreck_4k.hdr", *image_ptr);
+	load_hdr_image("../../hdr_image/aristea_wreck_4k.hdr", *image_ptr);
 	Mapping* mapping_ptr = new SphericalMap(0.);
 	Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
 
 	scene.set_camera(pinhole_ptr);
 	scene.set_ibl(ibl_ptr);
 
-	ObjLoader obj_loader("./models/rungholt/rungholt.obj");
+	ObjLoader obj_loader("../../models/rungholt/rungholt.obj");
 	obj_loader.print_obj_data();
 	std::vector<surface*> tmp_objects = obj_loader.convert_to_surfaces();
 
@@ -219,14 +219,14 @@ bool build_6(Scene& scene)
 
 	// IBL
 	Image* image_ptr = new Image();
-	load_hdr_image("hdr_image/aristea_wreck_4k.hdr", *image_ptr);
+	load_hdr_image("../../hdr_image/aristea_wreck_4k.hdr", *image_ptr);
 	Mapping* mapping_ptr = new SphericalMap(0.);
 	Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
 
 	scene.set_camera(pinhole_ptr);
 	scene.set_ibl(ibl_ptr);
 
-	ObjLoader obj_loader("./models/bmw/bmw.obj");
+	ObjLoader obj_loader("../../models/bmw/bmw.obj");
 	obj_loader.print_obj_data();
 	std::vector<surface*> tmp_objects = obj_loader.convert_to_surfaces();
 

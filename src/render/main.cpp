@@ -6,12 +6,17 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include <stdio.h>
+#include <cstdio>
+#include <map>
+#include <string>
+#include <vector>
+#include "build_scene.h"
+#include "scene.h"
+
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
-
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
 // Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
@@ -167,6 +172,74 @@ int main(int, char**)
 
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    return 0;
+}
+
+
+
+std::map<std::string, std::string> get_params()
+{
+    // Default parameters
+    std::map<std::string, std::string> params{
+        {"samples", "2"},      {"super_samples", "4"}, {"plane_width", "1.5"}, {"width_res", "1200"},
+        {"height_res", "900"}, {"scene_num", "5"},     {"tracer", "pt"} };
+
+    printf("========== Parameter ==========\n");
+    printf("Scene number : %s\n", params["scene_num"].c_str());
+    printf("Samples(brightness): %s\n", params["samples"].c_str());
+    printf("Super-Samples: %s\n", params["super_samples"].c_str());
+    printf("Resolution   : %sx%s\n", params["width_res"].c_str(), params["height_res"].c_str());
+    printf("===============================\n");
+
+    return params;
+}
+
+int test_render()
+{
+    auto params = get_params();
+
+    Scene scene;
+    switch (std::stoi(params["scene_num"]))
+    {
+    case 1:
+    {
+        if (!build_1(scene)) return 1;
+        break;
+    }
+    case 2:
+    {
+        if (!build_2(scene)) return 1;
+        break;
+    }
+    case 3:
+    {
+        if (!build_3(scene)) return 1;
+        break;
+    }
+    case 4:
+    {
+        if (!build_4(scene)) return 1;
+        break;
+    }
+    case 5:
+    {
+        if (!build_5(scene)) return 1;
+        break;
+    }
+    case 6:
+    {
+        if (!build_6(scene)) return 1;
+        break;
+    }
+    default:
+    {
+        if (!build_1(scene)) return 1;
+        break;
+    }
+    }
+
+    scene.render(params);
 
     return 0;
 }

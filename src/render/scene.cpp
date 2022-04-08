@@ -106,5 +106,5 @@ void Scene::render(const std::map<std::string, std::string>& params)
 			}
 		}
 	}
-	save_ppm_file("result.ppm", image);
+	save_ppm_file("result_2.ppm", image);
 }
