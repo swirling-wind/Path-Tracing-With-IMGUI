@@ -105,7 +105,8 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..;..\..\backend;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;..\..\backend;..\libs\glfw\include;..\src\render;..\src\libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -141,7 +142,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..;..\..\backend;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;..\..\backend;..\libs\glfw\include;..\src\render;..\src\libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -164,7 +165,25 @@
     <ClCompile Include="..\..\imgui_widgets.cpp" />
     <ClCompile Include="..\..\backend\imgui_impl_glfw.cpp" />
     <ClCompile Include="..\..\backend\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="build_scene.cpp" />
+    <ClCompile Include="bvh.cpp" />
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="hdr.cpp" />
+    <ClCompile Include="lattice_noise.cpp" />
+    <ClCompile Include="loader.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mapping.cpp" />
+    <ClCompile Include="material.cpp" />
+    <ClCompile Include="object.cpp" />
+    <ClCompile Include="obj_loader.cpp" />
+    <ClCompile Include="random.cpp" />
+    <ClCompile Include="ray.cpp" />
+    <ClCompile Include="scene.cpp" />
+    <ClCompile Include="surface.cpp" />
+    <ClCompile Include="texture.cpp" />
+    <ClCompile Include="tracer.cpp" />
+    <ClCompile Include="utility.cpp" />
+    <ClCompile Include="vec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\imconfig.h" />
@@ -173,6 +192,27 @@
     <ClInclude Include="..\..\backend\imgui_impl_glfw.h" />
     <ClInclude Include="..\..\backend\imgui_impl_opengl3.h" />
     <ClInclude Include="..\..\backend\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="..\libs\stb\stb_image.h" />
+    <ClInclude Include="build_scene.h" />
+    <ClInclude Include="bvh.h" />
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="constant.h" />
+    <ClInclude Include="hdr.h" />
+    <ClInclude Include="lattice_noise.h" />
+    <ClInclude Include="loader.h" />
+    <ClInclude Include="mapping.h" />
+    <ClInclude Include="material.h" />
+    <ClInclude Include="object.h" />
+    <ClInclude Include="obj_loader.h" />
+    <ClInclude Include="random.h" />
+    <ClInclude Include="ray.h" />
+    <ClInclude Include="scene.h" />
+    <ClInclude Include="surface.h" />
+    <ClInclude Include="texture.h" />
+    <ClInclude Include="tracer.h" />
+    <ClInclude Include="utility.h" />
+    <ClInclude Include="vec.h" />
+    <ClInclude Include="wrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\.editorconfig" />

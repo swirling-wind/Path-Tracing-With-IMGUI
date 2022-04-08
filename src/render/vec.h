@@ -1,0 +1,128 @@
+#ifndef VEC_H
+#define VEC_H
+
+#include <cmath>
+#include <algorithm>
+#include <ostream>
+#include "constant.h"
+
+using Point2D = std::pair<double, double>;
+
+struct Vec
+{
+	double x, y, z;
+
+	explicit Vec(double x = 0.0, double y = 0.0, double z = 0.0);
+
+	Vec operator+(const Vec& rhs) const { return Vec{ x + rhs.x, y + rhs.y, z + rhs.z }; }
+	Vec operator+(const double rhs) const { return Vec{ x + rhs, y + rhs, z + rhs }; }
+	Vec operator-(const Vec& rhs) const { return Vec{ x - rhs.x, y - rhs.y, z - rhs.z }; }
+	Vec operator-(const double rhs) const { return Vec{ x - rhs, y - rhs, z - rhs }; }
+	Vec operator*(const double rhs) const { return Vec{ x * rhs, y * rhs, z * rhs }; }
+	Vec operator/(const double rhs) const { return Vec{ x / rhs, y / rhs, z / rhs }; }
+
+	bool operator==(const Vec& rhs) const
+	{
+		return std::abs(x - rhs.x) < EPS && std::abs(y - rhs.y) < EPS && std::abs(z - rhs.z) < EPS;
+	}
+
+	bool operator!=(const Vec& rhs) const { return !(*this == rhs); }
+
+	bool operator>=(const Vec& rhs) const
+	{
+		return std::abs(x - rhs.x) >= EPS && std::abs(y - rhs.y) >= EPS &&
+			std::abs(z - rhs.z) >= EPS;
+	}
+
+	bool operator>(const Vec& rhs) const { return *this >= rhs && *this != rhs; }
+
+	bool operator<=(const Vec& rhs) const
+	{
+		return std::abs(x - rhs.x) <= EPS && std::abs(y - rhs.y) <= EPS &&
+			std::abs(z - rhs.z) <= EPS;
+	}
+
+	bool operator<(const Vec& rhs) const { return *this <= rhs && *this != rhs; }
+
+	void operator+=(const Vec& rhs)
+	{
+		x += rhs.x;
+		y += rhs.y;
+		z += rhs.z;
+	}
+
+	void operator+=(const double rhs)
+	{
+		x += rhs;
+		y += rhs;
+		z += rhs;
+	}
+
+	void operator-=(const Vec& rhs)
+	{
+		x -= rhs.x;
+		y -= rhs.y;
+		z -= rhs.z;
+	}
+
+	void operator-=(const double rhs)
+	{
+		x -= rhs;
+		y -= rhs;
+		z -= rhs;
+	}
+
+	void operator*=(const double rhs)
+	{
+		x *= rhs;
+		y *= rhs;
+		z *= rhs;
+	}
+
+	void operator/=(const double rhs)
+	{
+		x /= rhs;
+		y /= rhs;
+		z /= rhs;
+	}
+
+	void normalize();
+
+	friend std::ostream& operator<<(std::ostream& os, const Vec& v);
+};
+
+inline Vec operator*(const double lhs, const Vec& rhs) { return rhs * lhs; }
+
+inline double dot(const Vec& v1, const Vec& v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z; }
+
+inline double norm(const Vec& v) { return std::sqrt(dot(v, v)); }
+
+inline Vec normalize(const Vec& v) { return v / norm(v); }
+
+inline Vec multiply(const Vec& v1, const Vec& v2)
+{
+	return Vec(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+}
+
+inline Vec cross(const Vec& v1, const Vec& v2)
+{
+	return Vec((v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z),
+		(v1.x * v2.y) - (v1.y * v2.x));
+}
+
+inline Vec max(const Vec& v1, const Vec& v2)
+{
+	return Vec(std::max(v1.x, v2.x), std::max(v1.y, v2.y), std::max(v1.z, v2.z));
+}
+
+inline Vec min(const Vec& v1, const Vec& v2)
+{
+	return Vec(std::min(v1.x, v2.x), std::min(v1.y, v2.y), std::min(v1.z, v2.z));
+}
+
+Vec spherical_coordinate_vec(const double theta, const double phi);
+
+using Color = Vec;
+using Point = Vec;
+
+#endif
