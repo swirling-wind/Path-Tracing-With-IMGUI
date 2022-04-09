@@ -1,8 +1,3 @@
-// Dear ImGui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
-// (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)
-// If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
-// Read online: https://github.com/ocornut/imgui/tree/master/docs
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -179,7 +174,7 @@ int test_gui(int, char**)
 int main()
 {
     const std::map<std::string, std::string> test_params{
-    {"samples", "2"},      {"super_samples", "4"},
+    {"samples", "2"},      {"super_samples", "10"},
     {"plane_width", "1.5"},
     {"width_res", "1200"}, {"height_res", "900"},
     {"scene_num", "4"},     {"tracer", "pt"} };

@@ -145,6 +145,8 @@
       <AdditionalIncludeDirectories>..\..;..\..\backend;..\libs\glfw\include;..\src\render;..\src\libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -207,6 +209,8 @@
     <ClInclude Include="random.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="scene.h" />
+    <ClInclude Include="sobol_sets_of_direction_nums.h" />
+    <ClInclude Include="sobol.h" />
     <ClInclude Include="surface.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="tracer.h" />
