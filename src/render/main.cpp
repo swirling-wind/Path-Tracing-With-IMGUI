@@ -11,6 +11,7 @@
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
+#include <thread>
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -174,7 +175,7 @@ int test_gui(int, char**)
 int main()
 {
     const std::map<std::string, std::string> test_params{
-    {"samples", "2"},      {"super_samples", "10"},
+    {"samples", "2"},      {"super_samples", "30"},
     {"plane_width", "1.5"},
     {"width_res", "1200"}, {"height_res", "900"},
     {"scene_num", "4"},     {"tracer", "pt"} };
@@ -247,7 +248,12 @@ int main()
     }
     }
 
-    scene.render(test_params);
+    std::atomic<unsigned int> iteration_count {0};
+    std::atomic<render_status> current_status {render_status::rendering};
+
+    scene.render(test_params, iteration_count, current_status);
+    
+    //std::thread render_thread{&Scene::render, scene, test_params};
 
     return 0;
 }

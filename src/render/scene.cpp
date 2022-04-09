@@ -6,8 +6,8 @@
 std::mutex mtx;
 
 ViewPlane::ViewPlane(const double plane_width, const int width_res, const int height_res)
-    : plane_width(plane_width), plane_height(plane_width * height_res / width_res), width_res(width_res), height_res(height_res),
-      pixel_size(plane_width / width_res)
+    : plane_width(plane_width), plane_height(plane_width* height_res / width_res), width_res(width_res), height_res(height_res),
+    pixel_size(plane_width / width_res)
 {}
 
 Scene::Scene() : camera_ptr(nullptr), objects(0), ibl_ptr(nullptr) {}
@@ -58,7 +58,7 @@ std::vector<int> Scene::traverse(const Ray& ray) const
     return bvh.traverse(ray);
 }
 
-void Scene::render(const std::map<std::string, std::string>& scene_params)
+void Scene::render(const std::map<std::string, std::string>& scene_params, std::atomic<unsigned int>& iteration_count, std::atomic<render_status>& current_status)
 {
     const int samples = std::stoi(scene_params.at("samples"));
     const int super_samples = std::stoi(scene_params.at("super_samples"));
@@ -77,7 +77,8 @@ void Scene::render(const std::map<std::string, std::string>& scene_params)
     printf("Building BVH...\n");
     construct();
 
-#pragma omp parallel for schedule(dynamic, 1)
+
+#pragma omp parallel for schedule(dynamic, 1)  // NOLINT(clang-diagnostic-source-uses-openmp)
     for (int row = 0; row < view_plane.height_res; row++)
     {
         if (row % 20 == 0)
@@ -107,7 +108,8 @@ void Scene::render(const std::map<std::string, std::string>& scene_params)
             }
         }
     }
-    save_ppm_file("result_4.ppm", image);
+
+    save_ppm_file("result_5_900.ppm", image);
 }
 
 //void Scene::instant_render_with_multi_threads()
