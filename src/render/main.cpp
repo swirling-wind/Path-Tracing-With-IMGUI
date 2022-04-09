@@ -29,7 +29,7 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int main(int, char**)
+int test_gui(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -176,70 +176,83 @@ int main(int, char**)
     return 0;
 }
 
-
-
-std::map<std::string, std::string> get_params()
+int main()
 {
-    // Default parameters
-    std::map<std::string, std::string> params{
-        {"samples", "2"},      {"super_samples", "4"}, {"plane_width", "1.5"}, {"width_res", "1200"},
-        {"height_res", "900"}, {"scene_num", "5"},     {"tracer", "pt"} };
-
-    printf("========== Parameter ==========\n");
-    printf("Scene number : %s\n", params["scene_num"].c_str());
-    printf("Samples(brightness): %s\n", params["samples"].c_str());
-    printf("Super-Samples: %s\n", params["super_samples"].c_str());
-    printf("Resolution   : %sx%s\n", params["width_res"].c_str(), params["height_res"].c_str());
-    printf("===============================\n");
-
-    return params;
-}
-
-int test_render()
-{
-    auto params = get_params();
-
+    const std::map<std::string, std::string> test_params{
+    {"samples", "2"},      {"super_samples", "4"},
+    {"plane_width", "1.5"},
+    {"width_res", "1200"}, {"height_res", "900"},
+    {"scene_num", "4"},     {"tracer", "pt"} };
+    
     Scene scene;
-    switch (std::stoi(params["scene_num"]))
+    switch (std::stoi(test_params.at("scene_num")))
     {
     case 1:
     {
         if (!build_1(scene)) return 1;
+
+        Vec eye(50, 50, 220), lookat(50.0, 30.0, -1.0);
+        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+        scene.set_camera(pinhole_ptr);
         break;
     }
     case 2:
     {
         if (!build_2(scene)) return 1;
+
+        Vec eye(10, 5, 9), lookat(0.0, 2.0, 0.0);
+        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+        scene.set_camera(pinhole_ptr);
         break;
     }
     case 3:
     {
         if (!build_3(scene)) return 1;
+
+        Vec eye(0.0, 2., 5), lookat(0.0, 1.0, 0.0);
+        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+        scene.set_camera(pinhole_ptr);
         break;
     }
     case 4:
     {
         if (!build_4(scene)) return 1;
+
+        Vec eye(-1.8, 1.2, 1.8), lookat(0.0, 0.8, 0.0);
+        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+        scene.set_camera(pinhole_ptr);
         break;
     }
     case 5:
     {
         if (!build_5(scene)) return 1;
+
+        Vec eye(200.0, 100.0, 200.0), lookat(50.0, 5.0, 50.0);
+        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+        scene.set_camera(pinhole_ptr);
         break;
     }
     case 6:
     {
         if (!build_6(scene)) return 1;
+
+        Vec eye(400.0, 200.0, 400.0), lookat(50.0, 5.0, 50.0);
+        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+        scene.set_camera(pinhole_ptr);
         break;
     }
     default:
     {
         if (!build_1(scene)) return 1;
+
+        Vec eye(50, 50, 220), lookat(50.0, 30.0, -1.0);
+        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+        scene.set_camera(pinhole_ptr);
         break;
     }
     }
 
-    scene.render(params);
+    scene.render(test_params);
 
     return 0;
 }

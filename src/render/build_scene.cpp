@@ -56,10 +56,6 @@ std::unordered_map<std::string, Material> materials = {
 // Cornell box scene
 bool build_1(Scene& scene)
 {
-	Vec eye(50, 50, 220), lookat(50.0, 30.0, -1.0);
-	Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-	scene.set_camera(pinhole_ptr);
-
 	Object* sphere_ptr(new Sphere(1e5, Vec(1e5 + 1, 40.8, 81.6), &materials["red"]));
 	scene.add_object(sphere_ptr);
 	sphere_ptr = new Sphere(1e5, Vec(-1e5 + 99, 40.8, 81.6), &materials["blue"]);
@@ -89,11 +85,7 @@ bool build_1(Scene& scene)
 // Sphere on plane
 bool build_2(Scene& scene)
 {
-	Vec eye(10, 5, 9), lookat(0.0, 2.0, 0.0);
-	Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
 	Texture* ibl_ptr(new ConstantTexture(Color(BLACK)));
-
-	scene.set_camera(pinhole_ptr);
 	scene.set_ibl(ibl_ptr);
 
 	Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["marble"]));
@@ -115,12 +107,7 @@ bool build_2(Scene& scene)
 // Import ply file as model
 bool build_3(Scene& scene)
 {
-	Vec eye(0.0, 2., 5), lookat(0.0, 1.0, 0.0);
-	Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-
 	Texture* ibl_ptr(new ConstantTexture(Color(BLACK)));
-
-	scene.set_camera(pinhole_ptr);
 	scene.set_ibl(ibl_ptr);
 
 	Object* plane_ptr(new Plane(Vec(0.0, 0.0, 0.0), Vec(0.0, 1.0, 0.0), &materials["green"]));
@@ -159,17 +146,13 @@ bool build_3(Scene& scene)
 // Import hdr file as background & Import ply file as model
 bool build_4(Scene& scene)
 {
-	Vec eye(-1.8, 1.2, 1.8), lookat(0.0, 0.8, 0.0);
-	Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-
 	// IBL
 	Image* image_ptr = new Image();
 	load_hdr_image("../../hdr_image/Tokyo_BigSight_3k.hdr", *image_ptr);
 	image_ptr->flip();
 	Mapping* mapping_ptr = new SphericalMap(45.);
 	Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
-
-	scene.set_camera(pinhole_ptr);
+    
 	scene.set_ibl(ibl_ptr);
 
 	Object* box_ptr(new Box(Vec(-3.0, -0.1, -3.0), Vec(3.0, 0.0, 3.0), &materials["checker"]));
@@ -188,8 +171,7 @@ bool build_4(Scene& scene)
 // Import hdr file as background & Import obj file as model
 bool build_5(Scene& scene)
 {
-	Vec eye(200.0, 100.0, 200.0), lookat(50.0, 5.0, 50.0);
-	Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+	
 
 	// IBL
 	Image* image_ptr = new Image();
@@ -197,7 +179,6 @@ bool build_5(Scene& scene)
 	Mapping* mapping_ptr = new SphericalMap(0.);
 	Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
 
-	scene.set_camera(pinhole_ptr);
 	scene.set_ibl(ibl_ptr);
 
 	ObjLoader obj_loader("../../models/rungholt/rungholt.obj");
@@ -214,16 +195,12 @@ bool build_5(Scene& scene)
 
 bool build_6(Scene& scene)
 {
-	Vec eye(400.0, 200.0, 400.0), lookat(50.0, 5.0, 50.0);
-	Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-
 	// IBL
 	Image* image_ptr = new Image();
 	load_hdr_image("../../hdr_image/aristea_wreck_4k.hdr", *image_ptr);
 	Mapping* mapping_ptr = new SphericalMap(0.);
 	Texture* ibl_ptr(new ImageTexture(image_ptr, mapping_ptr));
-
-	scene.set_camera(pinhole_ptr);
+    
 	scene.set_ibl(ibl_ptr);
 
 	ObjLoader obj_loader("../../models/bmw/bmw.obj");

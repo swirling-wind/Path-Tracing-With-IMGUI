@@ -32,10 +32,11 @@ public:
 	void set_ibl(Texture* ibl_ptr);
 	void add_object(Object* object_ptr);
 
-	std::vector<Object*> get_lights() const;
+    [[nodiscard]] std::vector<Object*> get_lights() const;
 	void construct();
-	std::vector<int> traverse(const Ray& ray) const;
-	void render(const std::map<std::string, std::string>& params);
+    [[nodiscard]] std::vector<int> traverse(const Ray& ray) const;
+	void render(const std::map<std::string, std::string>& scene_params);
+    void instant_render_with_multi_threads();
 };
 
 #endif
