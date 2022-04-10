@@ -106,10 +106,27 @@ void Scene::render(const std::map<std::string, std::string>& scene_params, std::
                         accumulated_radiance / (samples * super_samples * super_samples);
                 }
             }
+
+            //const int samples_per_pixel = super_samples * super_samples;
+            //for (int i = 0; i < super_samples * super_samples; i++)
+            //{
+            //    Color accumulated_radiance;
+            //    Point2D pp(
+            //        view_plane.pixel_size * (col - 0.5 * view_plane.width_res + (j + 0.5) / super_samples),
+            //        view_plane.pixel_size * (0.5 * view_plane.height_res - row - 1 + (i + 0.5) / super_samples));
+            //    Ray ray(camera_ptr->eye, camera_ptr->ray_direction(pp));
+
+            //    accumulated_radiance = path_trace(ray, objects, bvh, ibl_ptr, rnd, 0) +
+            //        path_trace(ray, objects, bvh, ibl_ptr, rnd, 0);
+
+            //    image.color_vec[index] +=
+            //        accumulated_radiance / (samples * super_samples * super_samples);
+            //}
+
         }
     }
     
-    save_ppm_file("result_22_900.ppm", image);
+    save_ppm_file("result_3_100.ppm", image);
 }
 
 //void Scene::instant_render_with_multi_threads()

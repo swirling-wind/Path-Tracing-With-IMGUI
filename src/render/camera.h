@@ -19,9 +19,9 @@ struct Pinhole : public Camera {
     float dist;
 
     Pinhole(Vec eye, Vec lookat, float dist);
-    ~Pinhole();
+    ~Pinhole() override;
 
-    Vec ray_direction(const Point2D& p) const;
+    Vec ray_direction(const Point2D& p) const override;
 };
 
 #endif
