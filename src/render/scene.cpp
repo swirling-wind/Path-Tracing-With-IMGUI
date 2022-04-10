@@ -2,6 +2,7 @@
 
 #include <mutex>
 #include <thread>
+#include "instant_image.h"
 
 std::mutex mtx;
 
@@ -58,7 +59,70 @@ std::vector<int> Scene::traverse(const Ray& ray) const
     return bvh.traverse(ray);
 }
 
-void Scene::render(const std::map<std::string, std::string>& scene_params, std::atomic<unsigned int>& iteration_count, std::atomic<render_status>& current_status)
+void Scene::instant_render( std::atomic<unsigned int>& iteration_count, std::atomic<bool>& is_rendering)
+{
+    constexpr struct instant_render_params
+    {
+        const int thread_num = 20;
+        const int samples = 2;
+        const int super_samples = 4;
+
+        const double plane_width = 1.5;
+        const int width_res = 800;
+        const int height_res = 600;
+        const double pixel_size = plane_width / width_res;
+
+        const int row_num_each_thread = height_res / thread_num;
+    } params;
+
+    instant_image real_time_image;
+
+    // for path-tracing
+    UniformRealGenerator rnd(1);
+
+    // for ray-tracing or path-tracing with NEE
+    std::vector<Object*> lights = get_lights();
+
+    // Construct the space data structure
+    printf("Building BVH...\n");
+    construct();
+
+    for (int row = 0; row < params.height_res; row++)
+    {
+        if (row % 20 == 0)
+        {
+            std::cerr << "processing line " << row << "\n";
+        }
+        for (int col = 0; col < params.width_res; col++)
+        {
+            const int index = row * params.width_res + col;
+            for (int i = 0; i < params.super_samples; i++)
+            {
+                for (int j = 0; j < params.super_samples; j++)
+                {
+                    Color accumulated_radiance;
+
+                    Point2D pp(
+                        params.pixel_size * (col - 0.5 * params.width_res + (j + 0.5) / params.super_samples),
+                        params.pixel_size * (0.5 * params.height_res - row - 1 + (i + 0.5) / params.super_samples));
+                    Ray ray(camera_ptr->eye, camera_ptr->ray_direction(pp));
+                    for (int k = 0; k < params.samples; k++)
+                    {
+                        accumulated_radiance += path_trace(ray, objects, bvh, ibl_ptr, rnd, 0);
+                    }
+                    real_time_image.color_array[index] +=
+                        accumulated_radiance / (params.samples * params.super_samples * params.super_samples);
+                }
+            }
+        }
+    }
+
+    //
+}
+
+
+
+void Scene::render(const std::map<std::string, std::string>& scene_params, std::atomic<unsigned int>& iteration_count, std::atomic<bool>& is_rendering)
 {
     const int samples = std::stoi(scene_params.at("samples"));
     const int super_samples = std::stoi(scene_params.at("super_samples"));

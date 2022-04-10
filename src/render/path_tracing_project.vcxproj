@@ -200,6 +200,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="constant.h" />
     <ClInclude Include="hdr.h" />
+    <ClInclude Include="instant_image.h" />
     <ClInclude Include="lattice_noise.h" />
     <ClInclude Include="loader.h" />
     <ClInclude Include="mapping.h" />

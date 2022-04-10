@@ -22,7 +22,10 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int main(int, char**)
+std::atomic<unsigned int> iteration_count{ 0 };
+std::atomic<bool> is_rendering{ false };
+
+int test_GUI(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -73,7 +76,6 @@ int main(int, char**)
 
     bool show_demo_window = true;
     bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -94,14 +96,13 @@ int main(int, char**)
             static float f = 0.0f;
             static int counter = 0;
 
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+            ImGui::Begin("Path Tracing");                          // Create a window called "Hello, world!" and append into it.
 
             ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
             if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
                 counter++;
@@ -127,7 +128,6 @@ int main(int, char**)
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -145,7 +145,7 @@ int main(int, char**)
     return 0;
 }
 
-int render()
+int main()
 {
     const std::map<std::string, std::string> test_params{
     {"samples", "2"},      {"super_samples", "10"},
@@ -221,10 +221,7 @@ int render()
     }
     }
 
-    std::atomic<unsigned int> iteration_count{ 0 };
-    std::atomic<render_status> current_status{ render_status::rendering };
-
-    scene.render(test_params, iteration_count, current_status);
+    scene.render(test_params, iteration_count, is_rendering);
 
     //std::thread render_thread{&Scene::render, scene, test_params};
 

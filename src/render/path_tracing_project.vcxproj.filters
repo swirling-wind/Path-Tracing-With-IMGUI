@@ -183,6 +183,9 @@
     <ClInclude Include="sobol_sets_of_direction_nums.h">
       <Filter>sources\render</Filter>
     </ClInclude>
+    <ClInclude Include="instant_image.h">
+      <Filter>sources\render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.txt" />

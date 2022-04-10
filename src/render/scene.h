@@ -7,11 +7,7 @@
 #include "object.h"
 #include "surface.h"
 #include "tracer.h"
-enum class render_status
-{
-    rendering,
-    halt
-};
+
 
 struct ViewPlane
 {
@@ -40,8 +36,10 @@ public:
     [[nodiscard]] std::vector<Object*> get_lights() const;
 	void construct();
     [[nodiscard]] std::vector<int> traverse(const Ray& ray) const;
-	void render(const std::map<std::string, std::string>& scene_params, std::atomic<unsigned int>& iteration_count, std::atomic<render_status>& current_status);
-    void instant_render_with_multi_threads();
+
+    void instant_render(std::atomic<unsigned int>& iteration_count, std::atomic<bool>& is_rendering);
+	void render(const std::map<std::string, std::string>& scene_params, std::atomic<unsigned int>& iteration_count, std::atomic<bool>& is_rendering);
+    
 };
 
 #endif
