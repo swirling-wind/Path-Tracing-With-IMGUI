@@ -22,10 +22,7 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-std::atomic<unsigned int> iteration_count{ 0 };
-std::atomic<bool> is_rendering{ false };
-
-int test_GUI(int, char**)
+int main(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -54,7 +51,7 @@ int test_GUI(int, char**)
 #endif
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1800, 900, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1800, 900, "Path Tracing", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
@@ -64,11 +61,10 @@ int test_GUI(int, char**)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -97,10 +93,6 @@ int test_GUI(int, char**)
             static int counter = 0;
 
             ImGui::Begin("Path Tracing");                          // Create a window called "Hello, world!" and append into it.
-
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
 
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 
@@ -145,7 +137,7 @@ int test_GUI(int, char**)
     return 0;
 }
 
-int main()
+int test_render()
 {
     const std::map<std::string, std::string> test_params{
     {"samples", "2"},      {"super_samples", "10"},
@@ -221,7 +213,9 @@ int main()
     }
     }
 
-    scene.render(test_params, iteration_count, is_rendering);
+    ViewPlane view_plane{ 1.5, 1200, 900 };
+
+    scene.render(10, view_plane);
 
     //std::thread render_thread{&Scene::render, scene, test_params};
 

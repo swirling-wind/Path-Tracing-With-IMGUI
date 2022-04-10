@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include "camera.h"
+#include "instant_image.h"
 #include "object.h"
 #include "surface.h"
 #include "tracer.h"
@@ -37,8 +38,7 @@ public:
 	void construct();
     [[nodiscard]] std::vector<int> traverse(const Ray& ray) const;
 
-    void instant_render(std::atomic<unsigned int>& iteration_count, std::atomic<bool>& is_rendering);
-	void render(const std::map<std::string, std::string>& scene_params, std::atomic<unsigned int>& iteration_count, std::atomic<bool>& is_rendering);
+    void render(const int super_samples, const ViewPlane view_plane);
     
 };
 

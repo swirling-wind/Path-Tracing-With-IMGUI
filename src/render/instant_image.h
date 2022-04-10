@@ -8,8 +8,9 @@ constexpr int instant_image_height = 600;
 
 struct instant_image
 {
-
     Color color_array[instant_image_height * instant_image_width];
+    const int image_width = 800;
+    const int image_height = 600;
 
     instant_image() = default;
 
