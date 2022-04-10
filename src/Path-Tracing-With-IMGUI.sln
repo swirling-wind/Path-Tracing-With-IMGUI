@@ -5,7 +5,7 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Path-Tracing-With-IMGUI", "render\path_tracing_project.vcxproj", "{4A1FB5EA-22F5-42A8-AB92-1D2DF5D47FB9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test-path-tracing-render", "test-path-tracing-render\test-path-tracing-render.vcxproj", "{0CFD987C-BF09-45B1-B509-3BC6D0C7ACA3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test-render", "test-render\test-render.vcxproj", "{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,14 +23,14 @@ Global
 		{4A1FB5EA-22F5-42A8-AB92-1D2DF5D47FB9}.Release|Win32.Build.0 = Release|Win32
 		{4A1FB5EA-22F5-42A8-AB92-1D2DF5D47FB9}.Release|x64.ActiveCfg = Release|x64
 		{4A1FB5EA-22F5-42A8-AB92-1D2DF5D47FB9}.Release|x64.Build.0 = Release|x64
-		{0CFD987C-BF09-45B1-B509-3BC6D0C7ACA3}.Debug|Win32.ActiveCfg = Debug|Win32
-		{0CFD987C-BF09-45B1-B509-3BC6D0C7ACA3}.Debug|Win32.Build.0 = Debug|Win32
-		{0CFD987C-BF09-45B1-B509-3BC6D0C7ACA3}.Debug|x64.ActiveCfg = Debug|x64
-		{0CFD987C-BF09-45B1-B509-3BC6D0C7ACA3}.Debug|x64.Build.0 = Debug|x64
-		{0CFD987C-BF09-45B1-B509-3BC6D0C7ACA3}.Release|Win32.ActiveCfg = Release|Win32
-		{0CFD987C-BF09-45B1-B509-3BC6D0C7ACA3}.Release|Win32.Build.0 = Release|Win32
-		{0CFD987C-BF09-45B1-B509-3BC6D0C7ACA3}.Release|x64.ActiveCfg = Release|x64
-		{0CFD987C-BF09-45B1-B509-3BC6D0C7ACA3}.Release|x64.Build.0 = Release|x64
+		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Debug|Win32.Build.0 = Debug|Win32
+		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Debug|x64.ActiveCfg = Debug|x64
+		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Debug|x64.Build.0 = Debug|x64
+		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Release|Win32.ActiveCfg = Release|Win32
+		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Release|Win32.Build.0 = Release|Win32
+		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Release|x64.ActiveCfg = Release|x64
+		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

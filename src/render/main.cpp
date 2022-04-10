@@ -178,7 +178,7 @@ int main()
     {"samples", "2"},      {"super_samples", "30"},
     {"plane_width", "1.5"},
     {"width_res", "1200"}, {"height_res", "900"},
-    {"scene_num", "4"},     {"tracer", "pt"} };
+    {"scene_num", "2"},     {"tracer", "pt"} };
     
     Scene scene;
     switch (std::stoi(test_params.at("scene_num")))

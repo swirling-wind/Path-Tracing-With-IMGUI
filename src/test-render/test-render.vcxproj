@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0cfd987c-bf09-45b1-b509-3bc6d0c7aca3}</ProjectGuid>
+    <ProjectGuid>{c7f967aa-ff6e-4dc2-958b-fc10a544d67a}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
     <ConfigurationType>Application</ConfigurationType>
@@ -32,6 +32,12 @@
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(Platform)\Output\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Platform)\Output\$(Configuration)\</OutDir>
+  </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
   </ItemGroup>
@@ -43,6 +49,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\render\path_tracing_project.vcxproj">
+      <Project>{4a1fb5ea-22f5-42a8-ab92-1d2df5d47fb9}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -77,10 +88,12 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>..\render;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>..\render\Debug\build_scene.obj;..\render\Debug\bvh.obj;..\render\Debug\camera.obj;..\render\Debug\hdr.obj;..\render\Debug\lattice_noise.obj;..\render\Debug\loader.obj;..\render\Debug\mapping.obj;..\render\Debug\material.obj;..\render\Debug\obj_loader.obj;..\render\Debug\object.obj;..\render\Debug\random.obj;..\render\Debug\ray.obj;..\render\Debug\scene.obj;..\render\Debug\surface.obj;..\render\Debug\texture.obj;..\render\Debug\tracer.obj;..\render\Debug\utility.obj;..\render\Debug\vec.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -108,12 +121,14 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>..\render;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalDependencies>..\render\Debug\build_scene.obj;..\render\Debug\bvh.obj;..\render\Debug\camera.obj;..\render\Debug\hdr.obj;..\render\Debug\lattice_noise.obj;..\render\Debug\loader.obj;..\render\Debug\mapping.obj;..\render\Debug\material.obj;..\render\Debug\obj_loader.obj;..\render\Debug\object.obj;..\render\Debug\random.obj;..\render\Debug\ray.obj;..\render\Debug\scene.obj;..\render\Debug\surface.obj;..\render\Debug\texture.obj;..\render\Debug\tracer.obj;..\render\Debug\utility.obj;..\render\Debug\vec.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -14,7 +14,7 @@ struct Mapping {
     inline std::pair<int, int> get_texel_coordinates(const Hitpoint &hitpoint, const int width_res,
                                                      const int height_res) {
         auto[val0, val1] = get_uv_values(hitpoint.normal);
-        val0 = val0 * (width_res - 1);
+        val0 = val0 * static_cast<double>(width_res - 1);
         val1 = (1.0 - val1) * (height_res - 1);
         return {static_cast<int>(val1), static_cast<int>(val0)};
     }

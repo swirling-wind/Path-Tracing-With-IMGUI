@@ -108,8 +108,8 @@ void Scene::render(const std::map<std::string, std::string>& scene_params, std::
             }
         }
     }
-
-    save_ppm_file("result_5_900.ppm", image);
+    
+    save_ppm_file("result_22_900.ppm", image);
 }
 
 //void Scene::instant_render_with_multi_threads()
