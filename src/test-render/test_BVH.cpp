@@ -28,9 +28,6 @@ TEST(BVH_test_case, test_correct_merge_box) {
     ASSERT_EQ(result.center, Vec(1.0, 2.0, 1.0));
 }
 
-struct Fixture {};
-
-
 TEST(BVH_test_case, test_correct_bvh_enclosing_bbox) {
     BBox bbox1(Vec(-1.0, 0.0, -1.0), Vec(0.0, 1.0, 0.0));
     BBox bbox2(Vec(0.0, 1.0, 0.0), Vec(1.0, 2.0, 1.0));
