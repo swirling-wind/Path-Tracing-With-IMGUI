@@ -105,8 +105,8 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\libs\glm;..\libs\nlohmann;..\..;..\..\backend;..\libs\glfw\include;..\src\;..\src\libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>..\..\src;..\libs\glm;..\libs\nlohmann;..\..;..\..\backend;..\libs\glfw\include;..\src\;..\src\libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -143,9 +143,9 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\libs\glm;..\libs\nlohmann;..\..;..\..\backend;..\libs\glfw\include;..\src\;..\src\libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\src;..\libs\glm;..\libs\nlohmann;..\..;..\..\backend;..\libs\glfw\include;..\src\;..\src\libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
@@ -168,25 +168,32 @@
     <ClCompile Include="..\..\imgui_widgets.cpp" />
     <ClCompile Include="..\..\backend\imgui_impl_glfw.cpp" />
     <ClCompile Include="..\..\backend\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="build_scene.cpp" />
-    <ClCompile Include="instant_bvh.cpp" />
-    <ClCompile Include="instant_camera.cpp" />
-    <ClCompile Include="hdr.cpp" />
-    <ClCompile Include="lattice_noise.cpp" />
-    <ClCompile Include="loader.cpp" />
+    <ClCompile Include="..\bvh\bvh.cpp" />
+    <ClCompile Include="..\camera\camera.cpp" />
+    <ClCompile Include="..\camera\film.cpp" />
+    <ClCompile Include="..\camera\image.cpp" />
+    <ClCompile Include="..\camera\pixel-operators.cpp" />
+    <ClCompile Include="..\common\bounding-box.cpp" />
+    <ClCompile Include="..\common\coordinate-system.cpp" />
+    <ClCompile Include="..\common\format.cpp" />
+    <ClCompile Include="..\common\histogram.cpp" />
+    <ClCompile Include="..\common\option.cpp" />
+    <ClCompile Include="..\common\util.cpp" />
+    <ClCompile Include="..\integrator\integrator.cpp" />
+    <ClCompile Include="..\integrator\path-tracer\path-tracer.cpp" />
+    <ClCompile Include="..\integrator\photon-mapper\photon-mapper.cpp" />
+    <ClCompile Include="..\material\fresnel.cpp" />
+    <ClCompile Include="..\material\ggx.cpp" />
+    <ClCompile Include="..\material\material.cpp" />
+    <ClCompile Include="..\octree\linear-octree.cpp" />
+    <ClCompile Include="..\octree\octree.cpp" />
+    <ClCompile Include="..\ray\interaction.cpp" />
+    <ClCompile Include="..\ray\ray.cpp" />
+    <ClCompile Include="..\scene\scene.cpp" />
+    <ClCompile Include="..\surface\quadric.cpp" />
+    <ClCompile Include="..\surface\sphere.cpp" />
+    <ClCompile Include="..\surface\triangle.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mapping.cpp" />
-    <ClCompile Include="instant_material.cpp" />
-    <ClCompile Include="object.cpp" />
-    <ClCompile Include="obj_loader.cpp" />
-    <ClCompile Include="random.cpp" />
-    <ClCompile Include="instant_ray.cpp" />
-    <ClCompile Include="instant_scene.cpp" />
-    <ClCompile Include="instant_surface.cpp" />
-    <ClCompile Include="texture.cpp" />
-    <ClCompile Include="tracer.cpp" />
-    <ClCompile Include="utility.cpp" />
-    <ClCompile Include="vec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\imconfig.h" />
@@ -195,30 +202,46 @@
     <ClInclude Include="..\..\backend\imgui_impl_glfw.h" />
     <ClInclude Include="..\..\backend\imgui_impl_opengl3.h" />
     <ClInclude Include="..\..\backend\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="..\libs\stb\stb_image.h" />
-    <ClInclude Include="build_scene.h" />
-    <ClInclude Include="instant_bvh.h" />
-    <ClInclude Include="instant_camera.h" />
-    <ClInclude Include="instant_constant.h" />
-    <ClInclude Include="hdr.h" />
-    <ClInclude Include="instant_image.h" />
-    <ClInclude Include="lattice_noise.h" />
-    <ClInclude Include="loader.h" />
-    <ClInclude Include="mapping.h" />
-    <ClInclude Include="instant_material.h" />
-    <ClInclude Include="object.h" />
-    <ClInclude Include="obj_loader.h" />
-    <ClInclude Include="random.h" />
-    <ClInclude Include="instant_ray.h" />
-    <ClInclude Include="instant_scene.h" />
-    <ClInclude Include="sobol_sets_of_direction_nums.h" />
-    <ClInclude Include="instant_sobol.h" />
-    <ClInclude Include="instant_surface.h" />
-    <ClInclude Include="texture.h" />
-    <ClInclude Include="tracer.h" />
-    <ClInclude Include="utility.h" />
-    <ClInclude Include="vec.h" />
-    <ClInclude Include="wrapper.h" />
+    <ClInclude Include="..\bvh\bvh.h" />
+    <ClInclude Include="..\camera\camera.h" />
+    <ClInclude Include="..\camera\film.h" />
+    <ClInclude Include="..\camera\filter.h" />
+    <ClInclude Include="..\camera\image.h" />
+    <ClInclude Include="..\camera\pixel-operators.h" />
+    <ClInclude Include="..\color\cie.h" />
+    <ClInclude Include="..\color\cmf.h" />
+    <ClInclude Include="..\color\d65.h" />
+    <ClInclude Include="..\color\illuminant.h" />
+    <ClInclude Include="..\color\spectral.h" />
+    <ClInclude Include="..\color\srgb.h" />
+    <ClInclude Include="..\common\bounding-box.h" />
+    <ClInclude Include="..\common\constants.h" />
+    <ClInclude Include="..\common\constexpr-math.h" />
+    <ClInclude Include="..\common\coordinate-system.h" />
+    <ClInclude Include="..\common\format.h" />
+    <ClInclude Include="..\common\histogram.h" />
+    <ClInclude Include="..\common\option.h" />
+    <ClInclude Include="..\common\priority-queue.h" />
+    <ClInclude Include="..\common\unrolled-loop.h" />
+    <ClInclude Include="..\common\util.h" />
+    <ClInclude Include="..\common\work-queue.h" />
+    <ClInclude Include="..\integrator\integrator.h" />
+    <ClInclude Include="..\integrator\path-tracer\path-tracer.h" />
+    <ClInclude Include="..\integrator\photon-mapper\photon-mapper.h" />
+    <ClInclude Include="..\integrator\photon-mapper\photon.h" />
+    <ClInclude Include="..\material\fresnel.h" />
+    <ClInclude Include="..\material\ggx.h" />
+    <ClInclude Include="..\material\material.h" />
+    <ClInclude Include="..\octree\linear-octree.h" />
+    <ClInclude Include="..\octree\octree.h" />
+    <ClInclude Include="..\ray\interaction.h" />
+    <ClInclude Include="..\ray\intersection.h" />
+    <ClInclude Include="..\ray\ray.h" />
+    <ClInclude Include="..\sampling\sampler.h" />
+    <ClInclude Include="..\sampling\sampling.h" />
+    <ClInclude Include="..\sampling\sobol.h" />
+    <ClInclude Include="..\scene\scene.h" />
+    <ClInclude Include="..\surface\surface.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\.editorconfig" />

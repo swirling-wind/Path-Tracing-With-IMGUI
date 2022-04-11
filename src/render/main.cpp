@@ -5,13 +5,21 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "../render/build_scene.h"
-#include "../render/instant_scene.h"
+
+#include <filesystem>
+#include <iostream>
+#include <fstream>
+
+#include "camera/camera.h"
+
+#include "common/option.h"
+#include "common/util.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
 #include <array>
+#include <iostream>
 #include <thread>
 #include <GLFW/glfw3.h> 
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
@@ -23,7 +31,7 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int main(int, char**)
+int test(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -209,87 +217,144 @@ int main(int, char**)
     return 0;
 }
 
-int test_render()
+int main(int argc, char* argv[])
 {
-    const std::map<std::string, std::string> test_params{
-    {"samples", "2"},      {"super_samples", "10"},
-    {"plane_width", "1.5"},
-    {"width_res", "1200"}, {"height_res", "900"},
-    {"scene_num", "3"},     {"tracer", "pt"} };
-
-    Scene scene;
-    switch (std::stoi(test_params.at("scene_num")))
+    if (argc > 1)
     {
-    case 1:
-    {
-        if (!instant_renderer::build_1(scene)) return 1;
-
-        Vec eye(50, 50, 220), lookat(50.0, 30.0, -1.0);
-        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-        scene.set_camera(pinhole_ptr);
-        break;
-    }
-    case 2:
-    {
-        if (!instant_renderer::build_2(scene)) return 1;
-
-        Vec eye(10, 5, 9), lookat(0.0, 2.0, 0.0);
-        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-        scene.set_camera(pinhole_ptr);
-        break;
-    }
-    case 3:
-    {
-        if (!instant_renderer::build_3(scene)) return 1;
-
-        Vec eye(0.0, 2., 5), lookat(0.0, 1.0, 0.0);
-        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-        scene.set_camera(pinhole_ptr);
-        break;
-    }
-    case 4:
-    {
-        if (!instant_renderer::build_4(scene)) return 1;
-
-        Vec eye(-1.8, 1.2, 1.8), lookat(0.0, 0.8, 0.0);
-        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-        scene.set_camera(pinhole_ptr);
-        break;
-    }
-    case 5:
-    {
-        if (!instant_renderer::build_5(scene)) return 1;
-
-        Vec eye(200.0, 100.0, 200.0), lookat(50.0, 5.0, 50.0);
-        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-        scene.set_camera(pinhole_ptr);
-        break;
-    }
-    case 6:
-    {
-        if (!instant_renderer::build_6(scene)) return 1;
-
-        Vec eye(400.0, 200.0, 400.0), lookat(50.0, 5.0, 50.0);
-        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-        scene.set_camera(pinhole_ptr);
-        break;
-    }
-    default:
-    {
-        if (!instant_renderer::build_1(scene)) return 1;
-
-        Vec eye(50, 50, 220), lookat(50.0, 30.0, -1.0);
-        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
-        scene.set_camera(pinhole_ptr);
-        break;
-    }
+        std::string command_path;
+        for (int i = 1; i < argc; i++)
+        {
+            command_path += argv[i];
+        }
+        Scene::path = std::filesystem::current_path() / command_path;
     }
 
-    ViewPlane view_plane{ 1.5, 1200, 900 };
+    //Scene::path = (std::filesystem::current_path().parent_path() / "scenes" )/ "pipes.json";
 
-    scene.render(10, view_plane);
+    std::cout << "Scene directory:" << std::endl << Scene::path.string() << std::endl << std::endl;
 
-    //std::thread render_thread{&Scene::render, scene, test_params};
+    std::vector<Option> options;
+    try
+    {
+        options = availible(Scene::path);
+    }
+    catch (const std::exception& ex)
+    {
+        std::cout << ex.what() << std::endl;
+        return -1;
+    }
+
+    if (options.empty())
+    {
+        std::cout << "No scenes found." << std::endl;
+        return -1;
+    }
+
+    Option scene_option = getOption(options);
+
+    std::ifstream scene_file(scene_option.path);
+    nlohmann::json j;
+    scene_file >> j;
+    scene_file.close();
+
+    std::unique_ptr<Camera> camera;
+    try
+    {
+        camera = std::make_unique<Camera>(j, scene_option);
+    }
+    catch (const std::exception& ex)
+    {
+        std::cout << ex.what() << std::endl;
+        return -1;
+    }
+
+    camera->capture();
 
     return 0;
 }
+
+
+//int test_render()
+//{
+//    const std::map<std::string, std::string> test_params{
+//    {"samples", "2"},      {"super_samples", "10"},
+//    {"plane_width", "1.5"},
+//    {"width_res", "1200"}, {"height_res", "900"},
+//    {"scene_num", "6"},     {"tracer", "pt"} };
+//
+//    Scene scene;
+//    switch (std::stoi(test_params.at("scene_num")))
+//    {
+//    case 1:
+//    {
+//        if (!instant_renderer::build_1(scene)) return 1;
+//
+//        Vec eye(50, 50, 220), lookat(50.0, 30.0, -1.0);
+//        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+//        scene.set_camera(pinhole_ptr);
+//        break;
+//    }
+//    case 2:
+//    {
+//        if (!instant_renderer::build_2(scene)) return 1;
+//
+//        Vec eye(10, 5, 9), lookat(0.0, 2.0, 0.0);
+//        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+//        scene.set_camera(pinhole_ptr);
+//        break;
+//    }
+//    case 3:
+//    {
+//        if (!instant_renderer::build_3(scene)) return 1;
+//
+//        Vec eye(0.0, 2., 5), lookat(0.0, 1.0, 0.0);
+//        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+//        scene.set_camera(pinhole_ptr);
+//        break;
+//    }
+//    case 4:
+//    {
+//        if (!instant_renderer::build_4(scene)) return 1;
+//
+//        Vec eye(-1.8, 1.2, 1.8), lookat(0.0, 0.8, 0.0);
+//        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+//        scene.set_camera(pinhole_ptr);
+//        break;
+//    }
+//    case 5:
+//    {
+//        if (!instant_renderer::build_5(scene)) return 1;
+//
+//        Vec eye(200.0, 100.0, 200.0), lookat(50.0, 5.0, 50.0);
+//        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+//        scene.set_camera(pinhole_ptr);
+//        break;
+//    }
+//    case 6:
+//    {
+//        if (!instant_renderer::build_6(scene)) return 1;
+//
+//        Vec eye(400.0, 200.0, 400.0), lookat(50.0, 5.0, 50.0);
+//        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+//        scene.set_camera(pinhole_ptr);
+//        break;
+//    }
+//    default:
+//    {
+//        if (!instant_renderer::build_1(scene)) return 1;
+//
+//        Vec eye(50, 50, 220), lookat(50.0, 30.0, -1.0);
+//        Camera* pinhole_ptr(new Pinhole(eye, lookat, 1.0));
+//        scene.set_camera(pinhole_ptr);
+//        break;
+//    }
+//    }
+//
+//    ViewPlane view_plane{ 1.5, 1200, 900 };
+//
+//    scene.render(10, view_plane);
+//
+//    //std::thread render_thread{&Scene::render, scene, test_params};
+//
+//    return 0;
+//}

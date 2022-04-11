@@ -126,7 +126,7 @@ namespace instant_renderer
             }
         }
 
-        save_ppm_file("result_3_100().ppm", image);
+        save_ppm_file("result_bunny_100().ppm", image);
     }
 
     //void Scene::instant_render_with_multi_threads()

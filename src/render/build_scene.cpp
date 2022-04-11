@@ -207,7 +207,7 @@ namespace instant_renderer
 
         scene.set_ibl(ibl_ptr);
 
-        ObjLoader obj_loader("../../models/bmw/bmw.obj");
+        ObjLoader obj_loader("../../models/bunny.obj");
         obj_loader.print_obj_data();
         std::vector<surface*> tmp_objects = obj_loader.convert_to_surfaces();
 
@@ -217,11 +217,11 @@ namespace instant_renderer
         }
 
         // Light source
-        Object* sphere_ptr;
+ /*       Object* sphere_ptr;
         sphere_ptr = new Sphere(1.0, Vec(200.0, 100.0, 200.0), &materials["week_light_1"]);
         scene.add_object(sphere_ptr);
         sphere_ptr = new Sphere(1.0, Vec(100.0, 100.0, 5.0), &materials["week_light_2"]);
-        scene.add_object(sphere_ptr);
+        scene.add_object(sphere_ptr);*/
 
         return true;
     }
