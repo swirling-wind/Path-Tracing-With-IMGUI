@@ -11,6 +11,7 @@
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
+#include <array>
 #include <thread>
 #include <GLFW/glfw3.h> 
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
@@ -22,7 +23,7 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int test(int, char**)
+int main(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -73,6 +74,11 @@ int test(int, char**)
     bool show_demo_window = true;
     bool show_another_window = false;
 
+    // render parameters
+    std::array<float, 3>camera_eye_pos{ 0.0,0.0,0.0 };
+    std::array<float, 3>camera_look_at{ 0.0,0.0,0.0 };
+    std::vector<std::array<float, 3>> light_vector;
+
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -93,6 +99,25 @@ int test(int, char**)
             static int counter = 0;
 
             ImGui::Begin("Path Tracing");                          // Create a window called "Hello, world!" and append into it.
+
+            // Camera: Eye & LookAt
+            ImGui::Text("Camera");
+            ImGui::InputFloat3("Eye Position", camera_eye_pos.data());
+            ImGui::InputFloat3("Look At", camera_look_at.data());
+
+            //lights
+            ImGui::Text("Lights");
+            for (auto iter = light_vector.begin(); iter != light_vector.end(); ++iter)
+            {
+                std::string index = std::to_string( iter - light_vector.begin() );
+                ImGui::InputFloat3(("Light " + index).c_str(),
+                    iter->data());
+            }
+            if (ImGui::Button("Add light"))
+            {
+                std::array<float,3> temp_light{ 0.0,0.0,0.0 };
+                light_vector.push_back(temp_light);
+            }
 
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 
@@ -137,7 +162,7 @@ int test(int, char**)
     return 0;
 }
 
-int main()
+int test_render()
 {
     const std::map<std::string, std::string> test_params{
     {"samples", "2"},      {"super_samples", "10"},
