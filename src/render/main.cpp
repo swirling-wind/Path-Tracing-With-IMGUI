@@ -75,9 +75,32 @@ int main(int, char**)
     bool show_another_window = false;
 
     // render parameters
+    struct light_imported
+    {
+        std::array<float, 3> position{ 0.0,0.0,0.0 };
+        std::array<float, 3> color{ 0.0,0.0,0.0 };// range[0,1]
+    };
+
+    struct object_imported
+    {
+        std::array<float, 3> position{ 0.0,0.0,0.0 };
+        std::string file_location;
+        std::string material_type;
+    };
+
     std::array<float, 3>camera_eye_pos{ 0.0,0.0,0.0 };
     std::array<float, 3>camera_look_at{ 0.0,0.0,0.0 };
-    std::vector<std::array<float, 3>> light_vector;
+
+    std::vector<light_imported> lights_vector;
+    std::vector<object_imported> objects_vector;
+
+    int samples_per_pixel = 4;
+    int output_image_width = 2000;
+    int output_image_height = 1500;
+
+    const char* items[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
+    int item_current = 1;
+
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -106,23 +129,47 @@ int main(int, char**)
             ImGui::InputFloat3("Look At", camera_look_at.data());
 
             //lights
-            ImGui::Text("Lights");
-            for (auto iter = light_vector.begin(); iter != light_vector.end(); ++iter)
+            ImGui::Text("\nLights");
+            for (auto iter = lights_vector.begin(); iter != lights_vector.end(); ++iter)
             {
-                std::string index = std::to_string( iter - light_vector.begin() );
-                ImGui::InputFloat3(("Light " + index).c_str(),
-                    iter->data());
+                const auto index = iter - lights_vector.begin();
+                ImGui::Text((" light " + std::to_string(index)).c_str());
+                ImGui::InputFloat3(("  position " + std::to_string(index)).c_str(), iter->position.data());
+                ImGui::ColorEdit3(("  color " + std::to_string(index)).c_str(), iter->color.data()); // range[0,1]
             }
+
             if (ImGui::Button("Add light"))
             {
-                std::array<float,3> temp_light{ 0.0,0.0,0.0 };
-                light_vector.push_back(temp_light);
+                light_imported temp_light;
+                lights_vector.push_back(temp_light);
+                
             }
 
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            //Object
+            ImGui::Text("\nObjects");
 
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+            // Using the _simplified_ one-liner ListBox() api here
+            // See "List boxes" section for examples of how to use the more flexible BeginListBox()/EndListBox() api.
+            ImGui::ListBox("listbox", &item_current, items, IM_ARRAYSIZE(items), 4);
+            //"Using the simplified one-liner ListBox API here.\nRefer to the \"List boxes\" section below for an explanation of how to use the more flexible and general BeginListBox/EndListBox API.");
+            //ImGui::ListBox("Model List")
+
+            //Render
+            if (ImGui::Button("Load Settings"))
+            {
+                
+            }
+            if (ImGui::Button("Start Rendering"))
+            {
+                
+            }
+
+
+            if (ImGui::Button("Test Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+            {
                 counter++;
+                std::cerr << items[item_current] << "\n\n";
+            }
             ImGui::SameLine();
             ImGui::Text("counter = %d", counter);
 
