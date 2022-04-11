@@ -1,4 +1,4 @@
-#include "../render/scene.h"
+#include "../render/instant_scene.h"
 
 #include <mutex>
 #include <thread>

@@ -1,4 +1,4 @@
-#include "../render/bvh.h"
+#include "../render/instant_bvh.h"
 #include "../render/object.h"
 
 using namespace instant_renderer;

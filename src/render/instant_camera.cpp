@@ -1,4 +1,4 @@
-#include "../render/camera.h"
+#include "../render/instant_camera.h"
 
 using namespace instant_renderer;
 

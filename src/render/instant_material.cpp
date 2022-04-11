@@ -1,4 +1,4 @@
-#include "../render/material.h"
+#include "../render/instant_material.h"
 
 using namespace instant_renderer;
 

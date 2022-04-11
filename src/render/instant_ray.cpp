@@ -1,4 +1,4 @@
-#include "../render/ray.h"
+#include "../render/instant_ray.h"
 
 using namespace instant_renderer;
 

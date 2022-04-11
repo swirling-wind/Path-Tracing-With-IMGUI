@@ -4,7 +4,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <utility>
-#include "../render/ray.h"
+#include "../render/instant_ray.h"
 #include "../render/utility.h"
 #include "../render/vec.h"
 

@@ -1,8 +1,8 @@
 #ifndef _OBJECT_H_
 #define _OBJECT_H_
 
-#include "../render/material.h"
-#include "../render/ray.h"
+#include "../render/instant_material.h"
+#include "../render/instant_ray.h"
 
 
 using namespace instant_renderer;

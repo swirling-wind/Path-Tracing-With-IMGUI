@@ -3,10 +3,10 @@
 
 #include <map>
 #include <vector>
-#include "../render/camera.h"
+#include "../render/instant_camera.h"
 #include "../render/instant_image.h"
 #include "../render/object.h"
-#include "../render/surface.h"
+#include "../render/instant_surface.h"
 #include "../render/tracer.h"
 
 using namespace instant_renderer;

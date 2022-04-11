@@ -1,4 +1,4 @@
-#include "../render/surface.h"
+#include "../render/instant_surface.h"
 using namespace instant_renderer;
 
 namespace instant_renderer

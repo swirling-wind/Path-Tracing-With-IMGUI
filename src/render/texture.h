@@ -6,7 +6,7 @@
 #include <tuple>
 #include "../render/lattice_noise.h"
 #include "../render/mapping.h"
-#include "../render/ray.h"
+#include "../render/instant_ray.h"
 #include "../render/utility.h"
 #include "../render/vec.h"
 using namespace instant_renderer;

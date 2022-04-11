@@ -1,7 +1,7 @@
 #ifndef _RAY_H_
 #define _RAY_H_
 
-#include "../render/constant.h"
+#include "../render/instant_constant.h"
 #include "../render/vec.h"
 
 using namespace instant_renderer;

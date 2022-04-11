@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include "../render/surface.h"
+#include "../render/instant_surface.h"
 #include "../render/vec.h"
 
 using namespace instant_renderer;

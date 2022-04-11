@@ -6,10 +6,10 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#include "../render/bvh.h"
-#include "../render/material.h"
+#include "../render/instant_bvh.h"
+#include "../render/instant_material.h"
 #include "../render/object.h"
-#include "../render/ray.h"
+#include "../render/instant_ray.h"
 #include "../render/utility.h"
 
 using namespace instant_renderer;

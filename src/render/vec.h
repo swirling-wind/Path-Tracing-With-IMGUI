@@ -4,7 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include <ostream>
-#include "../render/constant.h"
+#include "../render/instant_constant.h"
 using namespace instant_renderer;
 
 namespace instant_renderer

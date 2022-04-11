@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include "../render/build_scene.h"
-#include "../render/scene.h"
+#include "../render/instant_scene.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>

@@ -46,7 +46,7 @@
     <ClCompile Include="mapping.cpp">
       <Filter>sources\instant-render</Filter>
     </ClCompile>
-    <ClCompile Include="material.cpp">
+    <ClCompile Include="instant_material.cpp">
       <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="obj_loader.cpp">
@@ -58,13 +58,13 @@
     <ClCompile Include="random.cpp">
       <Filter>sources\instant-render</Filter>
     </ClCompile>
-    <ClCompile Include="ray.cpp">
+    <ClCompile Include="instant_ray.cpp">
       <Filter>sources\instant-render</Filter>
     </ClCompile>
-    <ClCompile Include="scene.cpp">
+    <ClCompile Include="instant_scene.cpp">
       <Filter>sources\instant-render</Filter>
     </ClCompile>
-    <ClCompile Include="surface.cpp">
+    <ClCompile Include="instant_surface.cpp">
       <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="texture.cpp">
@@ -82,10 +82,10 @@
     <ClCompile Include="build_scene.cpp">
       <Filter>sources\instant-render</Filter>
     </ClCompile>
-    <ClCompile Include="bvh.cpp">
+    <ClCompile Include="instant_bvh.cpp">
       <Filter>sources\instant-render</Filter>
     </ClCompile>
-    <ClCompile Include="camera.cpp">
+    <ClCompile Include="instant_camera.cpp">
       <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="hdr.cpp">
@@ -120,13 +120,13 @@
     <ClInclude Include="build_scene.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
-    <ClInclude Include="bvh.h">
+    <ClInclude Include="instant_bvh.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
+    <ClInclude Include="instant_camera.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
-    <ClInclude Include="constant.h">
+    <ClInclude Include="instant_constant.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="hdr.h">
@@ -141,7 +141,7 @@
     <ClInclude Include="mapping.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
-    <ClInclude Include="material.h">
+    <ClInclude Include="instant_material.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="obj_loader.h">
@@ -153,13 +153,13 @@
     <ClInclude Include="random.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
-    <ClInclude Include="ray.h">
+    <ClInclude Include="instant_ray.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
-    <ClInclude Include="scene.h">
+    <ClInclude Include="instant_scene.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
-    <ClInclude Include="surface.h">
+    <ClInclude Include="instant_surface.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="texture.h">
@@ -180,7 +180,7 @@
     <ClInclude Include="..\libs\stb\stb_image.h">
       <Filter>sources\instant-render\dependencies</Filter>
     </ClInclude>
-    <ClInclude Include="sobol.h">
+    <ClInclude Include="instant_sobol.h">
       <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="sobol_sets_of_direction_nums.h">

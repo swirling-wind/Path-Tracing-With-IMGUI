@@ -1,10 +1,10 @@
 #ifndef TRACER_H
 #define TRACER_H
 
-#include "../render/bvh.h"
+#include "../render/instant_bvh.h"
 #include "../render/object.h"
 #include "../render/random.h"
-#include "../render/ray.h"
+#include "../render/instant_ray.h"
 #include "../render/vec.h"
 using namespace instant_renderer;
 

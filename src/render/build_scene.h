@@ -1,7 +1,7 @@
 #ifndef _BUILD_SCENE_H_
 #define _BUILD_SCENE_H_
 
-#include "../render/scene.h"
+#include "../render/instant_scene.h"
 
 using namespace instant_renderer;
 
