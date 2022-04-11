@@ -50,17 +50,12 @@ void Image::save(const std::string& filename) const
     //output_image << "P3\n" << image_width << " " << image_height << "\n255\n";
     //int index = 0;
     //for (int j = image_height - 1; j >= 0; --j)
-    //{
-    //    for (int i = 0; i < image_width; ++i)
-    //    {
-    //       output_image << static_cast<int>(256 * clamp(blob.at(index).x, 0.0, 0.999)) << ' '
+    //{for (int i = 0; i < image_width; ++i)
+    //    { output_image << static_cast<int>(256 * clamp(blob.at(index).x, 0.0, 0.999)) << ' '
     //           << static_cast<int>(256 * clamp(blob.at(index).y, 0.0, 0.999)) << ' '
     //           << static_cast<int>(256 * clamp(blob.at(index).z, 0.0, 0.999)) << '\n';
-    //       i++;
-    //    }
-    //}
+    //       i++;}}
     //std::cerr << "\nDone.\n";
-
 
     double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
     double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
@@ -68,7 +63,7 @@ void Image::save(const std::string& filename) const
     HeaderTGA header((uint16_t)width, (uint16_t)height);
     std::ofstream out_tonemapped(filename + ".tga", std::ios::binary);
     out_tonemapped.write(reinterpret_cast<char*>(&header), sizeof(header));
-    for (const auto& p : blob)
+    for (const auto& p : blob) //Image::Blob <vec3>
     {
         auto fp = truncate(sRGB::gammaCompress(tonemap(p * exposure_factor) * gain_factor));
         out_tonemapped.write(reinterpret_cast<char*>(fp.data()), fp.size() * sizeof(uint8_t));

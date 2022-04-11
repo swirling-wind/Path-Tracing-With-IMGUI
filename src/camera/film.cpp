@@ -59,7 +59,11 @@ Film::Film(size_t width, size_t height, const nlohmann::json& j)
 }
 
 void Film::deposit(const glm::dvec2& p, const glm::dvec3& v)
-{
+{   // To save the pixel
+    // p: glm::dvec2 px(x + sobol->u[0], y + sobol->u[1]);
+    // v:  integrator->sampleRay(ray) {return radiance;}
+
+    // min and max to ensure not to render outside the image
     ivec2 min = glm::max(ivec2(p + 0.5 - radius), ivec2(0));
     ivec2 max = glm::min(ivec2(p - 0.5 + radius), ivec2(width - 1, height - 1));
 
