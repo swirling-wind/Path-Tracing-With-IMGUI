@@ -1,5 +1,6 @@
 #include "../camera/image.h"
 #include <fstream>
+#include <iostream>
 #include <glm/glm.hpp>
 #include "pixel-operators.h"
 #include "../common/util.h"
@@ -33,8 +34,34 @@ Image::Image(const nlohmann::json &j)
             tonemap = filmicHable;
 }
 
+inline double clamp(double x, double min, double max)
+{
+    if (x < min) return min;
+    if (x > max) return max;
+    return x;
+}
+
 void Image::save(const std::string& filename) const
 {
+    // test ppm
+    //std::ofstream output_image(filename + ".ppm");
+    //const int image_height = 720;
+    //const int image_width = 1280;
+    //output_image << "P3\n" << image_width << " " << image_height << "\n255\n";
+    //int index = 0;
+    //for (int j = image_height - 1; j >= 0; --j)
+    //{
+    //    for (int i = 0; i < image_width; ++i)
+    //    {
+    //       output_image << static_cast<int>(256 * clamp(blob.at(index).x, 0.0, 0.999)) << ' '
+    //           << static_cast<int>(256 * clamp(blob.at(index).y, 0.0, 0.999)) << ' '
+    //           << static_cast<int>(256 * clamp(blob.at(index).z, 0.0, 0.999)) << '\n';
+    //       i++;
+    //    }
+    //}
+    //std::cerr << "\nDone.\n";
+
+
     double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
     double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
 

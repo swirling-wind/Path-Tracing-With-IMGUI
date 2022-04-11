@@ -10,8 +10,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <nlohmann/json.hpp>
 #include "camera/camera.h"
-
 #include "common/option.h"
 #include "common/util.h"
 
@@ -31,7 +31,47 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int test(int, char**)
+std::vector<std::filesystem::path> get_models_in_folder(std::filesystem::path folder_path)
+{
+    std::vector<std::filesystem::path> obj_path_vector;
+    for (const std::filesystem::directory_entry& file : std::filesystem::directory_iterator(folder_path))
+    {
+        if (!file.path().has_extension() || file.path().extension() != ".obj")
+            continue;
+        obj_path_vector.push_back(file.path());
+        std::string obj_file_name = file.path().filename().string();
+        std::cout << obj_file_name << std::endl;
+
+    }
+    return obj_path_vector;
+}
+int test11()
+{
+    //test
+    std::filesystem::path model_path = std::filesystem::current_path().parent_path().parent_path() / "models";
+    std::cout << "Model path: " << model_path.string() << std::endl;;
+    const auto obj_path_vector = get_models_in_folder(model_path);
+    std::cout << obj_path_vector.size() << std::endl;
+
+    const char* obj_name_list[100];
+    for (auto iter = obj_path_vector.begin(); iter != obj_path_vector.end(); ++iter)
+    {
+        obj_name_list[iter - obj_path_vector.begin()] = iter->filename().string().c_str();
+    }
+
+    return 0;
+}
+
+nlohmann::json generate_render_params()
+{
+    nlohmann::json render_params{
+  {"pi", 3.141},
+  {"happy", true}
+    };
+    return render_params;
+}
+
+int main22(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -82,7 +122,7 @@ int test(int, char**)
     bool show_demo_window = true;
     bool show_another_window = false;
 
-    // render parameters
+    // Render parameters =======================================================================
     struct light_imported
     {
         std::array<float, 3> position{ 0.0,0.0,0.0 };
@@ -106,8 +146,26 @@ int test(int, char**)
     int output_image_width = 2000;
     int output_image_height = 1500;
 
-    const char* items[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
-    int item_current = 1;
+
+    std::filesystem::path model_path = std::filesystem::current_path().parent_path().parent_path() / "models";
+    std::cout << "Model path: " << model_path.string() << std::endl;
+    const auto obj_path_vector = get_models_in_folder(model_path);
+    std::cout << obj_path_vector.size() << std::endl;
+
+    
+ /*   std::vector<const char*> temp_obj_filename_char_vector;
+    temp_obj_filename_char_vector.reserve(obj_path_vector.size());
+    for (const auto& obj_path : obj_path_vector)
+    {
+        temp_obj_filename_char_vector.push_back(obj_path.string().data());
+    }
+
+    const char* obj_name_list[100];
+    for (int i = 0; i < temp_obj_filename_char_vector.size(); ++i)
+    {
+        obj_name_list[i] = temp_obj_filename_char_vector.at(i);
+    }
+    int obj_current_chosen = 1;*/
 
 
     // Main loop
@@ -155,12 +213,25 @@ int test(int, char**)
 
             //Object
             ImGui::Text("\nObjects");
+            for (auto iter = obj_path_vector.begin(); iter != obj_path_vector.end(); ++iter)
+            {
+                const auto index = iter - obj_path_vector.begin();
+                if (ImGui::Button(iter->string().data()))
+                {
+                    std::cerr << iter->string() << std::endl;
+                }
+            }
 
             // Using the _simplified_ one-liner ListBox() api here
             // See "List boxes" section for examples of how to use the more flexible BeginListBox()/EndListBox() api.
-            ImGui::ListBox("listbox", &item_current, items, IM_ARRAYSIZE(items), 4);
+            //ImGui::ListBox("listbox", &obj_current_chosen, obj_name_list, IM_ARRAYSIZE(obj_name_list), 4);
             //"Using the simplified one-liner ListBox API here.\nRefer to the \"List boxes\" section below for an explanation of how to use the more flexible and general BeginListBox/EndListBox API.");
             //ImGui::ListBox("Model List")
+            ImGui::SameLine();
+            if (ImGui::Button("Add Obejct"))
+            {
+                
+            }
 
             //Render
             if (ImGui::Button("Load Settings"))
@@ -172,12 +243,6 @@ int test(int, char**)
                 
             }
 
-
-            if (ImGui::Button("Test Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            {
-                counter++;
-                std::cerr << items[item_current] << "\n\n";
-            }
             ImGui::SameLine();
             ImGui::Text("counter = %d", counter);
 
@@ -219,19 +284,20 @@ int test(int, char**)
 
 int main(int argc, char* argv[])
 {
-    if (argc > 1)
-    {
-        std::string command_path;
-        for (int i = 1; i < argc; i++)
-        {
-            command_path += argv[i];
-        }
-        Scene::path = std::filesystem::current_path() / command_path;
-    }
+    //if (argc > 1)
+    //{
+    //    std::string command_path;
+    //    for (int i = 1; i < argc; i++)
+    //    {
+    //        command_path += argv[i];
+    //    }
+    //    Scene::path = std::filesystem::current_path() / command_path;
+    //}
 
-    //Scene::path = (std::filesystem::current_path().parent_path() / "scenes" )/ "pipes.json";
+    ////Scene::path = (std::filesystem::current_path().parent_path() / "scenes" )/ "pipes.json";
 
     std::cout << "Scene directory:" << std::endl << Scene::path.string() << std::endl << std::endl;
+
 
     std::vector<Option> options;
     try
@@ -274,7 +340,7 @@ int main(int argc, char* argv[])
 }
 
 
-//int test_render()
+//int test_instant_render()
 //{
 //    const std::map<std::string, std::string> test_params{
 //    {"samples", "2"},      {"super_samples", "10"},
