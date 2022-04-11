@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Path-Tracing-With-IMGUI", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test-render", "test-render\test-render.vcxproj", "{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Path-Tracing-Offline", "Path-Tracing-Offline\Path-Tracing-Offline.vcxproj", "{73535E78-569C-4E8B-8C5A-24A69ADE7FAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,14 @@ Global
 		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Release|Win32.Build.0 = Release|Win32
 		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Release|x64.ActiveCfg = Release|x64
 		{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}.Release|x64.Build.0 = Release|x64
+		{73535E78-569C-4E8B-8C5A-24A69ADE7FAD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{73535E78-569C-4E8B-8C5A-24A69ADE7FAD}.Debug|Win32.Build.0 = Debug|Win32
+		{73535E78-569C-4E8B-8C5A-24A69ADE7FAD}.Debug|x64.ActiveCfg = Debug|x64
+		{73535E78-569C-4E8B-8C5A-24A69ADE7FAD}.Debug|x64.Build.0 = Debug|x64
+		{73535E78-569C-4E8B-8C5A-24A69ADE7FAD}.Release|Win32.ActiveCfg = Release|Win32
+		{73535E78-569C-4E8B-8C5A-24A69ADE7FAD}.Release|Win32.Build.0 = Release|Win32
+		{73535E78-569C-4E8B-8C5A-24A69ADE7FAD}.Release|x64.ActiveCfg = Release|x64
+		{73535E78-569C-4E8B-8C5A-24A69ADE7FAD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

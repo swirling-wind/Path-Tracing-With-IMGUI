@@ -107,6 +107,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\libs\glm;..\libs\nlohmann;..\..;..\..\backend;..\libs\glfw\include;..\src\;..\src\libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -145,7 +146,7 @@
       <AdditionalIncludeDirectories>..\libs\glm;..\libs\nlohmann;..\..;..\..\backend;..\libs\glfw\include;..\src\;..\src\libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
