@@ -1,7 +1,8 @@
 #ifndef _BUILD_SCENE_H_
 #define _BUILD_SCENE_H_
 
-#include "scene.h"
+#include "../render/scene.h"
+
 
 bool build_1(Scene& scene);
 bool build_2(Scene& scene);

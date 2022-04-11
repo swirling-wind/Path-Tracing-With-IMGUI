@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include "surface.h"
-#include "vec.h"
+#include "../render/surface.h"
+#include "../render/vec.h"
 
 std::tuple<int, int, int> to_vertex_numbers(std::string s);
 

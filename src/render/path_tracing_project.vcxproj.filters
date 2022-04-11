@@ -8,11 +8,14 @@
       <UniqueIdentifier>{f18ab499-84e1-499f-8eff-9754361e0e52}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="sources\render">
+    <Filter Include="sources\instant-render">
       <UniqueIdentifier>{d054e0ec-95ee-4761-8260-5c40fa6e2701}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sources\render\dependencies">
+    <Filter Include="sources\instant-render\dependencies">
       <UniqueIdentifier>{ed125117-9e15-40db-9f15-a02389b69ade}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\offline-render">
+      <UniqueIdentifier>{65df3e70-1270-48b3-82e8-3fc88a3d4237}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -41,58 +44,58 @@
       <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="mapping.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="material.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="obj_loader.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="object.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="random.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="ray.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="scene.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="surface.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="texture.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="tracer.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="utility.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="vec.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="build_scene.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="bvh.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="hdr.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="lattice_noise.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
     <ClCompile Include="loader.cpp">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -115,76 +118,76 @@
       <Filter>sources</Filter>
     </ClInclude>
     <ClInclude Include="build_scene.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="bvh.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="constant.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="hdr.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="lattice_noise.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="loader.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="mapping.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="material.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="obj_loader.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="object.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="random.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="ray.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="scene.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="surface.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="texture.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="tracer.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="utility.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="vec.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="wrapper.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="..\libs\stb\stb_image.h">
-      <Filter>sources\render\dependencies</Filter>
+      <Filter>sources\instant-render\dependencies</Filter>
     </ClInclude>
     <ClInclude Include="sobol.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="sobol_sets_of_direction_nums.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
     <ClInclude Include="instant_image.h">
-      <Filter>sources\render</Filter>
+      <Filter>sources\instant-render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

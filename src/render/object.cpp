@@ -1,4 +1,4 @@
-#include "object.h"
+#include "../render/object.h"
 
 BBox::BBox()
 	: corner0(-0.5, -0.5, -0.5), corner1(0.5, 0.5, 0.5), center((corner0 + corner1) / 2.0)

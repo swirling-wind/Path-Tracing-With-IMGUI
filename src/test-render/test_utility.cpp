@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-#include "utility.h"
+#include "../render/utility.h"
 
 TEST(utility_test_case, test_correct_clamp) {
     ASSERT_EQ(clamp(1.1), 1.0);

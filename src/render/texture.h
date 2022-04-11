@@ -4,11 +4,11 @@
 #define _USE_MATH_DEFINES
 
 #include <tuple>
-#include "lattice_noise.h"
-#include "mapping.h"
-#include "ray.h"
-#include "utility.h"
-#include "vec.h"
+#include "../render/lattice_noise.h"
+#include "../render/mapping.h"
+#include "../render/ray.h"
+#include "../render/utility.h"
+#include "../render/vec.h"
 
 struct Texture {
     virtual ~Texture() {}

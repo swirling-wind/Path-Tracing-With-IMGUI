@@ -1,11 +1,11 @@
 #ifndef TRACER_H
 #define TRACER_H
 
-#include "bvh.h"
-#include "object.h"
-#include "random.h"
-#include "ray.h"
-#include "vec.h"
+#include "../render/bvh.h"
+#include "../render/object.h"
+#include "../render/random.h"
+#include "../render/ray.h"
+#include "../render/vec.h"
 
 const Color BACKGROUND_COLOR = BLACK;
 const double AMBIENT_COEF = 0.05;  // environment light

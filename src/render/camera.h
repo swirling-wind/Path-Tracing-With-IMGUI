@@ -1,7 +1,7 @@
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
-#include "vec.h"
+#include "../render/vec.h"
 
 struct Camera {
     Vec eye, lookat;

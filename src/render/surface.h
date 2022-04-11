@@ -6,11 +6,11 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#include "bvh.h"
-#include "material.h"
-#include "object.h"
-#include "ray.h"
-#include "utility.h"
+#include "../render/bvh.h"
+#include "../render/material.h"
+#include "../render/object.h"
+#include "../render/ray.h"
+#include "../render/utility.h"
 
 struct surface : Object
 {

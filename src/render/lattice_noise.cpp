@@ -1,4 +1,4 @@
-#include "lattice_noise.h"
+#include "../render/lattice_noise.h"
 
 LatticeNoise::LatticeNoise()
 	: permutation_table(

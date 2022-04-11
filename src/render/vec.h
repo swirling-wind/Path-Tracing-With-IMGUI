@@ -4,7 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include <ostream>
-#include "constant.h"
+#include "../render/constant.h"
 
 using Point2D = std::pair<double, double>;
 

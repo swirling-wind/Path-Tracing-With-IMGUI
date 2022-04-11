@@ -1,8 +1,8 @@
 #ifndef _RAY_H_
 #define _RAY_H_
 
-#include "constant.h"
-#include "vec.h"
+#include "../render/constant.h"
+#include "../render/vec.h"
 
 struct Ray {
     Vec org, dir;

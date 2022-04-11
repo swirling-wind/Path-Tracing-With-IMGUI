@@ -3,8 +3,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <string>
-#include "utility.h"
-#include "vec.h"
+#include "../render/utility.h"
+#include "../render/vec.h"
 #include "src/libs/stb/stb_image.h"
 
 inline void load_rgb_image_file(const std::string& file_path, Image& image)

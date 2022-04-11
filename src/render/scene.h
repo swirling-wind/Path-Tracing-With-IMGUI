@@ -3,11 +3,11 @@
 
 #include <map>
 #include <vector>
-#include "camera.h"
-#include "instant_image.h"
-#include "object.h"
-#include "surface.h"
-#include "tracer.h"
+#include "../render/camera.h"
+#include "../render/instant_image.h"
+#include "../render/object.h"
+#include "../render/surface.h"
+#include "../render/tracer.h"
 
 
 struct ViewPlane

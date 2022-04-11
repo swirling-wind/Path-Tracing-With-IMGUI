@@ -1,4 +1,4 @@
-#include "surface.h"
+#include "../render/surface.h"
 
 surface::surface() : Object(), vertices(0), uv_coordinates(0), triangles(0), triangle_bboxes(0)
 {

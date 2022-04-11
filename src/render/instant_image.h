@@ -1,7 +1,7 @@
 #ifndef INSTANT_IMAGE_H
 #define INSTANT_IMAGE_H
 
-#include "vec.h"
+#include "../render/vec.h"
 
 constexpr int instant_image_width = 800;
 constexpr int instant_image_height = 600;

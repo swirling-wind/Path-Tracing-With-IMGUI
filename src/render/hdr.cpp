@@ -1,4 +1,4 @@
-#include "hdr.h"
+#include "../render/hdr.h"
 
 bool decode(std::vector<RGBE> &scanline, int len, std::ifstream &infile) {
     char tmp_c;

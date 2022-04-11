@@ -1,7 +1,7 @@
-#include "obj_loader.h"
+#include "../render/obj_loader.h"
 #include <array>
 #include <unordered_map>
-#include "wrapper.h"
+#include "../render/wrapper.h"
 
 FaceGroup::FaceGroup()
 	: material_ptr(nullptr),

@@ -2,7 +2,7 @@
 #define LOADER_H
 
 #include <string>
-#include "surface.h"
+#include "../render/surface.h"
 
 inline bool load_ply_file(const std::string file_path, surface* surface)
 {

@@ -2,8 +2,8 @@
 
 #include <corecrt_math_defines.h>
 
-#include "utility.h"
-#include "vec.h"
+#include "../render/utility.h"
+#include "../render/vec.h"
 
 double a{ 1.5 };
 Vec v1{ 1.0, 2.0, 3.0 };

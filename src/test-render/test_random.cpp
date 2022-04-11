@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "random.h"
+#include "../render/random.h"
 
 
 TEST(uniform_real_generator_test_case, test_correct_rand)

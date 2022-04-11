@@ -1,8 +1,8 @@
 #ifndef _OBJECT_H_
 #define _OBJECT_H_
 
-#include "material.h"
-#include "ray.h"
+#include "../render/material.h"
+#include "../render/ray.h"
 
 struct BBox
 {

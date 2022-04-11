@@ -1,4 +1,4 @@
-#include "vec.h"
+#include "../render/vec.h"
 #include <ostream>
 
 Vec::Vec(const double x, const double y, const double z) : x(x), y(y), z(z) {}

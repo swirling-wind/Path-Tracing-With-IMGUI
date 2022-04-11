@@ -1,8 +1,8 @@
 #ifndef _MATERIAL_H_
 #define _MATERIAL_H_
 
-#include "texture.h"
-#include "vec.h"
+#include "../render/texture.h"
+#include "../render/vec.h"
 
 const Color RED = Color(1.0, 0.0, 0.0);
 const Color GREEN = Color(0.0, 1.0, 0.0);

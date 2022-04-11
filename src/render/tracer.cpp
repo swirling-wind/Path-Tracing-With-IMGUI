@@ -1,4 +1,4 @@
-#include "tracer.h"
+#include "../render/tracer.h"
 
 // To obtain the information of those objects, which are closest to the ray's origin among all objects in the scene.
 bool intersect_objects(const Ray& ray, const std::vector<Object*>& objects, const BVH& bvh,

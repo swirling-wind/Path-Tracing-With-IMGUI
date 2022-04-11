@@ -1,4 +1,4 @@
-#include "material.h"
+#include "../render/material.h"
 
 Material::Material()
     : color_ptr(new ConstantTexture(GRAY)),

@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "constant.h"
-#include "object.h"
-#include "ray.h"
+#include "../render/constant.h"
+#include "../render/object.h"
+#include "../render/ray.h"
 
 Material material_magenta{ new ConstantTexture(Color(1.0, 0.0, 1.0)), Color(0.0, 0.0, 0.0),
                            ReflectionType::DIFFUSE };

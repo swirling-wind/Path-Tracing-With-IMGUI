@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "random.h"
-#include "tracer.h"
+#include "../render/random.h"
+#include "../render/tracer.h"
 
 using namespace std;
 

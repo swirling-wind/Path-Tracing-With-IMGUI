@@ -1,5 +1,5 @@
-#include "bvh.h"
-#include "object.h"
+#include "../render/bvh.h"
+#include "../render/object.h"
 
 double calc_bbox_area(const BBox& bbox)
 {

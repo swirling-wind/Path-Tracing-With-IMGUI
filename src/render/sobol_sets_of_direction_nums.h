@@ -29,7 +29,7 @@
 #ifndef SET_OF_DIRECTION_NUMS_H
 #define SET_OF_DIRECTION_NUMS_H
 
-#include "sobol.h"
+#include "../render/sobol.h"
 
 namespace sobol {
 

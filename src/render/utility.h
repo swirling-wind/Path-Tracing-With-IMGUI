@@ -5,7 +5,7 @@
 #include <regex>
 #include <string>
 #include <vector>
-#include "vec.h"
+#include "../render/vec.h"
 
 // Adjust the print function
 template <class... A>

@@ -5,8 +5,8 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "build_scene.h"
-#include "scene.h"
+#include "../render/build_scene.h"
+#include "../render/scene.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
@@ -22,7 +22,7 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int main(int, char**)
+int test(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -137,7 +137,7 @@ int main(int, char**)
     return 0;
 }
 
-int test_render()
+int main()
 {
     const std::map<std::string, std::string> test_params{
     {"samples", "2"},      {"super_samples", "10"},

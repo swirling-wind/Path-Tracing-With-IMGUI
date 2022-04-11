@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "bvh.h"
-#include "object.h"
-#include "vec.h"
+#include "../render/bvh.h"
+#include "../render/object.h"
+#include "../render/vec.h"
 
 
 TEST(BVH_test_case, test_correct_calculate_bbox_area)
