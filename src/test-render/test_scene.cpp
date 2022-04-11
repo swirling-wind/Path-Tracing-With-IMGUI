@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <map>
-#include "../render/scene.h"
+#include "../render/instant_scene.h"
 using namespace instant_renderer;
 using namespace std;
 

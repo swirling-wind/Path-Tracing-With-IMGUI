@@ -100,7 +100,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>..\render\Debug\build_scene.obj;..\render\Debug\bvh.obj;..\render\Debug\camera.obj;..\render\Debug\hdr.obj;..\render\Debug\lattice_noise.obj;..\render\Debug\loader.obj;..\render\Debug\mapping.obj;..\render\Debug\material.obj;..\render\Debug\obj_loader.obj;..\render\Debug\object.obj;..\render\Debug\random.obj;..\render\Debug\ray.obj;..\render\Debug\scene.obj;..\render\Debug\surface.obj;..\render\Debug\texture.obj;..\render\Debug\tracer.obj;..\render\Debug\utility.obj;..\render\Debug\vec.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\render\Debug\build_scene.obj;..\render\Debug\instant_bvh.obj;..\render\Debug\instant_camera.obj;..\render\Debug\hdr.obj;..\render\Debug\lattice_noise.obj;..\render\Debug\loader.obj;..\render\Debug\mapping.obj;..\render\Debug\instant_material.obj;..\render\Debug\obj_loader.obj;..\render\Debug\object.obj;..\render\Debug\random.obj;..\render\Debug\instant_ray.obj;..\render\Debug\instant_scene.obj;..\render\Debug\instant_surface.obj;..\render\Debug\texture.obj;..\render\Debug\tracer.obj;..\render\Debug\utility.obj;..\render\Debug\vec.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,7 +135,7 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>..\render\Debug\build_scene.obj;..\render\Debug\bvh.obj;..\render\Debug\camera.obj;..\render\Debug\hdr.obj;..\render\Debug\lattice_noise.obj;..\render\Debug\loader.obj;..\render\Debug\mapping.obj;..\render\Debug\material.obj;..\render\Debug\obj_loader.obj;..\render\Debug\object.obj;..\render\Debug\random.obj;..\render\Debug\ray.obj;..\render\Debug\scene.obj;..\render\Debug\surface.obj;..\render\Debug\texture.obj;..\render\Debug\tracer.obj;..\render\Debug\utility.obj;..\render\Debug\vec.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\render\Debug\build_scene.obj;..\render\Debug\instant_bvh.obj;..\render\Debug\instant_camera.obj;..\render\Debug\hdr.obj;..\render\Debug\lattice_noise.obj;..\render\Debug\loader.obj;..\render\Debug\mapping.obj;..\render\Debug\instant_material.obj;..\render\Debug\obj_loader.obj;..\render\Debug\object.obj;..\render\Debug\random.obj;..\render\Debug\instant_ray.obj;..\render\Debug\instant_scene.obj;..\render\Debug\instant_surface.obj;..\render\Debug\texture.obj;..\render\Debug\tracer.obj;..\render\Debug\utility.obj;..\render\Debug\vec.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

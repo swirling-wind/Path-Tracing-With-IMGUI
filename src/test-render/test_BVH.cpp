@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "../render/bvh.h"
+#include "../render/instant_bvh.h"
 #include "../render/object.h"
 #include "../render/vec.h"
 using namespace instant_renderer;

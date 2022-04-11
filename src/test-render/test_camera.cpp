@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <iostream>
 #include <map>
-#include "../render/camera.h"
+#include "../render/instant_camera.h"
 using namespace instant_renderer;
 using namespace std;
 
