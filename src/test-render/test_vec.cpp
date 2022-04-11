@@ -4,7 +4,7 @@
 
 #include "../render/utility.h"
 #include "../render/vec.h"
-
+using namespace instant_renderer;
 double a{ 1.5 };
 Vec v1{ 1.0, 2.0, 3.0 };
 Vec v2{ 4.0, 5.0, 6.0 };

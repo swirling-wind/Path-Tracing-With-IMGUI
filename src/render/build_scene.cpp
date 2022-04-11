@@ -8,10 +8,10 @@
 #include "../render/obj_loader.h"
 #include "../render/texture.h"
 
-//using namespace instant_renderer;
-//
-//namespace instant_renderer
-//{
+using namespace instant_renderer;
+
+namespace instant_renderer
+{
     // Texture
     CubicNoise* noise_ptr = new CubicNoise;
     WrappedFBmTexture* fbm_texture = new WrappedFBmTexture(noise_ptr, Color(0.25, 0.25, 0.75), 3.0);
@@ -226,4 +226,4 @@
         return true;
     }
 
-//}
+}

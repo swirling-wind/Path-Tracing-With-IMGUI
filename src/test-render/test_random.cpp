@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "../render/random.h"
-
+using namespace instant_renderer;
 
 TEST(uniform_real_generator_test_case, test_correct_rand)
 {

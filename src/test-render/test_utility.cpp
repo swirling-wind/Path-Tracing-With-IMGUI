@@ -4,7 +4,7 @@
 #include <string>
 
 #include "../render/utility.h"
-
+using namespace instant_renderer;
 TEST(utility_test_case, test_correct_clamp) {
     ASSERT_EQ(clamp(1.1), 1.0);
     ASSERT_EQ(clamp(-0.1), 0.0);

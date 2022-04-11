@@ -4,27 +4,31 @@
 #include "../render/constant.h"
 #include "../render/vec.h"
 
-struct Ray {
-    Vec org, dir;
+using namespace instant_renderer;
 
-    Ray();
-    Ray(const Vec &org, const Vec &dir);
-};
+namespace instant_renderer
+{
+    struct Ray {
+        Vec org, dir;
 
-struct Hitpoint {
-    double distance;
-    Vec normal;
-    Vec position;
-    double u, v;
+        Ray();
+        Ray(const Vec& org, const Vec& dir);
+    };
 
-    Hitpoint();
-};
+    struct Hitpoint {
+        double distance;
+        Vec normal;
+        Vec position;
+        double u, v;
 
-struct Intersection {
-    Hitpoint hitpoint;
-    int object_id;
+        Hitpoint();
+    };
 
-    Intersection();
-};
+    struct Intersection {
+        Hitpoint hitpoint;
+        int object_id;
 
+        Intersection();
+    };
+}
 #endif

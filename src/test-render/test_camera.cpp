@@ -2,7 +2,7 @@
 #include <iostream>
 #include <map>
 #include "../render/camera.h"
-
+using namespace instant_renderer;
 using namespace std;
 
 TEST(pin_hole_camera_test_case, test_correct_ray_direction) {

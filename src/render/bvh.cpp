@@ -1,229 +1,235 @@
 #include "../render/bvh.h"
 #include "../render/object.h"
 
-double calc_bbox_area(const BBox& bbox)
+using namespace instant_renderer;
+
+namespace instant_renderer
 {
-	double len_x = bbox.corner1.x - bbox.corner0.x;
-	double len_y = bbox.corner1.y - bbox.corner0.y;
-	double len_z = bbox.corner1.z - bbox.corner0.z;
-	return 2. * (len_x * len_y + len_x * len_z + len_y * len_z);
-}
 
-void merge_bbox(const BBox& bbox1, const BBox& bbox2, BBox& result)
-{
-	result.set_corner(min(bbox1.corner0, bbox2.corner0), max(bbox1.corner1, bbox2.corner1));
-}
+    double calc_bbox_area(const BBox& bbox)
+    {
+        double len_x = bbox.corner1.x - bbox.corner0.x;
+        double len_y = bbox.corner1.y - bbox.corner0.y;
+        double len_z = bbox.corner1.z - bbox.corner0.z;
+        return 2. * (len_x * len_y + len_x * len_z + len_y * len_z);
+    }
 
-BvhNode::BvhNode() : child_node_idx(-1, -1), target_indices(0) { this->bbox.empty(); }
+    void merge_bbox(const BBox& bbox1, const BBox& bbox2, BBox& result)
+    {
+        result.set_corner(min(bbox1.corner0, bbox2.corner0), max(bbox1.corner1, bbox2.corner1));
+    }
 
-BVH::BVH() : bvh_nodes(1), T_tri(1.0), T_aabb(1.0) {}
-BVH::BVH(const double& T_tri, const double& T_aabb) : bvh_nodes(1), T_tri(T_tri), T_aabb(T_aabb) {}
+    BvhNode::BvhNode() : child_node_idx(-1, -1), target_indices(0) { this->bbox.empty(); }
 
-void BVH::enclosing_bbox(const std::vector<std::pair<int, BBox*>>& bboxes, BBox& result)
-{
-	for (auto idx_bbox : bboxes)
-	{
-		merge_bbox(*idx_bbox.second, result, result);
-	}
-}
+    BVH::BVH() : bvh_nodes(1), T_tri(1.0), T_aabb(1.0) {}
+    BVH::BVH(const double& T_tri, const double& T_aabb) : bvh_nodes(1), T_tri(T_tri), T_aabb(T_aabb) {}
 
-void BVH::make_leaf(std::vector<std::pair<int, BBox*>> bboxes, BvhNode& bvh_node)
-{
-	bvh_node.child_node_idx.first = -1;
-	bvh_node.child_node_idx.second = -1;
-	for (const auto& x : bboxes)
-	{
-		bvh_node.target_indices.push_back(x.first);
-	}
-}
+    void BVH::enclosing_bbox(const std::vector<std::pair<int, BBox*>>& bboxes, BBox& result)
+    {
+        for (auto idx_bbox : bboxes)
+        {
+            merge_bbox(*idx_bbox.second, result, result);
+        }
+    }
 
-void BVH::axis_decending_sort(std::vector<std::pair<int, BBox*>>& bboxes, const int& axis)
-{
-	sort(bboxes.begin(), bboxes.end(),
-		[axis](const std::pair<int, BBox*>& a, const std::pair<int, BBox*>& b)
-		{
-			bool result;
-			switch (axis)
-			{
-			case 0:
-				result = a.second->center.x > b.second->center.x;
-				break;
-			case 1:
-				result = a.second->center.y > b.second->center.y;
-				break;
-			case 2:
-				result = a.second->center.z > b.second->center.z;
-				break;
-			default:
-				std::cerr << "Error: 0 <= axis <= 2 expected.";
-				abort();
-			}
-			return result;
-		});
-}
+    void BVH::make_leaf(std::vector<std::pair<int, BBox*>> bboxes, BvhNode& bvh_node)
+    {
+        bvh_node.child_node_idx.first = -1;
+        bvh_node.child_node_idx.second = -1;
+        for (const auto& x : bboxes)
+        {
+            bvh_node.target_indices.push_back(x.first);
+        }
+    }
 
-void BVH::construct_bvh(std::vector<std::pair<int, BBox*>>& bboxes, int node_idx)
-{
-	// To find a bounding that can enclosing all models
-	enclosing_bbox(bboxes, bvh_nodes[node_idx].bbox);
+    void BVH::axis_decending_sort(std::vector<std::pair<int, BBox*>>& bboxes, const int& axis)
+    {
+        sort(bboxes.begin(), bboxes.end(),
+            [axis](const std::pair<int, BBox*>& a, const std::pair<int, BBox*>& b)
+            {
+                bool result;
+                switch (axis)
+                {
+                case 0:
+                    result = a.second->center.x > b.second->center.x;
+                    break;
+                case 1:
+                    result = a.second->center.y > b.second->center.y;
+                    break;
+                case 2:
+                    result = a.second->center.z > b.second->center.z;
+                    break;
+                default:
+                    std::cerr << "Error: 0 <= axis <= 2 expected.";
+                    abort();
+                }
+                return result;
+            });
+    }
 
-	// The temporary cost of Leaf Node
-	double best_cost = T_tri * bboxes.size();
+    void BVH::construct_bvh(std::vector<std::pair<int, BBox*>>& bboxes, int node_idx)
+    {
+        // To find a bounding that can enclosing all models
+        enclosing_bbox(bboxes, bvh_nodes[node_idx].bbox);
 
-	int best_axis = -1;
-	int best_split_idx = -1;
+        // The temporary cost of Leaf Node
+        double best_cost = T_tri * bboxes.size();
 
-	double root_bbox_area = calc_bbox_area(bvh_nodes[node_idx].bbox);
+        int best_axis = -1;
+        int best_split_idx = -1;
 
-	for (int axis = 0; axis < 3; axis++)
-	{
-		axis_decending_sort(bboxes, axis);
-		std::vector<std::pair<int, BBox*>> s1, s2(bboxes);
+        double root_bbox_area = calc_bbox_area(bvh_nodes[node_idx].bbox);
 
-		std::vector<double> s1_bbox_areas(bboxes.size() + 1, INF);
-		std::vector<double> s2_bbox_areas(bboxes.size() + 1, INF);
+        for (int axis = 0; axis < 3; axis++)
+        {
+            axis_decending_sort(bboxes, axis);
+            std::vector<std::pair<int, BBox*>> s1, s2(bboxes);
 
-		BBox s1_bbox;
-		s1_bbox.empty();
-		// To boost calculation's efficiency as BBox's size increases,
-		// divide into s1_bbox and s2_bbox
+            std::vector<double> s1_bbox_areas(bboxes.size() + 1, INF);
+            std::vector<double> s2_bbox_areas(bboxes.size() + 1, INF);
 
-		// 1. calculate the s1_bbox when it increases
-		for (size_t i = 0; i <= bboxes.size(); i++)
-		{
-			s1_bbox_areas[i] = std::abs(calc_bbox_area(s1_bbox));
+            BBox s1_bbox;
+            s1_bbox.empty();
+            // To boost calculation's efficiency as BBox's size increases,
+            // divide into s1_bbox and s2_bbox
 
-			if (s2.size() > 0)
-			{
-				std::pair<int, BBox*> idx_bbox = s2.back();
-				s1.push_back(idx_bbox);
-				s2.pop_back();
-				merge_bbox(s1_bbox, *idx_bbox.second, s1_bbox);
-			}
-		}
+            // 1. calculate the s1_bbox when it increases
+            for (size_t i = 0; i <= bboxes.size(); i++)
+            {
+                s1_bbox_areas[i] = std::abs(calc_bbox_area(s1_bbox));
 
-		BBox s2_bbox;
-		s2_bbox.empty();
-		// 2. calculate the s2_bbox when it increases
-		for (int i = bboxes.size(); i >= 0; i--)
-		{
-			s2_bbox_areas[i] = std::abs(calc_bbox_area(s2_bbox));
-			if (s1.size() > 0 && s2.size() > 0)
-			{
-				double cost =
-					2 * T_aabb + (s1_bbox_areas[i] * s1.size() + s2_bbox_areas[i] * s2.size()) *
-					T_tri / root_bbox_area;
-				if (cost < best_cost)
-				{
-					best_cost = cost;
-					best_axis = axis;
-					best_split_idx = i;
-				}
-			}
+                if (s2.size() > 0)
+                {
+                    std::pair<int, BBox*> idx_bbox = s2.back();
+                    s1.push_back(idx_bbox);
+                    s2.pop_back();
+                    merge_bbox(s1_bbox, *idx_bbox.second, s1_bbox);
+                }
+            }
 
-			if (s1.size() > 0)
-			{
-				std::pair<int, BBox*> idx_bbox = s1.back();
-				s2.push_back(idx_bbox);
-				s1.pop_back();
-				merge_bbox(s2_bbox, *idx_bbox.second, s2_bbox);
-			}
-		}
-	}
+            BBox s2_bbox;
+            s2_bbox.empty();
+            // 2. calculate the s2_bbox when it increases
+            for (int i = bboxes.size(); i >= 0; i--)
+            {
+                s2_bbox_areas[i] = std::abs(calc_bbox_area(s2_bbox));
+                if (s1.size() > 0 && s2.size() > 0)
+                {
+                    double cost =
+                        2 * T_aabb + (s1_bbox_areas[i] * s1.size() + s2_bbox_areas[i] * s2.size()) *
+                        T_tri / root_bbox_area;
+                    if (cost < best_cost)
+                    {
+                        best_cost = cost;
+                        best_axis = axis;
+                        best_split_idx = i;
+                    }
+                }
 
-	if (best_axis == -1)
-	{
-		make_leaf(bboxes, bvh_nodes[node_idx]);
-	}
-	else
-	{
-		// sort depending on the axis having the least cost
-		axis_decending_sort(bboxes, best_axis);
+                if (s1.size() > 0)
+                {
+                    std::pair<int, BBox*> idx_bbox = s1.back();
+                    s2.push_back(idx_bbox);
+                    s1.pop_back();
+                    merge_bbox(s2_bbox, *idx_bbox.second, s2_bbox);
+                }
+            }
+        }
 
-		// Create child node
-		bvh_nodes[node_idx].child_node_idx.first = bvh_nodes.size();
-		bvh_nodes.push_back(BvhNode());
-		bvh_nodes[node_idx].child_node_idx.second = bvh_nodes.size();
-		bvh_nodes.push_back(BvhNode());
+        if (best_axis == -1)
+        {
+            make_leaf(bboxes, bvh_nodes[node_idx]);
+        }
+        else
+        {
+            // sort depending on the axis having the least cost
+            axis_decending_sort(bboxes, best_axis);
 
-		// divide the vector
-		std::vector<std::pair<int, BBox*>> left(bboxes.begin(), bboxes.begin() + best_split_idx);
-		std::vector<std::pair<int, BBox*>> right(bboxes.begin() + best_split_idx, bboxes.end());
+            // Create child node
+            bvh_nodes[node_idx].child_node_idx.first = bvh_nodes.size();
+            bvh_nodes.push_back(BvhNode());
+            bvh_nodes[node_idx].child_node_idx.second = bvh_nodes.size();
+            bvh_nodes.push_back(BvhNode());
 
-		// recursive call
-		construct_bvh(left, bvh_nodes[node_idx].child_node_idx.first);
-		construct_bvh(right, bvh_nodes[node_idx].child_node_idx.second);
-	}
-}
+            // divide the vector
+            std::vector<std::pair<int, BBox*>> left(bboxes.begin(), bboxes.begin() + best_split_idx);
+            std::vector<std::pair<int, BBox*>> right(bboxes.begin() + best_split_idx, bboxes.end());
 
-void BVH::construct(std::vector<BBox*> bboxes)
-{
-	std::vector<std::pair<int, BBox*>> id_bboxes(bboxes.size());
-	for (size_t i = 0; i < bboxes.size(); i++)
-	{
-		id_bboxes[i] = std::make_pair(i, bboxes[i]);
-	}
+            // recursive call
+            construct_bvh(left, bvh_nodes[node_idx].child_node_idx.first);
+            construct_bvh(right, bvh_nodes[node_idx].child_node_idx.second);
+        }
+    }
 
-	construct_bvh(id_bboxes, 0);
-}
+    void BVH::construct(std::vector<BBox*> bboxes)
+    {
+        std::vector<std::pair<int, BBox*>> id_bboxes(bboxes.size());
+        for (size_t i = 0; i < bboxes.size(); i++)
+        {
+            id_bboxes[i] = std::make_pair(i, bboxes[i]);
+        }
 
-void BVH::traverse_bvh(const Ray& ray, std::vector<int>& target_indices, int node_idx) const
-{
-	if (bvh_nodes[node_idx].bbox.hit(ray))
-	{
-		if (bvh_nodes[node_idx].child_node_idx.first != -1)
-		{
-			traverse_bvh(ray, target_indices, bvh_nodes[node_idx].child_node_idx.first);
-			traverse_bvh(ray, target_indices, bvh_nodes[node_idx].child_node_idx.second);
-		}
-		else
-		{
-			target_indices.insert(target_indices.end(), bvh_nodes[node_idx].target_indices.begin(),
-				bvh_nodes[node_idx].target_indices.end());
-		}
-	}
-}
+        construct_bvh(id_bboxes, 0);
+    }
 
-std::vector<int> BVH::traverse(const Ray& ray) const
-{
-	std::vector<int> target_indices(0);
-	traverse_bvh(ray, target_indices, 0);
-	return target_indices;
-}
+    void BVH::traverse_bvh(const Ray& ray, std::vector<int>& target_indices, int node_idx) const
+    {
+        if (bvh_nodes[node_idx].bbox.hit(ray))
+        {
+            if (bvh_nodes[node_idx].child_node_idx.first != -1)
+            {
+                traverse_bvh(ray, target_indices, bvh_nodes[node_idx].child_node_idx.first);
+                traverse_bvh(ray, target_indices, bvh_nodes[node_idx].child_node_idx.second);
+            }
+            else
+            {
+                target_indices.insert(target_indices.end(), bvh_nodes[node_idx].target_indices.begin(),
+                    bvh_nodes[node_idx].target_indices.end());
+            }
+        }
+    }
 
-void BVH::print_bvh_nodes()
-{
-	for (auto a : bvh_nodes)
-	{
-		printf("=================================\n\n");
-		if (a.child_node_idx.first != -1)
-		{
-			printf("-----Inter Node-----\n");
-			printf("bbox: corner0=(%f, %f, %f), corner1=(%f, %f, %f)\n", a.bbox.corner0.x,
-				a.bbox.corner0.y, a.bbox.corner0.z, a.bbox.corner1.x, a.bbox.corner1.y,
-				a.bbox.corner1.z);
+    std::vector<int> BVH::traverse(const Ray& ray) const
+    {
+        std::vector<int> target_indices(0);
+        traverse_bvh(ray, target_indices, 0);
+        return target_indices;
+    }
 
-			printf("child node idx: left=%d, right=%d\n", a.child_node_idx.first,
-				a.child_node_idx.second);
+    void BVH::print_bvh_nodes()
+    {
+        for (auto a : bvh_nodes)
+        {
+            printf("=================================\n\n");
+            if (a.child_node_idx.first != -1)
+            {
+                printf("-----Inter Node-----\n");
+                printf("bbox: corner0=(%f, %f, %f), corner1=(%f, %f, %f)\n", a.bbox.corner0.x,
+                    a.bbox.corner0.y, a.bbox.corner0.z, a.bbox.corner1.x, a.bbox.corner1.y,
+                    a.bbox.corner1.z);
 
-			printf("target indices: ");
-			for (auto idx : a.target_indices) printf("%d", idx);
-			printf("\n\n");
-		}
-		else
-		{
-			printf("-----Leaf Node-----\n");
-			printf("bbox: corner0=(%f, %f, %f), corner1=(%f, %f, %f)\n", a.bbox.corner0.x,
-				a.bbox.corner0.y, a.bbox.corner0.z, a.bbox.corner1.x, a.bbox.corner1.y,
-				a.bbox.corner1.z);
+                printf("child node idx: left=%d, right=%d\n", a.child_node_idx.first,
+                    a.child_node_idx.second);
 
-			printf("child node idx: left=%d, right=%d\n", a.child_node_idx.first,
-				a.child_node_idx.second);
+                printf("target indices: ");
+                for (auto idx : a.target_indices) printf("%d", idx);
+                printf("\n\n");
+            }
+            else
+            {
+                printf("-----Leaf Node-----\n");
+                printf("bbox: corner0=(%f, %f, %f), corner1=(%f, %f, %f)\n", a.bbox.corner0.x,
+                    a.bbox.corner0.y, a.bbox.corner0.z, a.bbox.corner1.x, a.bbox.corner1.y,
+                    a.bbox.corner1.z);
 
-			printf("target indices: ");
-			for (auto idx : a.target_indices) printf("%d, ", idx);
-			printf("\n\n");
-		}
-	}
-	printf("=================================\n\n");
+                printf("child node idx: left=%d, right=%d\n", a.child_node_idx.first,
+                    a.child_node_idx.second);
+
+                printf("target indices: ");
+                for (auto idx : a.target_indices) printf("%d, ", idx);
+                printf("\n\n");
+            }
+        }
+        printf("=================================\n\n");
+    }
 }

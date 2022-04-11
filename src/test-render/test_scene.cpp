@@ -3,7 +3,7 @@
 #include <iostream>
 #include <map>
 #include "../render/scene.h"
-
+using namespace instant_renderer;
 using namespace std;
 
 TEST(scene_test_case, test_correct_viewplane_constructor)

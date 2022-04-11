@@ -3,7 +3,7 @@
 #include "../render/bvh.h"
 #include "../render/object.h"
 #include "../render/vec.h"
-
+using namespace instant_renderer;
 
 TEST(BVH_test_case, test_correct_calculate_bbox_area)
 {

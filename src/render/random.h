@@ -3,15 +3,17 @@
 
 #include <random>
 
-struct UniformRealGenerator
+namespace instant_renderer
 {
-	std::mt19937 mt;
-	std::uniform_real_distribution<double> real_generator;
+    struct UniformRealGenerator
+    {
+        std::mt19937 mt;
+        std::uniform_real_distribution<double> real_generator;
 
-	UniformRealGenerator();
-	UniformRealGenerator(const int seed, const double left = 0.0, const double right = 1.0);
+        UniformRealGenerator();
+        UniformRealGenerator(const int seed, const double left = 0.0, const double right = 1.0);
 
-	double operator()();
-};
-
+        double operator()();
+    };
+}
 #endif

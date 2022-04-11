@@ -23,40 +23,41 @@
 
 #include <cassert>
 
-
-namespace sobol {
-
-struct Matrices
+namespace instant_renderer
 {
-    static const unsigned num_dimensions = 1024;
-    static const unsigned size = 52;
-    static const unsigned long long matrices[];
-};
+    namespace sobol {
 
-// Compute one component of the Sobol'-sequence, where the component
-// corresponds to the dimension parameter, and the index specifies
-// the point inside the sequence. The scramble parameter can be used
-// to permute elementary intervals, and might be chosen randomly to
-// generate a randomized QMC sequence. Only the Matrices::size least
-// significant bits of the scramble value are used.
-inline double sample(
-    unsigned long long index,
-    const unsigned dimension,
-    const unsigned long long scramble = 0ULL)
-{
-    assert(dimension < Matrices::num_dimensions);
+        struct Matrices
+        {
+            static const unsigned num_dimensions = 1024;
+            static const unsigned size = 52;
+            static const unsigned long long matrices[];
+        };
 
-    unsigned long long result = scramble & ~(~(1ULL << Matrices::size)+1);
-    for (unsigned i = dimension * Matrices::size; index; index >>= 1, ++i)
-    {
-        if (index & 1)
-            result ^= Matrices::matrices[i];
-    }
+        // Compute one component of the Sobol'-sequence, where the component
+        // corresponds to the dimension parameter, and the index specifies
+        // the point inside the sequence. The scramble parameter can be used
+        // to permute elementary intervals, and might be chosen randomly to
+        // generate a randomized QMC sequence. Only the Matrices::size least
+        // significant bits of the scramble value are used.
+        inline double sample(
+            unsigned long long index,
+            const unsigned dimension,
+            const unsigned long long scramble = 0ULL)
+        {
+            assert(dimension < Matrices::num_dimensions);
 
-    return result * (1.0 / (1ULL << Matrices::size));
+            unsigned long long result = scramble & ~(~(1ULL << Matrices::size) + 1);
+            for (unsigned i = dimension * Matrices::size; index; index >>= 1, ++i)
+            {
+                if (index & 1)
+                    result ^= Matrices::matrices[i];
+            }
+
+            return result * (1.0 / (1ULL << Matrices::size));
+        }
+
+    } // namespace sobol
 }
-
-} // namespace sobol
-
 #endif
 

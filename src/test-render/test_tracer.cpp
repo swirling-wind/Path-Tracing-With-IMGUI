@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "../render/random.h"
 #include "../render/tracer.h"
-
+using namespace instant_renderer;
 using namespace std;
 
 TEST(tracer_test_case, test_correct_create_orthonormal_basis) {

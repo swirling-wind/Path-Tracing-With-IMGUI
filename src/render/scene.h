@@ -9,37 +9,40 @@
 #include "../render/surface.h"
 #include "../render/tracer.h"
 
+using namespace instant_renderer;
 
-struct ViewPlane
+namespace instant_renderer
 {
-	double plane_width, plane_height;
-	int width_res, height_res;
-	double pixel_size;
+    struct ViewPlane
+    {
+        double plane_width, plane_height;
+        int width_res, height_res;
+        double pixel_size;
 
-	ViewPlane(double plane_width, int width_res, int height_res);
-};
+        ViewPlane(double plane_width, int width_res, int height_res);
+    };
 
-class Scene
-{
-	Camera* camera_ptr;
-	std::vector<Object*> objects;
-	BVH bvh;
-	Texture* ibl_ptr;
+    class Scene
+    {
+        Camera* camera_ptr;
+        std::vector<Object*> objects;
+        BVH bvh;
+        Texture* ibl_ptr;
 
-public:
-	Scene();
-	~Scene();
+    public:
+        Scene();
+        ~Scene();
 
-	void set_camera(Camera* camera_ptr);
-	void set_ibl(Texture* ibl_ptr);
-	void add_object(Object* object_ptr);
+        void set_camera(Camera* camera_ptr);
+        void set_ibl(Texture* ibl_ptr);
+        void add_object(Object* object_ptr);
 
-    [[nodiscard]] std::vector<Object*> get_lights() const;
-	void construct();
-    [[nodiscard]] std::vector<int> traverse(const Ray& ray) const;
+        [[nodiscard]] std::vector<Object*> get_lights() const;
+        void construct();
+        [[nodiscard]] std::vector<int> traverse(const Ray& ray) const;
 
-    void render(const int super_samples, const ViewPlane view_plane);
-    
-};
+        void render(const int super_samples, const ViewPlane view_plane);
 
+    };
+}
 #endif

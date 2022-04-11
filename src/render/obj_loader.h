@@ -7,45 +7,49 @@
 #include "../render/surface.h"
 #include "../render/vec.h"
 
-std::tuple<int, int, int> to_vertex_numbers(std::string s);
+using namespace instant_renderer;
 
-struct FaceGroup
+namespace instant_renderer
 {
-	Material* material_ptr;
-	std::vector<std::tuple<int, int, int>> triangles;
-	std::vector<std::tuple<int, int, int>> triangle_uv_coordinates;
-	std::vector<std::tuple<int, int, int>> vertex_normals;
-	bool smooth_flag;
-	bool texture_flag;
+    std::tuple<int, int, int> to_vertex_numbers(std::string s);
 
-	FaceGroup();
-};
+    struct FaceGroup
+    {
+        Material* material_ptr;
+        std::vector<std::tuple<int, int, int>> triangles;
+        std::vector<std::tuple<int, int, int>> triangle_uv_coordinates;
+        std::vector<std::tuple<int, int, int>> vertex_normals;
+        bool smooth_flag;
+        bool texture_flag;
 
-class ObjLoader
-{
-	std::vector<Vec> vertices;
-	std::vector<std::pair<double, double>> uv_coordinates;
-	std::vector<Vec> normals;
-	std::vector<FaceGroup> groups;
-	std::unordered_map<std::string, Material> materials;
+        FaceGroup();
+    };
 
-	int to_index(const int number, const int n_vertices)
-	{
-		return number < 0 ? n_vertices + number : number - 1;
-	}
+    class ObjLoader
+    {
+        std::vector<Vec> vertices;
+        std::vector<std::pair<double, double>> uv_coordinates;
+        std::vector<Vec> normals;
+        std::vector<FaceGroup> groups;
+        std::unordered_map<std::string, Material> materials;
 
-	surface* face_group_to_surface(const FaceGroup& face_group);
+        int to_index(const int number, const int n_vertices)
+        {
+            return number < 0 ? n_vertices + number : number - 1;
+        }
 
-public:
-	ObjLoader();
-	ObjLoader(const std::string file_path);
+        surface* face_group_to_surface(const FaceGroup& face_group);
 
-	void all_smooth_flag(const bool smooth_flag);
-	bool load_objmtl_file(const std::string file_path);
-	bool load_obj_file(const std::string file_path);
-	std::unordered_map<std::string, Material> get_materials();
-	std::vector<surface*> convert_to_surfaces();
-	void print_obj_data();
-};
+    public:
+        ObjLoader();
+        ObjLoader(const std::string file_path);
 
+        void all_smooth_flag(const bool smooth_flag);
+        bool load_objmtl_file(const std::string file_path);
+        bool load_obj_file(const std::string file_path);
+        std::unordered_map<std::string, Material> get_materials();
+        std::vector<surface*> convert_to_surfaces();
+        void print_obj_data();
+    };
+}
 #endif
