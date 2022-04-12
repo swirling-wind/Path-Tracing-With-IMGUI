@@ -74,6 +74,7 @@ Option getOption(std::vector<Option>& options)
     std::string sep("|" + std::string(max_opt + 1, '_') + '|' + std::string(max_fil + 1, '_') + '|' + std::string(max_cam + 1, '_') + '|');
     std::cout << sep << std::endl;
 
+    //Print all the options in the terminal
     for (int i = 0; i < options.size(); i++)
     {
         std::string file = options[i].path.filename().string();
