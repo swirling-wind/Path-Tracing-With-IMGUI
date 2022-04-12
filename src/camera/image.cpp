@@ -43,22 +43,22 @@ inline double clamp(double x, double min, double max)
 
 void Image::save(const std::string& filename) const
 {
+    double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
+    double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
+
+    // Save in .ppm
     std::ofstream output_image(filename + ".ppm");
-    const int image_height = height;
-    const int image_width = width;
-    output_image << "P3\n" << image_width << " " << image_height << "\n255\n";
+    output_image << "P3\n" << width << " " << height << "\n255\n";
     for (const auto& pixel : blob)
     {
-        auto compressed_pixel = sRGB::gammaCompress(tonemap(pixel));
+        auto compressed_pixel = sRGB::gammaCompress(tonemap(pixel * exposure_factor) * gain_factor);
         output_image << static_cast<int>(256 * clamp(compressed_pixel.r, 0.0, 0.9999)) << ' '
             << static_cast<int>(256 * clamp(compressed_pixel.g, 0.0, 0.9999)) << ' '
             << static_cast<int>(256 * clamp(compressed_pixel.b, 0.0, 0.9999)) << '\n';
     }
-    std::cerr << "\nPPM saveDone.\n";
+    std::cerr << "\nPPM save Done.\n";
 
-    double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
-    double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
-
+    // Save in TGA
     HeaderTGA header((uint16_t)width, (uint16_t)height);
     std::ofstream out_tonemapped(filename + ".tga", std::ios::binary);
     out_tonemapped.write(reinterpret_cast<char*>(&header), sizeof(header));
@@ -68,6 +68,7 @@ void Image::save(const std::string& filename) const
         out_tonemapped.write(reinterpret_cast<char*>(fp.data()), fp.size() * sizeof(uint8_t));
     }
     out_tonemapped.close();
+    std::cerr << "\TGA save Done.\n";
 }
 
 glm::dvec3& Image::operator()(size_t col, size_t row)
