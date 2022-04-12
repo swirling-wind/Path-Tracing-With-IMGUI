@@ -54,7 +54,7 @@ void Image::save(const std::string& filename) const
             << static_cast<int>(256 * clamp(iter->g, 0.0, 0.999)) << ' '
             << static_cast<int>(256 * clamp(iter->b, 0.0, 0.999)) << '\n';
     }
-    std::cerr << "\nDone.\n";
+    std::cerr << "\nPPM saveDone.\n";
 
     double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
     double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;

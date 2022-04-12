@@ -45,22 +45,6 @@ std::vector<std::filesystem::path> get_models_in_folder(std::filesystem::path fo
     }
     return obj_path_vector;
 }
-int test11()
-{
-    //test
-    std::filesystem::path model_path = std::filesystem::current_path().parent_path().parent_path() / "models";
-    std::cout << "Model path: " << model_path.string() << std::endl;;
-    const auto obj_path_vector = get_models_in_folder(model_path);
-    std::cout << obj_path_vector.size() << std::endl;
-
-    const char* obj_name_list[100];
-    for (auto iter = obj_path_vector.begin(); iter != obj_path_vector.end(); ++iter)
-    {
-        obj_name_list[iter - obj_path_vector.begin()] = iter->filename().string().c_str();
-    }
-
-    return 0;
-}
 
 nlohmann::json generate_render_params()
 {

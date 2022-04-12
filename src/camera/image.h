@@ -13,6 +13,11 @@ struct Image
     Image() { }
     Image(const nlohmann::json &j);
 
+    std::vector<glm::dvec3> get_blob()
+    {
+        return blob;
+    }
+
     void save(const std::string& filename) const;
 
     glm::dvec3& operator()(size_t col, size_t row);

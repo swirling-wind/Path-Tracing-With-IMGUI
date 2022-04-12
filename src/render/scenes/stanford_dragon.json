@@ -11,7 +11,7 @@
       "image":  { "width": 960, "height": 540, "exposure_compensation": -2.0, "gain_compensation": 0.0, "tonemapper": "ACES" },
       "focus_distance": 17,
       "f_stop": 1.8,
-      "sqrtspp": 4,
+      "sqrtspp": 10,
       "savename": "stanford_dragon_frosted"
     }
   ],

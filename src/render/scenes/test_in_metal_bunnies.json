@@ -10,7 +10,7 @@
       "look_at": [ -0.23, 1.71, 0 ],
       "image":  { "width": 1280, "height": 720, "exposure_compensation": -1.5, "gain_compensation": 0.0, "tonemapper": "ACES" },
       "sqrtspp": 4,
-      "savename": "test_metal_bunnies(position [ -0.23, 4, 4.7 ])"
+      "savename": "test_metal_bunnies(plain)"
     }
   ],
 
