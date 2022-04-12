@@ -23,7 +23,7 @@ class Camera
 public:
     Camera(const nlohmann::json &j, const Option &option);
 
-    void preview();
+    std::vector<glm::dvec3> preview();
     void capture();
     void sampleImage();
 

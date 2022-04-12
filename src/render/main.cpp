@@ -55,7 +55,7 @@ nlohmann::json generate_render_params()
     return render_params;
 }
 
-int main22(int, char**)
+int main(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -266,7 +266,7 @@ int main22(int, char**)
     return 0;
 }
 
-int main(int argc, char* argv[])
+int main33(int argc, char* argv[])
 {
     //if (argc > 1)
     //{
@@ -319,6 +319,9 @@ int main(int argc, char* argv[])
     }
 
     camera->capture();
+
+
+    //camera->preview();
 
     return 0;
 }

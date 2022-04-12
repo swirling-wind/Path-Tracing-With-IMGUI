@@ -43,16 +43,16 @@ inline double clamp(double x, double min, double max)
 
 void Image::save(const std::string& filename) const
 {
-     //test ppm
     std::ofstream output_image(filename + ".ppm");
-    const int image_height = 720;
-    const int image_width = 1280;
+    const int image_height = height;
+    const int image_width = width;
     output_image << "P3\n" << image_width << " " << image_height << "\n255\n";
-    for (auto iter = blob.begin(); iter != blob.end(); ++iter)
+    for (const auto& pixel : blob)
     {
-        output_image << static_cast<int>(256 * clamp(iter->r, 0.0, 0.999)) << ' '
-            << static_cast<int>(256 * clamp(iter->g, 0.0, 0.999)) << ' '
-            << static_cast<int>(256 * clamp(iter->b, 0.0, 0.999)) << '\n';
+        auto compressed_pixel = sRGB::gammaCompress(tonemap(pixel));
+        output_image << static_cast<int>(256 * clamp(compressed_pixel.r, 0.0, 0.9999)) << ' '
+            << static_cast<int>(256 * clamp(compressed_pixel.g, 0.0, 0.9999)) << ' '
+            << static_cast<int>(256 * clamp(compressed_pixel.b, 0.0, 0.9999)) << '\n';
     }
     std::cerr << "\nPPM saveDone.\n";
 

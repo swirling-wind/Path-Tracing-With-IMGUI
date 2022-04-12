@@ -167,11 +167,11 @@ void Camera::lookAt(const glm::dvec3& p)
     up = glm::normalize(glm::cross(forward, left));
 }
 
-void Camera::preview()
+std::vector<glm::dvec3> Camera::preview()
 {
     std:std::cerr << "Start preview" << std::endl;
     sampleImage();
-
+    return getImage();
 }
 
 void Camera::capture()
