@@ -33,20 +33,6 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-std::vector<std::filesystem::path> get_models_in_folder(const std::filesystem::path folder_path)
-{
-    std::vector<std::filesystem::path> obj_path_vector;
-    for (const std::filesystem::directory_entry& file : std::filesystem::directory_iterator(folder_path))
-    {
-        if (!file.path().has_extension() || file.path().extension() != ".obj")
-            continue;
-        obj_path_vector.push_back(file.path());
-        std::string obj_file_name = file.path().filename().string();
-        std::cout << obj_file_name << std::endl;
-
-    }
-    return obj_path_vector;
-}
 
 int main(int, char**)
 {
@@ -99,20 +85,20 @@ int main(int, char**)
     bool show_demo_window = true;
 
     // Render parameters =======================================================================
+    constexpr int filename_max_length = 101;
+    char file_save_name[filename_max_length] = "new image";
     
     std::vector<gui_tools::object_imported> objects_vector;
-   
 
-    std::array<float, 3>camera_eye_pos{ 0.0,0.0,0.0 };
-    std::array<float, 3>camera_look_at{ 0.0,0.0,0.0 };
+    std::array<float, 3>camera_eye_pos = { -0.2f, 2.2f, 10.0f };
+    std::array<float, 3>camera_look_at = { -0.2f, 1.7f, 0.0f };
 
-    const int samples_per_pixel = 16;
-    std::array<int, 2> output_image_size = {1920, 1080};
+    const int samples_per_pixel = 9;
+    std::array<int, 2> output_image_size = {1280, 720};
 
-
-    const std::filesystem::path model_path = std::filesystem::current_path().parent_path().parent_path() / "models" / "test_scene";
+    const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
     std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
-    const auto obj_found_in_path = get_models_in_folder(model_path);
+    const auto obj_found_in_path = gui_tools::get_models_in_folder(model_path);
     std::cout << obj_found_in_path.size() << std::endl;
 
     // Main loop
@@ -186,10 +172,39 @@ int main(int, char**)
                 }
             }
 
+            //test gui_params_tool
+            if (ImGui::Button("\nOutput json"))
+            {
+                std::string save_name{ file_save_name };
+                nlohmann::json test_json = generate_render_params(save_name, camera_eye_pos, camera_look_at, output_image_size, samples_per_pixel, objects_vector);
+
+                std::ofstream out(save_name + ".json");
+                out << test_json;
+
+            }
+
+
             //Render
+            ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
             if (ImGui::Button("\nStart offline Rendering in Current Setting"))
             {
                 //TODO
+                std::unique_ptr<Camera> camera;
+                std::string save_name{ file_save_name };
+                nlohmann::json render_json = generate_render_params(save_name, camera_eye_pos, camera_look_at, output_image_size, samples_per_pixel, objects_vector);
+
+        /*        try
+                {
+                    camera = std::make_unique<Camera>(render_json, scene_option);
+                }
+                catch (const std::exception& ex)
+                {
+                    std::cout << ex.what() << std::endl;
+                    return -1;
+                }
+
+                camera->capture();*/
+
             }
             
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
