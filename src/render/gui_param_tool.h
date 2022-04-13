@@ -12,11 +12,11 @@
 
 namespace gui_tools
 {
-    constexpr int num_of_material_list = 11;
+    constexpr int num_of_material_list = 12;
     inline std::array<const char*, num_of_material_list> material_list = {
         "default", "light",  "wood", "walnut", "oak",
         "gold", "nickel", "copper", "iron", "brass",
-        "palladium"
+        "palladium", "glass"
     };
 
     struct object_imported
@@ -55,11 +55,12 @@ namespace gui_tools
         render_params["ior"] = 1;
 
         //camera
-        nlohmann::json camera_params;
-        camera_params["focal_length"] = 50;
-        camera_params["sensor_width"] = 35;  
-        camera_params["eye"] = camera_eye_pos;
-        camera_params["look_at"] = camera_look_at;
+        nlohmann::json camera_params(nlohmann::json::value_t::array);
+        nlohmann::json one_instantce_camera;
+        one_instantce_camera["focal_length"] = 50;
+        one_instantce_camera["sensor_width"] = 35;
+        one_instantce_camera["eye"] = camera_eye_pos;
+        one_instantce_camera["look_at"] = camera_look_at;
 
             //Image
             nlohmann::json image_params;
@@ -68,12 +69,13 @@ namespace gui_tools
             image_params["exposure_compensation"] = -1.5;
             image_params["gain_compensation"] = 0.0;
             image_params["tonemapper"] = "ACES";
-            camera_params["image"] = image_params;
+            one_instantce_camera["image"] = image_params;
 
-        camera_params["sqrtspp"] = samples_per_pixel;
-        camera_params["savename"] = save_name;
+        one_instantce_camera["sqrtspp"] = samples_per_pixel;
+        one_instantce_camera["savename"] = save_name;
 
-        render_params["camera"] = camera_params;
+        camera_params.insert(camera_params.end(), one_instantce_camera);
+        render_params["cameras"] = camera_params;
 
 
         //BVH
@@ -151,6 +153,11 @@ namespace gui_tools
         palladium_ior["imaginary"] = { 4.37307307, 3.81575961, 3.19347675 };
         palladium_params["ior"] = palladium_ior;
         material_params["palladium"] = palladium_params;
+
+        nlohmann::json glass_params;
+        glass_params["ior"] = 1.5;
+        glass_params["transparancy"] = 1.0;
+        material_params["glass"] = glass_params;
 
         render_params["materials"] = material_params;
 

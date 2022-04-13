@@ -93,7 +93,7 @@ int main(int, char**)
     std::array<float, 3>camera_eye_pos = { -0.2f, 2.2f, 10.0f };
     std::array<float, 3>camera_look_at = { -0.2f, 1.7f, 0.0f };
 
-    const int samples_per_pixel = 9;
+    const int samples_per_pixel = 4; // to be powed
     std::array<int, 2> output_image_size = {1280, 720};
 
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
@@ -193,9 +193,9 @@ int main(int, char**)
                 std::string save_name{ file_save_name };
                 nlohmann::json render_json = generate_render_params(save_name, camera_eye_pos, camera_look_at, output_image_size, samples_per_pixel, objects_vector);
 
-        /*        try
+                try
                 {
-                    camera = std::make_unique<Camera>(render_json, scene_option);
+                    camera = std::make_unique<Camera>(render_json, false);
                 }
                 catch (const std::exception& ex)
                 {
@@ -203,7 +203,7 @@ int main(int, char**)
                     return -1;
                 }
 
-                camera->capture();*/
+                camera->capture();
 
             }
             
