@@ -55,7 +55,7 @@ nlohmann::json generate_render_params()
     return render_params;
 }
 
-int test(int, char**)
+int main(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -107,50 +107,34 @@ int test(int, char**)
     bool show_another_window = false;
 
     // Render parameters =======================================================================
-    struct light_imported
-    {
-        std::array<float, 3> position{ 0.0,0.0,0.0 };
-        std::array<float, 3> color{ 0.0,0.0,0.0 };// range[0,1]
-    };
 
     struct object_imported
     {
         std::array<float, 3> position{ 0.0,0.0,0.0 };
-        std::string file_location; // path
-        std::string material_type;
+        std::filesystem::path file_location; // path
+        int material_type{0};
     };
+    
+    std::vector<object_imported> objects_vector;
+    constexpr int num_of_material_list = 12;
+    std::array<const char*, num_of_material_list> material_list[] = {
+        "default", "light",  "red_wall", "green_wall", "blue_wall",
+        "water", "glass", "floor", "wood", "iron",
+        "copper", "gold"
+    };
+   
 
     std::array<float, 3>camera_eye_pos{ 0.0,0.0,0.0 };
     std::array<float, 3>camera_look_at{ 0.0,0.0,0.0 };
 
-    std::vector<light_imported> lights_vector;
-    std::vector<object_imported> objects_vector;
-
-    int samples_per_pixel = 4;
-    int output_image_width = 2000;
-    int output_image_height = 1500;
+    const int samples_per_pixel = 16;
+    std::array<int, 2> output_image_size = {1920, 1080};
 
 
-    std::filesystem::path model_path = std::filesystem::current_path().parent_path().parent_path() / "models";
-    std::cout << "Model path: " << model_path.string() << std::endl;
-    const auto obj_path_vector = get_models_in_folder(model_path);
-    std::cout << obj_path_vector.size() << std::endl;
-
-    
- /*   std::vector<const char*> temp_obj_filename_char_vector;
-    temp_obj_filename_char_vector.reserve(obj_path_vector.size());
-    for (const auto& obj_path : obj_path_vector)
-    {
-        temp_obj_filename_char_vector.push_back(obj_path.string().data());
-    }
-
-    const char* obj_name_list[100];
-    for (int i = 0; i < temp_obj_filename_char_vector.size(); ++i)
-    {
-        obj_name_list[i] = temp_obj_filename_char_vector.at(i);
-    }
-    int obj_current_chosen = 1;*/
-
+    const std::filesystem::path model_path = std::filesystem::current_path().parent_path().parent_path() / "models" / "test_scene";
+    std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
+    const auto obj_found_in_path = get_models_in_folder(model_path);
+    std::cout << obj_found_in_path.size() << std::endl;
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -168,79 +152,55 @@ int test(int, char**)
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
-            static float f = 0.0f;
-            static int counter = 0;
 
-            ImGui::Begin("Path Tracing");                          // Create a window called "Hello, world!" and append into it.
+            ImGui::Begin("Path Tracing");
 
             // Camera: Eye & LookAt
             ImGui::Text("Camera");
             ImGui::InputFloat3("Eye Position", camera_eye_pos.data());
             ImGui::InputFloat3("Look At", camera_look_at.data());
 
-            //lights
-            ImGui::Text("\nLights");
-            for (auto iter = lights_vector.begin(); iter != lights_vector.end(); ++iter)
-            {
-                const auto index = iter - lights_vector.begin();
-                ImGui::Text((" light " + std::to_string(index)).c_str());
-                ImGui::InputFloat3(("  position " + std::to_string(index)).c_str(), iter->position.data());
-                ImGui::ColorEdit3(("  color " + std::to_string(index)).c_str(), iter->color.data()); // range[0,1]
-            }
-
-            if (ImGui::Button("Add light"))
-            {
-                light_imported temp_light;
-                lights_vector.push_back(temp_light);
-                
-            }
-
-            //Object
+            // Display all imported objects
             ImGui::Text("\nObjects");
-            for (auto iter = obj_path_vector.begin(); iter != obj_path_vector.end(); ++iter)
+            for (auto iter = objects_vector.begin(); iter != objects_vector.end(); ++iter)
             {
-                const auto index = iter - obj_path_vector.begin();
+                const auto index = iter - objects_vector.begin();
+
+                ImGui::Text(("\n" + iter->file_location.string() + std::to_string(index)).c_str());
+                ImGui::InputFloat3(("position " + std::to_string(index)).c_str(), iter->position.data());
+                ImGui::ListBox(
+                    ("material " + std::to_string(index)).c_str(),
+                    &iter->material_type,
+                    material_list->data(),
+                    num_of_material_list
+                );
+            }
+
+            // Remove the last imported object
+            if (ImGui::Button("Remove"))
+            {
+                objects_vector.pop_back();
+            }
+
+            // Press button to add a new object 
+            for (auto iter = obj_found_in_path.begin(); iter != obj_found_in_path.end(); ++iter)
+            {
+                const auto index = iter - obj_found_in_path.begin();
                 if (ImGui::Button(iter->string().data()))
                 {
-                    std::cerr << iter->string() << std::endl;
+                    object_imported temp_object;
+                    temp_object.file_location = iter->filename();
+                    objects_vector.push_back(temp_object);
                 }
             }
 
-            // Using the _simplified_ one-liner ListBox() api here
-            // See "List boxes" section for examples of how to use the more flexible BeginListBox()/EndListBox() api.
-            //ImGui::ListBox("listbox", &obj_current_chosen, obj_name_list, IM_ARRAYSIZE(obj_name_list), 4);
-            //"Using the simplified one-liner ListBox API here.\nRefer to the \"List boxes\" section below for an explanation of how to use the more flexible and general BeginListBox/EndListBox API.");
-            //ImGui::ListBox("Model List")
-            ImGui::SameLine();
-            if (ImGui::Button("Add Obejct"))
-            {
-                
-            }
-
             //Render
-            if (ImGui::Button("Load Settings"))
+            if (ImGui::Button("\nStart offline Rendering in Current Setting"))
             {
-                
+                //TODO
             }
-            if (ImGui::Button("Start Rendering"))
-            {
-                
-            }
-
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
+            
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::End();
-        }
-
-        // 3. Show another simple window.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
             ImGui::End();
         }
 
@@ -266,7 +226,7 @@ int test(int, char**)
     return 0;
 }
 
-int main()
+int test_render()
 {
     std::cout << "Scene directory:" << std::endl << Scene::path.string() << std::endl << std::endl;
 
