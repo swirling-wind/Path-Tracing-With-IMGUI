@@ -244,6 +244,7 @@
     <ClInclude Include="..\sampling\sobol.h" />
     <ClInclude Include="..\scene\scene.h" />
     <ClInclude Include="..\surface\surface.h" />
+    <ClInclude Include="gui_param_tool.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\.editorconfig" />

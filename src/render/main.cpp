@@ -22,6 +22,8 @@
 #include <iostream>
 #include <thread>
 #include <GLFW/glfw3.h> 
+
+#include "gui_param_tool.h"
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
@@ -44,15 +46,6 @@ std::vector<std::filesystem::path> get_models_in_folder(const std::filesystem::p
 
     }
     return obj_path_vector;
-}
-
-nlohmann::json generate_render_params()
-{
-    nlohmann::json render_params{
-  {"pi", 3.141},
-  {"happy", true}
-    };
-    return render_params;
 }
 
 int main(int, char**)
@@ -106,21 +99,8 @@ int main(int, char**)
     bool show_demo_window = true;
 
     // Render parameters =======================================================================
-
-    struct object_imported
-    {
-        std::array<float, 3> position{ 0.0,0.0,0.0 };
-        std::filesystem::path file_location; // path
-        int material_type{0};
-    };
     
-    std::vector<object_imported> objects_vector;
-    constexpr int num_of_material_list = 12;
-    std::array<const char*, num_of_material_list> material_list = {
-        "default", "light",  "red_wall", "green_wall", "blue_wall",
-        "water", "glass", "floor", "wood", "iron",
-        "copper", "gold"
-    };
+    std::vector<gui_tools::object_imported> objects_vector;
    
 
     std::array<float, 3>camera_eye_pos{ 0.0,0.0,0.0 };
@@ -171,13 +151,13 @@ int main(int, char**)
                 if (ImGui::Button(("Select " + index + "'s material ..").c_str()))
                     ImGui::OpenPopup(("select_popup" + index).c_str());
                 ImGui::SameLine();
-                ImGui::TextUnformatted(material_list.at(iter->material_type));
+                ImGui::TextUnformatted(gui_tools::material_list.at(iter->material_type));
                 if (ImGui::BeginPopup(("select_popup" + index).c_str()))
                 {
                     ImGui::Text("Material");
                     ImGui::Separator();
-                    for (int i = 0; i < num_of_material_list; i++)
-                        if (ImGui::Selectable(material_list.at(i)))
+                    for (int i = 0; i < gui_tools::num_of_material_list; i++)
+                        if (ImGui::Selectable(gui_tools::material_list.at(i)))
                             iter->material_type = i;
                     ImGui::EndPopup();
                 }
@@ -200,7 +180,7 @@ int main(int, char**)
                 const auto index = iter - obj_found_in_path.begin();
                 if (ImGui::Button(iter->string().data()))
                 {
-                    object_imported temp_object;
+                    gui_tools::object_imported temp_object;
                     temp_object.file_location = iter->filename();
                     objects_vector.push_back(temp_object);
                 }
