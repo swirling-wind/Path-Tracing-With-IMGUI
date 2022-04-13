@@ -104,7 +104,6 @@ int main(int, char**)
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     bool show_demo_window = true;
-    bool show_another_window = false;
 
     // Render parameters =======================================================================
 
@@ -117,7 +116,7 @@ int main(int, char**)
     
     std::vector<object_imported> objects_vector;
     constexpr int num_of_material_list = 12;
-    std::array<const char*, num_of_material_list> material_list[] = {
+    std::array<const char*, num_of_material_list> material_list = {
         "default", "light",  "red_wall", "green_wall", "blue_wall",
         "water", "glass", "floor", "wood", "iron",
         "copper", "gold"
@@ -164,23 +163,36 @@ int main(int, char**)
             ImGui::Text("\nObjects");
             for (auto iter = objects_vector.begin(); iter != objects_vector.end(); ++iter)
             {
-                const auto index = iter - objects_vector.begin();
+                const auto index = std::to_string( iter - objects_vector.begin());
 
-                ImGui::Text(("\n" + iter->file_location.string() + std::to_string(index)).c_str());
-                ImGui::InputFloat3(("position " + std::to_string(index)).c_str(), iter->position.data());
-                ImGui::ListBox(
-                    ("material " + std::to_string(index)).c_str(),
-                    &iter->material_type,
-                    material_list->data(),
-                    num_of_material_list
-                );
+                ImGui::Text(("\n" + iter->file_location.string() + " " + index).c_str());
+                ImGui::InputFloat3(("position " + index).c_str(), iter->position.data());
+
+                if (ImGui::Button(("Select " + index + "'s material ..").c_str()))
+                    ImGui::OpenPopup(("select_popup" + index).c_str());
+                ImGui::SameLine();
+                ImGui::TextUnformatted(material_list.at(iter->material_type));
+                if (ImGui::BeginPopup(("select_popup" + index).c_str()))
+                {
+                    ImGui::Text("Material");
+                    ImGui::Separator();
+                    for (int i = 0; i < num_of_material_list; i++)
+                        if (ImGui::Selectable(material_list.at(i)))
+                            iter->material_type = i;
+                    ImGui::EndPopup();
+                }
             }
-
+            
             // Remove the last imported object
-            if (ImGui::Button("Remove"))
+            if (!objects_vector.empty())
             {
-                objects_vector.pop_back();
+                ImGui::SameLine();
+                if (ImGui::Button("Remove"))
+                {
+                    objects_vector.pop_back();
+                }
             }
+            
 
             // Press button to add a new object 
             for (auto iter = obj_found_in_path.begin(); iter != obj_found_in_path.end(); ++iter)
