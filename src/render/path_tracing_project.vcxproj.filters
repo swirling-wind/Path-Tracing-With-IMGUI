@@ -11,6 +11,9 @@
     <Filter Include="sources\render">
       <UniqueIdentifier>{65df3e70-1270-48b3-82e8-3fc88a3d4237}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sources\stb">
+      <UniqueIdentifier>{83ac718d-1cfd-4d52-b966-e2a79fe1f96e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -254,6 +257,9 @@
     </ClInclude>
     <ClInclude Include="gui_param_tool.h">
       <Filter>sources\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\stb\stb_image.h">
+      <Filter>sources\stb</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -145,6 +145,7 @@ void Camera::samplePixel(size_t x, size_t y)
     num_sampled_pixels++;
 }
 
+
 void Camera::sampleImage()
 {
     std::vector<Bucket> buckets_vec;
@@ -212,13 +213,6 @@ void Camera::lookAt(const glm::dvec3& p)
     left = glm::cross({0.0, 1.0, 0.0}, forward);
     left = glm::length(left) < C::EPSILON ? glm::dvec3(-1.0, 0.0, 0.0) : glm::normalize(left);
     up = glm::normalize(glm::cross(forward, left));
-}
-
-std::vector<glm::dvec3> Camera::preview()
-{
-    std:std::cerr << "Start preview" << std::endl;
-    sampleImage();
-    return getImage();
 }
 
 void Camera::capture()
