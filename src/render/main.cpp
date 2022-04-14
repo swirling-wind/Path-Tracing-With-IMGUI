@@ -93,7 +93,7 @@ int main(int, char**)
     std::array<float, 3>camera_eye_pos = { -0.2f, 2.2f, 10.0f };
     std::array<float, 3>camera_look_at = { -0.2f, 1.7f, 0.0f };
 
-    const int samples_per_pixel = 4; // to be powed
+    int side_spp = 4; // to be powed
     std::array<int, 2> output_image_size = {1280, 720};
 
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
@@ -172,26 +172,29 @@ int main(int, char**)
                 }
             }
 
-            //test gui_params_tool
+            
+            ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
+            ImGui::InputInt("Side samples per pixel", &side_spp);
+
+            //Output gui_params as json
             if (ImGui::Button("\nOutput json"))
             {
                 std::string save_name{ file_save_name };
-                nlohmann::json test_json = generate_render_params(save_name, camera_eye_pos, camera_look_at, output_image_size, samples_per_pixel, objects_vector);
+                nlohmann::json test_json = generate_render_params(save_name, camera_eye_pos, camera_look_at, output_image_size, side_spp, objects_vector);
 
                 std::ofstream out(save_name + ".json");
                 out << test_json;
 
             }
-
+            ImGui::SameLine();
 
             //Render
-            ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
             if (ImGui::Button("\nStart offline Rendering in Current Setting"))
             {
                 //TODO
                 std::unique_ptr<Camera> camera;
                 std::string save_name{ file_save_name };
-                nlohmann::json render_json = generate_render_params(save_name, camera_eye_pos, camera_look_at, output_image_size, samples_per_pixel, objects_vector);
+                nlohmann::json render_json = generate_render_params(save_name, camera_eye_pos, camera_look_at, output_image_size, side_spp, objects_vector);
 
                 try
                 {

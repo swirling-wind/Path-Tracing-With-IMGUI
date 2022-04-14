@@ -4,6 +4,10 @@
 ## ImGui artifacts
 ## imgui.ini
 
+## Images
+*.ppm
+*.tga
+
 ## General build artifacts
 *.o
 *.obj
