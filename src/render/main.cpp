@@ -29,43 +29,6 @@
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
-
-// Simple helper function to load an image into a OpenGL texture with common settings
-bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_width, int* out_height)
-{
-    // Load from file
-    int image_width = 0;
-    int image_height = 0;
-    unsigned char* image_data = stbi_load(filename, &image_width, &image_height, NULL, 4);
-    if (image_data == NULL)
-        return false;
-
-    // Create a OpenGL texture identifier
-    GLuint image_texture;
-    glGenTextures(1, &image_texture);
-    glBindTexture(GL_TEXTURE_2D, image_texture);
-
-    // Setup filtering parameters for display
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
-
-    // Upload pixels into texture
-#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-    stbi_image_free(image_data);
-
-    *out_texture = image_texture;
-    *out_width = image_width;
-    *out_height = image_height;
-
-    return true;
-}
 
 
 static void glfw_error_callback(int error, const char* description)
@@ -86,28 +49,10 @@ int main(int, char**)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE,
         GLFW_OPENGL_CORE_PROFILE); // 3.2+ only
-
-
-//#if defined(IMGUI_IMPL_OPENGL_ES2)
-//    // GL ES 2.0 + GLSL 100
-//    const char* glsl_version = "#version 100";
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-//    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-//#elif defined(__APPLE__)
-//    // GL 3.2 + GLSL 150
-//    const char* glsl_version = "#version 150";
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-//    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-//#else
-    // GL 3.0 + GLSL 130
-    const char* glsl_version = "#version 130";
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-//#endif
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+    const char* glsl_version = "#version 130";
+
     // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(1920, 1080, "Path Tracing", nullptr, nullptr);
     if (window == nullptr)
@@ -141,9 +86,9 @@ int main(int, char**)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    bool show_demo_window = true;
+    bool show_demo_window = false;
 
-    // Preview Params ========================================================================
+    // Preview Essentials ========================================================================
     
     GLuint vbo = 0;
     GLuint ebo = 0;
@@ -155,7 +100,6 @@ int main(int, char**)
 
     GLfloat quad_vertices[20]
     {
-        // positions         // texture coords
          -1,  -1, 0,  0, 1, // top right
          1, -1, 0,  1, 1, // bottom right
         1, 1, 0,  1, 0, // bottom left
@@ -254,39 +198,10 @@ void main()
         std::cout << "succeed to link the shader program\n";
     }
 
-
-    // import image for test
-
-    //int my_image_width = 0;
-    //int my_image_height = 0;
-    //GLuint my_image_texture = 0;
-    //bool ret = LoadTextureFromFile("test.png", &my_image_texture, &my_image_width, &my_image_height);
-    //IM_ASSERT(ret);
-    //glUseProgram(shader_program);
-    //glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_2D, my_image_texture);
-    //glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0); // ÊÖ¶¯ÉèÖÃ
-    //glUseProgram(0);
-
-    // load and create a texture 
-    // -------------------------
     unsigned int texture;
     glGenTextures(1, &texture);
-    
-    // load image, create texture and generate mipmaps
-    int texture_width, texture_height, nrChannels;
-    // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-    unsigned char* data = stbi_load("test.png", &texture_width, &texture_height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_width, texture_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
+
+    int texture_width, texture_height;
 
     // Render parameters =====================================================================
     gui_tools::shoot_params shoot_photo_params;
@@ -325,11 +240,6 @@ void main()
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
         {
-            //ImGui::Begin("OpenGL Texture Text");
-            //ImGui::Text("pointer = %p", my_image_texture);
-            //ImGui::Text("size = %d x %d", my_image_width, my_image_height);
-            //ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
-            //ImGui::End();
             ImGui::Begin("OpenGL Texture Text");
             ImGui::Text("pointer = %p", texture);
             ImGui::Text("size = %d x %d", texture_width, texture_height);
@@ -438,10 +348,7 @@ void main()
             {
                 std::unique_ptr<Camera> camera_for_preview;
                 std::string preview_save_name{ file_save_name };
-                //int temp_ssq = shoot_photo_params.side_spp;//swap and temperately let ssp as 1
-                //shoot_photo_params.side_spp = 2;
                 nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, preview_save_name, camera_eye_pos, camera_look_at, output_image_size, objects_vector);
-                //shoot_photo_params.side_spp = temp_ssq;
                 try
                 {
                     camera_for_preview = std::make_unique<Camera>(preview_render_json, shoot_photo_params.is_photon_map);
@@ -453,37 +360,19 @@ void main()
                 }
 
                 preview_image = camera_for_preview->preview();
-
-
-                
                 std::cerr << "Copy complete\n";
-                glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-    // set the texture wrapping parameters
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                // set texture filtering parameters
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                std::vector<float> texture_vec;
-
-                unsigned char* image_data = stbi_load("test.png", &texture_width, &texture_height, NULL, 4);
+                
                 glBindTexture(GL_TEXTURE_2D, texture);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
-                //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-                //stbi_image_free(image_data);
-                ;
-                texture_vec.reserve(preview_image.size() *4);
-                for(int i=0;i< preview_image.size() ;i++)
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                
+                std::vector<glm::vec3> texture_vec;
+                texture_vec.reserve(preview_image.size());
+                for (int i = 0; i < preview_image.size(); i++)
                 {
-                    //texture_vec.emplace_back(preview_image[i]);
-                    //texture_vec.emplace_back(glm::vec3(1.0,0,0));
-                    texture_vec.push_back(preview_image[i].r);
-                    texture_vec.push_back(preview_image[i].g);
-                    texture_vec.push_back(preview_image[i].b);
-                    //texture_vec.push_back(0);
+                    texture_vec.emplace_back(preview_image[i]);
                 }
 
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, preview_image_size.at(0), preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
@@ -492,8 +381,6 @@ void main()
                 glBindTexture(GL_TEXTURE_2D, texture);
                 glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0);
                 glUseProgram(0);
-                texture_width= preview_image_size.at(0);
-                texture_height = preview_image_size.at(1);
                 std::cout << "done\n";
             }
 
@@ -516,12 +403,6 @@ void main()
                 camera->capture();
 
             }
-
-            //if (ImGui::Button("\ntestor"))
-            //{
-            //    std::cerr << shoot_photo_params.is_octree << " " << shoot_photo_params.is_sah << std::endl;
-            //    std::cerr << shoot_photo_params.is_photon_map << std::endl;
-            //}
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::End();
@@ -557,7 +438,6 @@ void main()
         // Rendering
         ImGui::Render();
         glViewport(0, 0, display_w, display_h);
-        //std::cout << "height: "<<display_h <<"width: "<< display_w<<"\n";
         glDisable(GL_CULL_FACE);
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shader_program);
@@ -643,9 +523,6 @@ int test_render()
     }
 
     camera->capture();
-
-
-    //camera->preview();
 
     return 0;
 }
