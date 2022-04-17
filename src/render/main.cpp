@@ -148,10 +148,10 @@ int main(int, char**)
     GLfloat quad_vertices[20]
     {
         // positions         // texture coords
-         0.5f,  0.5f, 0.0f,  1.0f, 1.0f, // top right
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,  0.0f, 1.0f  // top left 
+         -1,  -1, 0,  0, 1, // top right
+         1, -1, 0,  1, 1, // bottom right
+        1, 1, 0,  1, 0, // bottom left
+        -1,  1, 0,  0, 0  // top left 
     };
 
     GLuint quad_index[]{
@@ -264,13 +264,7 @@ void main()
     // -------------------------
     unsigned int texture;
     glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
     // load image, create texture and generate mipmaps
     int texture_width, texture_height, nrChannels;
     // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
@@ -290,6 +284,7 @@ void main()
     gui_tools::shoot_params shoot_photo_params;
 
     std::array<int, 2> output_image_size = { 1280, 720 };
+    const std::array<int, 2> preview_image_size = { 1280, 720 };
 
     std::vector<gui_tools::object_imported> objects_vector;
 
@@ -435,10 +430,10 @@ void main()
             {
                 std::unique_ptr<Camera> camera_for_preview;
                 std::string preview_save_name{ file_save_name };
-                int temp_ssq = shoot_photo_params.side_spp;//swap and temperately let ssp as 1
-                shoot_photo_params.side_spp = 1;
+                //int temp_ssq = shoot_photo_params.side_spp;//swap and temperately let ssp as 1
+                //shoot_photo_params.side_spp = 2;
                 nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, preview_save_name, camera_eye_pos, camera_look_at, output_image_size, objects_vector);
-                shoot_photo_params.side_spp = temp_ssq;
+                //shoot_photo_params.side_spp = temp_ssq;
                 try
                 {
                     camera_for_preview = std::make_unique<Camera>(preview_render_json, shoot_photo_params.is_photon_map);
@@ -448,9 +443,50 @@ void main()
                     std::cout << ex.what() << std::endl;
                     return -1;
                 }
+
                 preview_image = camera_for_preview->preview();
 
-                //TODO
+
+                
+                std::cerr << "Copy complete\n";
+                glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    // set the texture wrapping parameters
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                // set texture filtering parameters
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                std::vector<float> texture_vec;
+
+                unsigned char* image_data = stbi_load("test.png", &texture_width, &texture_height, NULL, 4);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+                //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+                //stbi_image_free(image_data);
+                ;
+                texture_vec.reserve(preview_image.size() *4);
+                for(int i=0;i< preview_image.size() ;i++)
+                {
+                    //texture_vec.emplace_back(preview_image[i]);
+                    //texture_vec.emplace_back(glm::vec3(1.0,0,0));
+                    texture_vec.push_back(preview_image[i].r);
+                    texture_vec.push_back(preview_image[i].g);
+                    texture_vec.push_back(preview_image[i].b);
+                    //texture_vec.push_back(0);
+                }
+
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, preview_image_size.at(0), preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
+                glUseProgram(shader_program);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0);
+                glUseProgram(0);
+                texture_width= preview_image_size.at(0);
+                texture_height = preview_image_size.at(1);
+                std::cout << "done\n";
             }
 
             if (ImGui::Button("\nStart offline Rendering in Current Setting"))
@@ -483,10 +519,18 @@ void main()
             ImGui::End();
         }
 
-        // Rendering
-        ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
+
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        glBufferData(vbo, 20, quad_vertices, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        // Rendering
+        ImGui::Render();
         glViewport(0, 0, display_w, display_h);
         //std::cout << "height: "<<display_h <<"width: "<< display_w<<"\n";
         glDisable(GL_CULL_FACE);
