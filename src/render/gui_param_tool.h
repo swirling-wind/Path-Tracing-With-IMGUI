@@ -13,10 +13,21 @@
 namespace gui_tools
 {
     constexpr int num_of_material_list = 12;
+
     inline std::array<const char*, num_of_material_list> material_list = {
         "default", "light",  "wood", "walnut", "oak",
         "gold", "nickel", "copper", "iron", "brass",
         "palladium", "glass"
+    };
+
+    struct shoot_params
+    {
+        float exposure_compensation = -1.5;
+        float gain_compensation = 0.0;
+        int side_spp = 3;
+        bool is_photon_map = false;
+        bool is_octree = true;
+        bool is_sah = false;
     };
 
     struct object_imported
@@ -42,10 +53,11 @@ namespace gui_tools
         return obj_path_vector;
     }
 
-    inline nlohmann::json generate_render_params(std::string save_name,
-                                                 const std::array<float, 3>camera_eye_pos, const std::array<float, 3>camera_look_at,
-                                                 std::array<int, 2> output_image_size, const int samples_per_pixel,
-                                                 std::vector<object_imported> objects_vector)
+    inline nlohmann::json generate_render_params(shoot_params shoot_image_params,
+        std::string save_name,
+        const std::array<float, 3>camera_eye_pos, const std::array<float, 3>camera_look_at,
+        std::array<int, 2> output_image_size,
+        std::vector<object_imported> objects_vector)
     {
 
 
@@ -66,12 +78,12 @@ namespace gui_tools
             nlohmann::json image_params;
             image_params["width"] = output_image_size.at(0);
             image_params["height"] = output_image_size.at(1);
-            image_params["exposure_compensation"] = -1.5;
-            image_params["gain_compensation"] = 0.0;
+            image_params["exposure_compensation"] = shoot_image_params.exposure_compensation;
+            image_params["gain_compensation"] = shoot_image_params.gain_compensation;
             image_params["tonemapper"] = "ACES";
             one_instantce_camera["image"] = image_params;
 
-        one_instantce_camera["sqrtspp"] = samples_per_pixel;
+        one_instantce_camera["sqrtspp"] = shoot_image_params.side_spp;
         one_instantce_camera["savename"] = save_name;
 
         camera_params.insert(camera_params.end(), one_instantce_camera);
@@ -82,6 +94,7 @@ namespace gui_tools
         nlohmann::json bvh_type;
         bvh_type["type"] = "octree";
         render_params["bvh"] = bvh_type;
+        //TODO
 
         //Materials
         nlohmann::json material_params;

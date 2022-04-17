@@ -84,24 +84,33 @@ int main(int, char**)
 
     bool show_demo_window = true;
 
-    // Render parameters =======================================================================
-    constexpr int filename_max_length = 101;
-    char file_save_name[filename_max_length] = "new image";
-    
+    // Render parameters =====================================================================
+    gui_tools::shoot_params shoot_photo_params;
+    //float exposure_compensation = -1.5;
+    //float gain_compensation = 0.0;
+    //int side_spp = 3; // to be powed
+    //bool is_photon_map = false;
+    //bool is_octree = true;
+    //bool is_sah = false;
+
+    std::array<int, 2> output_image_size = { 1280, 720 };
+
     std::vector<gui_tools::object_imported> objects_vector;
 
     std::array<float, 3>camera_eye_pos = { -0.2f, 2.2f, 10.0f };
     std::array<float, 3>camera_look_at = { -0.2f, 1.7f, 0.0f };
 
-    int side_spp = 4; // to be powed
-    std::array<int, 2> output_image_size = {1280, 720};
+    constexpr int filename_max_length = 101;
+    char file_save_name[filename_max_length] = "new image";
+
+    //  =======================================================================================
 
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
     std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
     const auto obj_found_in_path = gui_tools::get_models_in_folder(model_path);
     std::cout << obj_found_in_path.size() << std::endl;
 
-    // Main loop
+    // Main loop    ============================================================================
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -111,7 +120,7 @@ int main(int, char**)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+        // 1. Show the big demo
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
@@ -119,8 +128,26 @@ int main(int, char**)
         {
 
             ImGui::Begin("Path Tracing");
+            // Render params
+            ImGui::Checkbox("Use Photon Mapping", &shoot_photo_params.is_photon_map);
+            if (ImGui::RadioButton("Octree", shoot_photo_params.is_octree))
+            {
+                shoot_photo_params.is_octree = true;
+                shoot_photo_params.is_sah = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("SAH", shoot_photo_params.is_sah))
+            {
+                shoot_photo_params.is_octree = false;
+                shoot_photo_params.is_sah = true;
+            }
 
-            // Camera: Eye & LookAt
+
+            // Camera Params
+            ImGui::InputFloat("Exposure compensation", &shoot_photo_params.exposure_compensation, 0.1f, 1.0f, "%.3f");
+            ImGui::InputFloat("Gain Compensation", &shoot_photo_params.gain_compensation, 0.1f, 1.0f, "%.3f");
+
+            // Camera Position: Eye & LookAt
             ImGui::Text("Camera");
             ImGui::InputFloat3("Eye Position", camera_eye_pos.data());
             ImGui::InputFloat3("Look At", camera_look_at.data());
@@ -129,7 +156,7 @@ int main(int, char**)
             ImGui::Text("\nObjects");
             for (auto iter = objects_vector.begin(); iter != objects_vector.end(); ++iter)
             {
-                const auto index = std::to_string( iter - objects_vector.begin());
+                const auto index = std::to_string(iter - objects_vector.begin());
 
                 ImGui::Text(("\n" + iter->file_location.string() + " " + index).c_str());
                 ImGui::InputFloat3(("position " + index).c_str(), iter->position.data());
@@ -148,7 +175,7 @@ int main(int, char**)
                     ImGui::EndPopup();
                 }
             }
-            
+
             // Remove the last imported object
             if (!objects_vector.empty())
             {
@@ -158,7 +185,7 @@ int main(int, char**)
                     objects_vector.pop_back();
                 }
             }
-            
+
 
             // Press button to add a new object 
             for (auto iter = obj_found_in_path.begin(); iter != obj_found_in_path.end(); ++iter)
@@ -172,15 +199,15 @@ int main(int, char**)
                 }
             }
 
-            
+
             ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
-            ImGui::InputInt("Side samples per pixel", &side_spp);
+            ImGui::InputInt("Side samples per pixel", &shoot_photo_params.side_spp);
 
             //Output gui_params as json
             if (ImGui::Button("\nOutput json"))
             {
                 std::string save_name{ file_save_name };
-                nlohmann::json test_json = generate_render_params(save_name, camera_eye_pos, camera_look_at, output_image_size, side_spp, objects_vector);
+                nlohmann::json test_json = generate_render_params(shoot_photo_params, save_name, camera_eye_pos, camera_look_at, output_image_size, objects_vector);
 
                 std::ofstream out(save_name + ".json");
                 out << test_json;
@@ -194,7 +221,7 @@ int main(int, char**)
                 //TODO
                 std::unique_ptr<Camera> camera;
                 std::string save_name{ file_save_name };
-                nlohmann::json render_json = generate_render_params(save_name, camera_eye_pos, camera_look_at, output_image_size, side_spp, objects_vector);
+                nlohmann::json render_json = generate_render_params(shoot_photo_params, save_name, camera_eye_pos, camera_look_at, output_image_size, objects_vector);
 
                 try
                 {
@@ -209,7 +236,13 @@ int main(int, char**)
                 camera->capture();
 
             }
-            
+
+            if (ImGui::Button("\ntestor"))
+            {
+                std::cerr << shoot_photo_params.is_octree << " " << shoot_photo_params.is_sah << std::endl;
+                std::cerr << shoot_photo_params.is_photon_map << std::endl;
+            }
+
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::End();
         }
