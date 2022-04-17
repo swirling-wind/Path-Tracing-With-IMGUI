@@ -107,9 +107,9 @@ int main(int, char**)
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 //#endif
-
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1800, 900, "Path Tracing", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Path Tracing", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
@@ -521,14 +521,31 @@ void main()
 
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
-
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-        glBufferData(vbo, 20, quad_vertices, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
+        //{
+        //glBindVertexArray(vao);
+        //glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        //double image_w = preview_image_size[0];
+        //double image_h = preview_image_size[1];
+        //if (display_w / display_h > image_w / image_h)
+        //{
+        //    double ratio = image_w / image_h * display_h / display_w;
+        //    *(reinterpret_cast<glm::vec2*>(reinterpret_cast<float*>(quad_vertices) + 0)) = glm::vec2(-ratio, -1);
+        //    *(reinterpret_cast<glm::vec2*>(reinterpret_cast<float*>(quad_vertices) + 5)) = glm::vec2(ratio, -1);
+        //    *(reinterpret_cast<glm::vec2*>(reinterpret_cast<float*>(quad_vertices) + 10)) = glm::vec2(ratio, 1);
+        //    *(reinterpret_cast<glm::vec2*>(reinterpret_cast<float*>(quad_vertices) + 15)) = glm::vec2(-ratio, 1);
+        //}
+        //else
+        //{
+        //    double ratio = image_h / image_w * display_w / display_h;
+        //    *(reinterpret_cast<glm::vec2*>(reinterpret_cast<float*>(quad_vertices) + 0)) = glm::vec2(-1, -ratio);
+        //    *(reinterpret_cast<glm::vec2*>(reinterpret_cast<float*>(quad_vertices) + 5)) = glm::vec2(1, -ratio);
+        //    *(reinterpret_cast<glm::vec2*>(reinterpret_cast<float*>(quad_vertices) + 10)) = glm::vec2(1, ratio);
+        //    *(reinterpret_cast<glm::vec2*>(reinterpret_cast<float*>(quad_vertices) + 15)) = glm::vec2(-1, ratio);
+        //}
+        //glBufferData(vbo, 20, quad_vertices, GL_DYNAMIC_DRAW);
+        //glBindBuffer(GL_ARRAY_BUFFER, 0);
+        //glBindVertexArray(0);
+        //}
         // Rendering
         ImGui::Render();
         glViewport(0, 0, display_w, display_h);
