@@ -42,3 +42,5 @@ xcuserdata
 .idea
 cmake-build-*
 
+*.zip
+*.ini
