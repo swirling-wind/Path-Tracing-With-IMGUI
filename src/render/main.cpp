@@ -14,6 +14,7 @@
 #include "camera/camera.h"
 #include "common/option.h"
 #include "common/util.h"
+#include <glad/glad.h>
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
@@ -27,6 +28,45 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+
+// Simple helper function to load an image into a OpenGL texture with common settings
+bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_width, int* out_height)
+{
+    // Load from file
+    int image_width = 0;
+    int image_height = 0;
+    unsigned char* image_data = stbi_load(filename, &image_width, &image_height, NULL, 4);
+    if (image_data == NULL)
+        return false;
+
+    // Create a OpenGL texture identifier
+    GLuint image_texture;
+    glGenTextures(1, &image_texture);
+    glBindTexture(GL_TEXTURE_2D, image_texture);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+
+    // Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+    stbi_image_free(image_data);
+
+    *out_texture = image_texture;
+    *out_width = image_width;
+    *out_height = image_height;
+
+    return true;
+}
+
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -42,25 +82,31 @@ int main(int, char**)
         return 1;
 
     // Decide GL+GLSL versions
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-    // GL ES 2.0 + GLSL 100
-    const char* glsl_version = "#version 100";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-#elif defined(__APPLE__)
-    // GL 3.2 + GLSL 150
-    const char* glsl_version = "#version 150";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-#else
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE,
+        GLFW_OPENGL_CORE_PROFILE); // 3.2+ only
+
+
+//#if defined(IMGUI_IMPL_OPENGL_ES2)
+//    // GL ES 2.0 + GLSL 100
+//    const char* glsl_version = "#version 100";
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+//    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+//#elif defined(__APPLE__)
+//    // GL 3.2 + GLSL 150
+//    const char* glsl_version = "#version 150";
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+//    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+//#else
     // GL 3.0 + GLSL 130
     const char* glsl_version = "#version 130";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#endif
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+//#endif
 
     // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(1800, 900, "Path Tracing", nullptr, nullptr);
@@ -68,6 +114,11 @@ int main(int, char**)
         return 1;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
+
+    //Glad
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        throw std::runtime_error("GLAD failed to load OpenGL functions.");
+    }
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -84,14 +135,159 @@ int main(int, char**)
 
     bool show_demo_window = true;
 
+    // Preview Params ========================================================================
+    
+    GLuint vbo = 0;
+    GLuint ebo = 0;
+    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &ebo);
+
+    GLuint vao = 0;
+    glGenVertexArrays(1, &vao);
+
+    GLfloat quad_vertices[20]
+    {
+        // positions         // texture coords
+         0.5f,  0.5f, 0.0f,  1.0f, 1.0f, // top right
+         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,  0.0f, 1.0f  // top left 
+    };
+
+    GLuint quad_index[]{
+        0,1,2,
+        2,3,0
+    };
+    
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ARRAY_BUFFER, 20*sizeof(GLfloat), quad_vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void**)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void**)(3*sizeof(GLfloat)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(GLuint), quad_index, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindVertexArray(0);
+
+    constexpr char vertex_shader_source[] = R"(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec3 ourColor;
+out vec2 TexCoord;
+
+void main()
+{
+	gl_Position = vec4(aPos, 1.0);
+	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+}
+    )";
+    const char* const vertex_shader_source_ptr = vertex_shader_source;
+    auto vertex_shader=glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_shader_source_ptr, NULL);
+    glCompileShader(vertex_shader);
+    int  success;
+    char infoLog[512];
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(vertex_shader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }else
+    {
+        std::cout << "succeed to compile vertex shader\n";
+    }
+
+
+    constexpr char fragment_shader_source[] = R"(
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoord;
+
+// texture sampler
+uniform sampler2D texture1;
+
+void main()
+{
+	FragColor = texture(texture1, TexCoord);
+}
+    )";
+    const char* const fragment_shader_source_ptr = fragment_shader_source;
+    auto fragment_shader=glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_shader_source_ptr, NULL);
+    glCompileShader(fragment_shader);
+    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(fragment_shader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }else
+    {
+        std::cout << "succeed to compile fragment shader\n";
+    }
+
+
+
+    auto shader_program=glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glLinkProgram(shader_program);
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shader_program, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::LINK_FAILED\n" << infoLog << std::endl;
+    }else
+    {
+        std::cout << "succeed to link the shader program\n";
+    }
+
+
+    // import image for test
+
+    //int my_image_width = 0;
+    //int my_image_height = 0;
+    //GLuint my_image_texture = 0;
+    //bool ret = LoadTextureFromFile("test.png", &my_image_texture, &my_image_width, &my_image_height);
+    //IM_ASSERT(ret);
+    //glUseProgram(shader_program);
+    //glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, my_image_texture);
+    //glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0); // ÊÖ¶¯ÉèÖÃ
+    //glUseProgram(0);
+
+    // load and create a texture 
+    // -------------------------
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    int texture_width, texture_height, nrChannels;
+    // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
+    unsigned char* data = stbi_load("test.png", &texture_width, &texture_height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_width, texture_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+
     // Render parameters =====================================================================
     gui_tools::shoot_params shoot_photo_params;
-    //float exposure_compensation = -1.5;
-    //float gain_compensation = 0.0;
-    //int side_spp = 3; // to be powed
-    //bool is_photon_map = false;
-    //bool is_octree = true;
-    //bool is_sah = false;
 
     std::array<int, 2> output_image_size = { 1280, 720 };
 
@@ -102,6 +298,8 @@ int main(int, char**)
 
     constexpr int filename_max_length = 101;
     char file_save_name[filename_max_length] = "new image";
+
+    std::vector<glm::dvec3> preview_image;
 
     //  =======================================================================================
 
@@ -123,7 +321,18 @@ int main(int, char**)
         // 1. Show the big demo
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
-
+        {
+            //ImGui::Begin("OpenGL Texture Text");
+            //ImGui::Text("pointer = %p", my_image_texture);
+            //ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+            //ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
+            //ImGui::End();
+            ImGui::Begin("OpenGL Texture Text");
+            ImGui::Text("pointer = %p", texture);
+            ImGui::Text("size = %d x %d", texture_width, texture_height);
+            ImGui::Image((void*)(intptr_t)texture, ImVec2(texture_width, texture_height));
+            ImGui::End();
+        }
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
 
@@ -221,10 +430,31 @@ int main(int, char**)
             }
             ImGui::SameLine();
 
-            //Render
+            // Render
+            if (ImGui::Button("Preview"))
+            {
+                std::unique_ptr<Camera> camera_for_preview;
+                std::string preview_save_name{ file_save_name };
+                int temp_ssq = shoot_photo_params.side_spp;//swap and temperately let ssp as 1
+                shoot_photo_params.side_spp = 1;
+                nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, preview_save_name, camera_eye_pos, camera_look_at, output_image_size, objects_vector);
+                shoot_photo_params.side_spp = temp_ssq;
+                try
+                {
+                    camera_for_preview = std::make_unique<Camera>(preview_render_json, shoot_photo_params.is_photon_map);
+                }
+                catch (const std::exception& ex)
+                {
+                    std::cout << ex.what() << std::endl;
+                    return -1;
+                }
+                preview_image = camera_for_preview->preview();
+
+                //TODO
+            }
+
             if (ImGui::Button("\nStart offline Rendering in Current Setting"))
             {
-                //TODO
                 std::unique_ptr<Camera> camera;
                 std::string save_name{ file_save_name };
                 nlohmann::json render_json = generate_render_params(shoot_photo_params, save_name, camera_eye_pos, camera_look_at, output_image_size, objects_vector);
@@ -258,7 +488,23 @@ int main(int, char**)
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
+        //std::cout << "height: "<<display_h <<"width: "<< display_w<<"\n";
+        glDisable(GL_CULL_FACE);
         glClear(GL_COLOR_BUFFER_BIT);
+        glUseProgram(shader_program);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+        glUseProgram(0);
+        while (GLenum error = glGetError()) {
+            std::cerr << "openGL error code: " << error << "\n";
+        }
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
@@ -268,6 +514,10 @@ int main(int, char**)
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    glDeleteBuffers(1,&vbo);
+    glDeleteBuffers(1,&ebo);
+    glDeleteVertexArrays(1, &vao);
 
     glfwDestroyWindow(window);
     glfwTerminate();

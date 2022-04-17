@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="imgui">
-      <UniqueIdentifier>{20b90ce4-7fcb-4731-b9a0-075f875de82d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sources">
       <UniqueIdentifier>{f18ab499-84e1-499f-8eff-9754361e0e52}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
@@ -14,25 +11,31 @@
     <Filter Include="sources\stb">
       <UniqueIdentifier>{83ac718d-1cfd-4d52-b966-e2a79fe1f96e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sources\imgui">
+      <UniqueIdentifier>{20b90ce4-7fcb-4731-b9a0-075f875de82d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\glad">
+      <UniqueIdentifier>{ccef4641-4c46-48f1-90d6-d597a23b14d6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="..\..\imgui.cpp">
-      <Filter>imgui</Filter>
+      <Filter>sources\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\imgui_demo.cpp">
-      <Filter>imgui</Filter>
+      <Filter>sources\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\imgui_draw.cpp">
-      <Filter>imgui</Filter>
+      <Filter>sources\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\imgui_tables.cpp">
-      <Filter>imgui</Filter>
+      <Filter>sources\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\imgui_widgets.cpp">
-      <Filter>imgui</Filter>
+      <Filter>sources\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\backend\imgui_impl_glfw.cpp">
       <Filter>sources</Filter>
@@ -115,16 +118,19 @@
     <ClCompile Include="..\camera\pixel-operators.cpp">
       <Filter>sources\render</Filter>
     </ClCompile>
+    <ClCompile Include="..\libs\glad\src\glad.c">
+      <Filter>sources\glad</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\imconfig.h">
-      <Filter>imgui</Filter>
+      <Filter>sources\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\imgui.h">
-      <Filter>imgui</Filter>
+      <Filter>sources\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\imgui_internal.h">
-      <Filter>imgui</Filter>
+      <Filter>sources\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\backend\imgui_impl_glfw.h">
       <Filter>sources</Filter>

@@ -18,6 +18,8 @@ struct Image
         return blob;
     }
 
+    std::vector<glm::dvec3> get_adjusted_blob();
+
     void save(const std::string& filename) const;
 
     glm::dvec3& operator()(size_t col, size_t row);

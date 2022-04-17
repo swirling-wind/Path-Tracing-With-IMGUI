@@ -23,7 +23,8 @@ class Camera
 public:
     Camera(const nlohmann::json& j, bool is_photon_map);
     Camera(const nlohmann::json& j, const Option& option);
-    
+
+    std::vector<glm::dvec3> preview();
     void capture();
     void sampleImage();
 

@@ -41,6 +41,18 @@ inline double clamp(double x, double min, double max)
     return x;
 }
 
+std::vector<glm::dvec3> Image::get_adjusted_blob()
+{
+    double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
+    double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
+    
+    for (auto& pixel : blob)
+    {
+        pixel = sRGB::gammaCompress(tonemap(pixel * exposure_factor) * gain_factor);
+    }
+    return blob;
+}
+
 void Image::save(const std::string& filename) const
 {
     double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
