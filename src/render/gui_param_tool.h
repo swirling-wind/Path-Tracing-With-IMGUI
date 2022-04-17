@@ -12,16 +12,20 @@
 
 namespace gui_tools
 {
-    constexpr int num_of_material_list = 12;
+    constexpr int num_of_material_list = 16;
 
     inline std::array<const char*, num_of_material_list> material_list = {
         "default", "light",  "wood", "walnut", "oak",
         "gold", "nickel", "copper", "iron", "brass",
-        "palladium", "glass"
+        "palladium", "glass",
+
+        "shadow_green", "navy", "water", "F9_light"
     };
 
     struct shoot_params
     {
+        float focal_length = 60;
+        float sensor_width = 35;
         float exposure_compensation = -1.5;
         float gain_compensation = 0.0;
         int side_spp = 3;
@@ -60,8 +64,6 @@ namespace gui_tools
         std::vector<object_imported> objects_vector)
     {
 
-
-
         nlohmann::json render_params;
         render_params["num_render_threads"] = -1;
         render_params["ior"] = 1;
@@ -69,8 +71,8 @@ namespace gui_tools
         //camera
         nlohmann::json camera_params(nlohmann::json::value_t::array);
         nlohmann::json one_instantce_camera;
-        one_instantce_camera["focal_length"] = 50;
-        one_instantce_camera["sensor_width"] = 35;
+        one_instantce_camera["focal_length"] = shoot_image_params.focal_length;
+        one_instantce_camera["sensor_width"] = shoot_image_params.sensor_width;
         one_instantce_camera["eye"] = camera_eye_pos;
         one_instantce_camera["look_at"] = camera_look_at;
 
@@ -95,6 +97,17 @@ namespace gui_tools
         bvh_type["type"] = "octree";
         render_params["bvh"] = bvh_type;
         //TODO
+
+        if (shoot_image_params.is_photon_map)
+        {
+            nlohmann::json photon_map_json;
+            photon_map_json["emissions"] = 1e6;
+            photon_map_json["caustic_factor"] = 10.0;
+            photon_map_json["k_nearest_photons"] = 50;
+            photon_map_json["max_photons_per_octree_leaf"] = 200;
+            photon_map_json["direct_visualization"] = false;
+            render_params["photon_map"] = photon_map_json;
+        }
 
         //Materials
         nlohmann::json material_params;
@@ -171,6 +184,30 @@ namespace gui_tools
         glass_params["ior"] = 1.5;
         glass_params["transparancy"] = 1.0;
         material_params["glass"] = glass_params;
+
+        //
+        nlohmann::json shadow_blue_params;
+        shadow_blue_params["reflectance"] = "#a2bf82";
+        material_params["shadow_green"] = shadow_blue_params;
+
+        nlohmann::json navy_params;
+        navy_params["reflectance"] = "#8caabf";
+        material_params["navy"] = navy_params;
+
+        nlohmann::json water_params;
+        water_params["transparency"] = 1.0;
+        water_params["ior"] = 1.8;
+        material_params["water"] = water_params;
+
+       
+        nlohmann::json f9_emittance_json;
+        f9_emittance_json["illuminant"] = "F9";
+        f9_emittance_json["scale"] = 25;
+        nlohmann::json f9_light_params;
+        f9_light_params["reflectance"] = 1;
+        f9_light_params["emittance"] = f9_emittance_json;
+        material_params["F9_light"] = f9_light_params;
+
 
         render_params["materials"] = material_params;
 

@@ -129,7 +129,7 @@ int main(int, char**)
 
             ImGui::Begin("Path Tracing");
             // Render params
-            ImGui::Checkbox("Use Photon Mapping", &shoot_photo_params.is_photon_map);
+            ImGui::Checkbox("Use Photon Mapping or not", &shoot_photo_params.is_photon_map);
             if (ImGui::RadioButton("Octree", shoot_photo_params.is_octree))
             {
                 shoot_photo_params.is_octree = true;
@@ -144,8 +144,11 @@ int main(int, char**)
 
 
             // Camera Params
-            ImGui::InputFloat("Exposure compensation", &shoot_photo_params.exposure_compensation, 0.1f, 1.0f, "%.3f");
-            ImGui::InputFloat("Gain Compensation", &shoot_photo_params.gain_compensation, 0.1f, 1.0f, "%.3f");
+
+            ImGui::InputFloat("Focal Length", &shoot_photo_params.focal_length, 1.0f, 1.0f, "%.2f");
+            ImGui::InputFloat("Sensor Width", &shoot_photo_params.sensor_width, 1.0f, 1.0f, "%.2f");
+            ImGui::InputFloat("Exposure compensation", &shoot_photo_params.exposure_compensation, 0.1f, 1.0f, "%.2f");
+            ImGui::InputFloat("Gain Compensation", &shoot_photo_params.gain_compensation, 0.1f, 1.0f, "%.2f");
 
             // Camera Position: Eye & LookAt
             ImGui::Text("Camera");
@@ -225,7 +228,7 @@ int main(int, char**)
 
                 try
                 {
-                    camera = std::make_unique<Camera>(render_json, false);
+                    camera = std::make_unique<Camera>(render_json, shoot_photo_params.is_photon_map);
                 }
                 catch (const std::exception& ex)
                 {
@@ -237,11 +240,11 @@ int main(int, char**)
 
             }
 
-            if (ImGui::Button("\ntestor"))
-            {
-                std::cerr << shoot_photo_params.is_octree << " " << shoot_photo_params.is_sah << std::endl;
-                std::cerr << shoot_photo_params.is_photon_map << std::endl;
-            }
+            //if (ImGui::Button("\ntestor"))
+            //{
+            //    std::cerr << shoot_photo_params.is_octree << " " << shoot_photo_params.is_sah << std::endl;
+            //    std::cerr << shoot_photo_params.is_photon_map << std::endl;
+            //}
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::End();
