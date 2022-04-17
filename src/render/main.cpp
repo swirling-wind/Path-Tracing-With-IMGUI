@@ -163,7 +163,10 @@ int main(int, char**)
 
                 ImGui::Text(("\n" + iter->file_location.string() + " " + index).c_str());
                 ImGui::InputFloat3(("position " + index).c_str(), iter->position.data());
-
+                ImGui::InputFloat3(("rotation " + index).c_str(), iter->rotation.data());
+                ImGui::SameLine();
+                ImGui::InputFloat(("scale " + index).c_str(), iter->scale.data(), 0.1f);
+                
                 if (ImGui::Button(("Select " + index + "'s material ..").c_str()))
                     ImGui::OpenPopup(("select_popup" + index).c_str());
                 ImGui::SameLine();

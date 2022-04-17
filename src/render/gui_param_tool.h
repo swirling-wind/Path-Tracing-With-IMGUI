@@ -39,6 +39,8 @@ namespace gui_tools
         std::array<float, 3> position{ 0.0,0.0,0.0 };
         std::filesystem::path file_location; // path
         int material_type{ 0 };
+        std::array<float, 3> rotation{ 0.0,0.0,0.0 };
+        std::array<float, 1> scale{ 1.0 };
     };
 
 
@@ -76,14 +78,14 @@ namespace gui_tools
         one_instantce_camera["eye"] = camera_eye_pos;
         one_instantce_camera["look_at"] = camera_look_at;
 
-            //Image
-            nlohmann::json image_params;
-            image_params["width"] = output_image_size.at(0);
-            image_params["height"] = output_image_size.at(1);
-            image_params["exposure_compensation"] = shoot_image_params.exposure_compensation;
-            image_params["gain_compensation"] = shoot_image_params.gain_compensation;
-            image_params["tonemapper"] = "ACES";
-            one_instantce_camera["image"] = image_params;
+        //Image
+        nlohmann::json image_params;
+        image_params["width"] = output_image_size.at(0);
+        image_params["height"] = output_image_size.at(1);
+        image_params["exposure_compensation"] = shoot_image_params.exposure_compensation;
+        image_params["gain_compensation"] = shoot_image_params.gain_compensation;
+        image_params["tonemapper"] = "ACES";
+        one_instantce_camera["image"] = image_params;
 
         one_instantce_camera["sqrtspp"] = shoot_image_params.side_spp;
         one_instantce_camera["savename"] = save_name;
@@ -135,7 +137,7 @@ namespace gui_tools
         nlohmann::json gold_params;
         gold_params["specular_roughness"] = 0.15;
         nlohmann::json gold_ior;
-        gold_ior["real"] = { 0.03344755, 0.36314684, 1.61295201};
+        gold_ior["real"] = { 0.03344755, 0.36314684, 1.61295201 };
         gold_ior["imaginary"] = { 3.90181846, 2.43300728, 1.79303367 };
         gold_params["ior"] = gold_ior;
         material_params["gold"] = gold_params;
@@ -199,7 +201,7 @@ namespace gui_tools
         water_params["ior"] = 1.8;
         material_params["water"] = water_params;
 
-       
+
         nlohmann::json f9_emittance_json;
         f9_emittance_json["illuminant"] = "F9";
         f9_emittance_json["scale"] = 25;
@@ -230,6 +232,8 @@ namespace gui_tools
             obj_json["smooth"] = true;
             obj_json["position"] = object.position;
             obj_json["file"] = object.file_location.string();
+            obj_json["rotation"] = object.rotation;
+            obj_json["scale"] = object.scale.at(0);
 
             surfaces_params.insert(surfaces_params.end(), obj_json);
         }
