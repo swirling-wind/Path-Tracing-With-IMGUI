@@ -24,7 +24,7 @@ namespace gui_tools
 
     struct shoot_params
     {
-        float focal_length = 60;
+        float focal_length = 50;
         float sensor_width = 35;
         float exposure_compensation = -1.5;
         float gain_compensation = 0.0;

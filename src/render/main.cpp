@@ -239,13 +239,13 @@ void main()
         // 1. Show the big demo
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
-        {
-            ImGui::Begin("OpenGL Texture Text");
-            ImGui::Text("pointer = %p", texture);
-            ImGui::Text("size = %d x %d", texture_width, texture_height);
-            ImGui::Image((void*)(intptr_t)texture, ImVec2(texture_width, texture_height));
-            ImGui::End();
-        }
+        //{
+        //    ImGui::Begin("OpenGL Texture Text");
+        //    ImGui::Text("pointer = %p", texture);
+        //    ImGui::Text("size = %d x %d", texture_width, texture_height);
+        //    ImGui::Image((void*)(intptr_t)texture, ImVec2(texture_width, texture_height));
+        //    ImGui::End();
+        //}
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
 
