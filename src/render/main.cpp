@@ -360,6 +360,7 @@ void main()
                 }
 
                 preview_image = camera_for_preview->preview();
+
                 std::cerr << "Copy complete\n";
                 
                 glBindTexture(GL_TEXTURE_2D, texture);
