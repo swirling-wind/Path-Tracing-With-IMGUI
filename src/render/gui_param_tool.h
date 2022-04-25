@@ -12,14 +12,16 @@
 
 namespace gui_tools
 {
-    constexpr int num_of_material_list = 16;
+    constexpr int num_of_material_list = 18;
 
     inline std::array<const char*, num_of_material_list> material_list = {
         "default", "light",  "wood", "walnut", "oak",
         "gold", "nickel", "copper", "iron", "brass",
         "palladium", "glass",
 
-        "shadow_green", "navy", "water", "F9_light"
+        "shadow_green", "navy", "red", "green",
+
+        "water", "F9_light"
     };
 
     struct shoot_params
@@ -188,13 +190,21 @@ namespace gui_tools
         material_params["glass"] = glass_params;
 
         //
-        nlohmann::json shadow_blue_params;
-        shadow_blue_params["reflectance"] = "#a2bf82";
-        material_params["shadow_green"] = shadow_blue_params;
+        nlohmann::json shadow_green_params;
+        shadow_green_params["reflectance"] = "#a2bf82";
+        material_params["shadow_green"] = shadow_green_params;
 
         nlohmann::json navy_params;
         navy_params["reflectance"] = "#8caabf";
         material_params["navy"] = navy_params;
+
+        nlohmann::json red_params;
+        red_params["reflectance"] = "#ff0000";
+        material_params["red"] = red_params;
+
+        nlohmann::json green_params;
+        green_params["reflectance"] = "#00ff00";
+        material_params["green"] = green_params;
 
         nlohmann::json water_params;
         water_params["transparency"] = 1.0;
