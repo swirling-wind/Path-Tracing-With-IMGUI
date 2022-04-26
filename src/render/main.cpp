@@ -36,7 +36,7 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int test_main(int, char**)
+int main(int, char**)
 {
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -458,7 +458,7 @@ void main()
     return 0;
 }
 
-int main()
+int test_render_main()
 {
     std::cout << "Scene directory:" << std::endl << Scene::path.string() << std::endl << std::endl;
 
