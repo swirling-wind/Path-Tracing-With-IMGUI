@@ -105,7 +105,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\libs\glad\include;..\src\libs;..\..\;..\..\src;..\libs\glm;..\libs\nlohmann;..\..\backend;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\glad\include;..\..\;..\..\backend;..\..\src;..\..\src\libs;..\libs\glm;..\libs\nlohmann;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <SDLCheck>false</SDLCheck>
@@ -144,7 +144,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\libs\glad\include;..\src\libs;..\..\;..\..\src;..\libs\glm;..\libs\nlohmann;..\..\backend;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\glad\include;..\..\;..\..\backend;..\..\src;..\..\src\libs;..\libs\glm;..\libs\nlohmann;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
@@ -232,6 +232,7 @@
     <ClInclude Include="..\integrator\path-tracer\path-tracer.h" />
     <ClInclude Include="..\integrator\photon-mapper\photon-mapper.h" />
     <ClInclude Include="..\integrator\photon-mapper\photon.h" />
+    <ClInclude Include="..\libs\stb\stb_image.h" />
     <ClInclude Include="..\material\fresnel.h" />
     <ClInclude Include="..\material\ggx.h" />
     <ClInclude Include="..\material\material.h" />

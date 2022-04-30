@@ -10,11 +10,15 @@
 #include <iostream>
 #include <fstream>
 
+#include <glad/glad.h>
 #include <nlohmann/json.hpp>
+#define STB_IMAGE_IMPLEMENTATION    
+#include <stb/stb_image.h>
+
 #include "camera/camera.h"
 #include "common/option.h"
 #include "common/util.h"
-#include <glad/glad.h>
+#include "gui_param_tool.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
@@ -24,7 +28,6 @@
 #include <thread>
 #include <GLFW/glfw3.h> 
 
-#include "gui_param_tool.h"
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
@@ -54,6 +57,14 @@ int main(int, char**)
 
     // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(1920, 1080, "Path Tracing", nullptr, nullptr);
+
+    // Set window icon
+    int icon_width, icon_height, icon_channels;
+    unsigned char* img = stbi_load("icon.png", &icon_width, &icon_height, &icon_channels, 4);
+    GLFWimage icon { icon_width,icon_height,img };
+    glfwSetWindowIcon(window, 1, &icon);
+    stbi_image_free(img);
+
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);

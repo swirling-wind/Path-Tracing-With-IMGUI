@@ -14,6 +14,9 @@
     <Filter Include="sources\glad">
       <UniqueIdentifier>{ccef4641-4c46-48f1-90d6-d597a23b14d6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sources\stb">
+      <UniqueIdentifier>{be24f636-64ec-4a9c-966e-cb77a50c42fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -249,9 +252,6 @@
     <ClInclude Include="..\color\srgb.h">
       <Filter>sources\render</Filter>
     </ClInclude>
-    <ClInclude Include="gui_param_tool.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\backend\imgui_impl_glfw.h">
       <Filter>sources\imgui</Filter>
     </ClInclude>
@@ -260,6 +260,12 @@
     </ClInclude>
     <ClInclude Include="..\..\backend\imgui_impl_opengl3_loader.h">
       <Filter>sources\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_param_tool.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\stb\stb_image.h">
+      <Filter>sources\stb</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
