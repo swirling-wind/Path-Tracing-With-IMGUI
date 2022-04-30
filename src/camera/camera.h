@@ -67,6 +67,8 @@ private:
         glm::ivec2 max;
     };
 
+    void importRenderParams(const nlohmann::json& j);
+
     void samplePixel(size_t x, size_t y);
     void sampleImageThread(WorkQueue<Bucket>& buckets);
 

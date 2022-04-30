@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Path-Tracing-With-IMGUI", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test-render", "test-render\test-render.vcxproj", "{C7F967AA-FF6E-4DC2-958B-FC10A544D67A}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Renderer_setup", "Renderer_setup\Renderer_setup.vdproj", "{A9EDEE7C-65FB-4053-A534-301E390AFA3C}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "setup-render", "setup-render\setup-render.vdproj", "{A9EDEE7C-65FB-4053-A534-301E390AFA3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

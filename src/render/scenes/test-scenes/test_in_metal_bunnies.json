@@ -1,0 +1,52 @@
+{
+  "num_render_threads": -1,
+  "ior": 1,
+
+  "cameras": [
+    {
+      "focal_length": 50,
+      "sensor_width": 35,
+      "eye": [ -0.23, 2.2, 9.7 ],
+      "look_at": [ -0.23, 1.71, 0 ],
+      "image":  { "width": 1280, "height": 720, "exposure_compensation": -1.5, "gain_compensation": 0.0, "tonemapper": "ACES" },
+      "sqrtspp": 4,
+      "savename": "test_metal_bunnies(plain)"
+    }
+  ],
+
+  "bvh": {
+    "type": "octree"
+  },
+
+  "materials": {
+    "default": {
+      "reflectance": 0.95
+    },
+    "light": {
+      "emittance": [235.1913,195.1469,144.3919]
+    },
+    "brass": {
+      "specular_roughness": 0.21,
+      "ior": {
+        "real": [0.18876745, 0.57522280, 1.03318002],
+		    "imaginary": [3.38620319, 2.38383535, 1.87526994]
+      }
+    }
+  },
+
+  "surfaces": [
+    {
+      "type": "object",
+      "material": "brass",
+      "smooth":  true,
+      "file": "data/bunny.obj",
+      "position": [-1.75, 0, 0]      
+    },
+    {
+      "type": "sphere",
+      "material": "light",
+      "radius": 0.5,
+      "position": [ -0.23, 4, 4.7 ]
+    }
+  ]
+}

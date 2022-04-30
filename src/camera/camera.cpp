@@ -28,39 +28,7 @@ Camera::Camera(const nlohmann::json& j, bool is_photon_map)
         integrator = std::make_shared<PathTracer>(j);
     }
 
-    const nlohmann::json& c = j.at("cameras").at(0);
-
-    image = Image(c.at("image"));
-    if (c.find("film") != c.end())
-        film = Film(image.width, image.height, c.at("film"));
-    else
-        film = Film(image.width, image.height);
-
-    eye = c.at("eye");
-    focal_length = c.at("focal_length").get<double>() / 1000.0;
-    sensor_width = c.at("sensor_width").get<double>() / 1000.0;
-    sqrtspp = c.at("sqrtspp");
-    savename = c.at("savename");
-    aperture_radius = (focal_length / getOptional(c, "f_stop", -1.0)) / 2.0;
-    focus_distance = getOptional(c, "focus_distance", -1.0);
-
-    if (c.find("look_at") != c.end())
-    {
-        glm::dvec3 look_at = c.at("look_at");
-        lookAt(look_at);
-        if (focus_distance < 0.0)
-        {
-            focus_distance = glm::distance(eye, look_at);
-        }
-    }
-    else
-    {
-        forward = glm::normalize(c.at("forward").get<glm::dvec3>());
-        up = glm::normalize(c.at("up").get<glm::dvec3>());
-        left = glm::normalize(glm::cross(up, forward));
-    }
-
-    thin_lens = aperture_radius > 0.0 && focus_distance > 0.0;
+    importRenderParams(j);
 }
 
 Camera::Camera(const nlohmann::json &j, const Option &option)
@@ -74,9 +42,12 @@ Camera::Camera(const nlohmann::json &j, const Option &option)
         integrator = std::make_shared<PathTracer>(j);
     }
 
-    std::cerr << "Camera idx: " << option.camera_idx;
-    const nlohmann::json &c = j.at("cameras").at(option.camera_idx);
+    importRenderParams(j);
+}
 
+void Camera::importRenderParams(const nlohmann::json& j)
+{
+    const nlohmann::json& c = j.at("cameras").at(0);
     image = Image(c.at("image"));
     if (c.find("film") != c.end())
         film = Film(image.width, image.height, c.at("film"));
@@ -109,6 +80,7 @@ Camera::Camera(const nlohmann::json &j, const Option &option)
 
     thin_lens = aperture_radius > 0.0 && focus_distance > 0.0;
 }
+
 
 void Camera::samplePixel(size_t x, size_t y)
 {
@@ -217,7 +189,14 @@ void Camera::lookAt(const glm::dvec3& p)
 
 std::vector<glm::dvec3> Camera::preview()
 {
+    std::cout << std::endl << std::string(28, '-') << "| MAIN PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
+    std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
+    auto before = std::chrono::system_clock::now();
     sampleImage();
+    auto now = std::chrono::system_clock::now();
+    std::cout << "\r" + std::string(100, ' ') + "\r";
+    std::cout << "Preview Completed: " << Format::date(now);
+    std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
     return image.get_adjusted_blob();
 }
 
