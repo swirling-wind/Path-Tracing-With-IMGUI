@@ -28,6 +28,8 @@
 #include <thread>
 #include <GLFW/glfw3.h> 
 
+#include "gui_render_widgets.h"
+
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
@@ -92,11 +94,11 @@ int main(int, char**)
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-    // Setup Platform/Renderer backends
+    // Setup Platform/Renderer back-ends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    bool show_demo_window = false;
+    bool show_demo_window = true;
 
     // Preview Essentials ========================================================================
     
@@ -150,14 +152,14 @@ void main()
     )";
     const char* const vertex_shader_source_ptr = vertex_shader_source;
     auto vertex_shader=glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_source_ptr, NULL);
+    glShaderSource(vertex_shader, 1, &vertex_shader_source_ptr, nullptr);
     glCompileShader(vertex_shader);
     int  success;
     char infoLog[512];
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
     if (!success)
     {
-        glGetShaderInfoLog(vertex_shader, 512, NULL, infoLog);
+        glGetShaderInfoLog(vertex_shader, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }else
     {
@@ -192,9 +194,7 @@ void main()
     {
         std::cout << "succeed to compile fragment shader\n";
     }
-
-
-
+        
     auto shader_program=glCreateProgram();
     glAttachShader(shader_program, vertex_shader);
     glAttachShader(shader_program, fragment_shader);
@@ -230,7 +230,7 @@ void main()
 
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
     std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
-    const auto obj_found_in_path = gui_tools::get_models_in_folder(model_path);
+    const std::vector<std::filesystem::path> obj_found_in_path = gui_tools::get_models_in_folder(model_path);
     std::cout << obj_found_in_path.size() << std::endl;
 
     // Main loop    ============================================================================
@@ -248,108 +248,33 @@ void main()
             ImGui::ShowDemoWindow(&show_demo_window);
 
 
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+        // 2. Show render control window
         {
-
             ImGui::Begin("Path Tracing");
+
             // Render params
-            ImGui::Checkbox("Use Photon Mapping or not", &shoot_photo_params.is_photon_map);
-            ImGui::InputDouble("photon num", &shoot_photo_params.photon_num, 1e6, 1e7, "%.0f");
-
-            ImGui::Text("BVH type: ");
-            ImGui::SameLine();
-            if (ImGui::RadioButton("Octree", shoot_photo_params.is_octree))
-            {
-                shoot_photo_params.is_octree = true;
-                shoot_photo_params.is_sah = false;
-            }
-            ImGui::SameLine();
-            if (ImGui::RadioButton("SAH", shoot_photo_params.is_sah))
-            {
-                shoot_photo_params.is_octree = false;
-                shoot_photo_params.is_sah = true;
-            }
-
-
-            // Camera Params
-
-            ImGui::InputFloat("Focal Length", &shoot_photo_params.focal_length, 1.0f, 1.0f, "%.2f");
-            ImGui::InputFloat("Sensor Width", &shoot_photo_params.sensor_width, 1.0f, 1.0f, "%.2f");
-            ImGui::InputFloat("Exposure compensation", &shoot_photo_params.exposure_compensation, 0.1f, 1.0f, "%.2f");
-            ImGui::InputFloat("Gain Compensation", &shoot_photo_params.gain_compensation, 0.1f, 1.0f, "%.2f");
-
-            // Camera Position: Eye & LookAt
-            ImGui::Text("Camera");
-            ImGui::InputFloat3("Eye Position", shoot_photo_params.camera_eye_pos.data());
-            ImGui::InputFloat3("Look At", shoot_photo_params.camera_look_at.data());
+            gui_render_widgets::show_render_params(shoot_photo_params);
 
             // Display all imported objects
-            ImGui::Text("\nObjects");
-            for (auto iter = objects_vector.begin(); iter != objects_vector.end(); ++iter)
-            {
-                const auto index = std::to_string(iter - objects_vector.begin());
-
-                ImGui::Text(("\n" + iter->file_location.string() + " " + index).c_str());
-                ImGui::InputFloat3(("position " + index).c_str(), iter->position.data());
-                ImGui::InputFloat3(("rotation " + index).c_str(), iter->rotation.data());
-                ImGui::SameLine();
-                ImGui::InputFloat(("scale " + index).c_str(), iter->scale.data(), 0.1f);
-                
-                if (ImGui::Button(("Select " + index + "'s material ..").c_str()))
-                    ImGui::OpenPopup(("select_popup" + index).c_str());
-                ImGui::SameLine();
-                ImGui::TextUnformatted(gui_tools::material_list.at(iter->material_type));
-                if (ImGui::BeginPopup(("select_popup" + index).c_str()))
-                {
-                    ImGui::Text("Material");
-                    ImGui::Separator();
-                    for (int i = 0; i < gui_tools::num_of_material_list; i++)
-                        if (ImGui::Selectable(gui_tools::material_list.at(i)))
-                            iter->material_type = i;
-                    ImGui::EndPopup();
-                }
-            }
-
-            // Remove the last imported object
-            if (!objects_vector.empty())
-            {
-                ImGui::SameLine();
-                if (ImGui::Button("Remove"))
-                {
-                    objects_vector.pop_back();
-                }
-            }
-
+            gui_render_widgets::show_imported_objects(objects_vector);
 
             // Press button to add a new object 
-            for (auto iter = obj_found_in_path.begin(); iter != obj_found_in_path.end(); ++iter)
-            {
-                const auto index = iter - obj_found_in_path.begin();
-                if (ImGui::Button(iter->string().data()))
-                {
-                    gui_tools::object_imported temp_object;
-                    temp_object.file_location = iter->filename();
-                    objects_vector.push_back(temp_object);
-                }
-            }
-
-
+            gui_render_widgets::show_add_object(obj_found_in_path, objects_vector);
+            
             ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
             ImGui::InputInt("Side samples per pixel", &shoot_photo_params.side_spp);
 
-            //Output gui_params as json
+            // Output gui_params as json
             if (ImGui::Button("\nOutput json"))
             {
                 std::string save_name{ file_save_name };
                 nlohmann::json test_json = generate_render_params(shoot_photo_params, save_name, shoot_photo_params.camera_eye_pos, shoot_photo_params.camera_look_at, shoot_photo_params.output_image_size, objects_vector);
-
                 std::ofstream out(save_name + ".json");
                 out << test_json;
-
             }
             ImGui::SameLine();
 
-            // Render
+            // Preview
             if (ImGui::Button("Preview"))
             {
                 std::unique_ptr<Camera> camera_for_preview;
@@ -406,9 +331,7 @@ void main()
                     std::cout << ex.what() << std::endl;
                     return -1;
                 }
-
                 camera->capture();
-
             }
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

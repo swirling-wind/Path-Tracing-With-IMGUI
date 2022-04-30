@@ -267,6 +267,9 @@
     <ClInclude Include="..\libs\stb\stb_image.h">
       <Filter>sources\stb</Filter>
     </ClInclude>
+    <ClInclude Include="gui_render_widgets.h">
+      <Filter>sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.txt" />
