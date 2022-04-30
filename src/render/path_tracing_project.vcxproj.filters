@@ -8,9 +8,6 @@
     <Filter Include="sources\render">
       <UniqueIdentifier>{65df3e70-1270-48b3-82e8-3fc88a3d4237}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sources\stb">
-      <UniqueIdentifier>{83ac718d-1cfd-4d52-b966-e2a79fe1f96e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sources\imgui">
       <UniqueIdentifier>{20b90ce4-7fcb-4731-b9a0-075f875de82d}</UniqueIdentifier>
     </Filter>
@@ -36,12 +33,6 @@
     </ClCompile>
     <ClCompile Include="..\..\imgui_widgets.cpp">
       <Filter>sources\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\backend\imgui_impl_glfw.cpp">
-      <Filter>sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\backend\imgui_impl_opengl3.cpp">
-      <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="..\common\bounding-box.cpp">
       <Filter>sources\render</Filter>
@@ -121,6 +112,12 @@
     <ClCompile Include="..\libs\glad\src\glad.c">
       <Filter>sources\glad</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\backend\imgui_impl_glfw.cpp">
+      <Filter>sources\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\backend\imgui_impl_opengl3.cpp">
+      <Filter>sources\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\imconfig.h">
@@ -131,15 +128,6 @@
     </ClInclude>
     <ClInclude Include="..\..\imgui_internal.h">
       <Filter>sources\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\backend\imgui_impl_glfw.h">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\backend\imgui_impl_opengl3.h">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\backend\imgui_impl_opengl3_loader.h">
-      <Filter>sources</Filter>
     </ClInclude>
     <ClInclude Include="..\common\bounding-box.h">
       <Filter>sources\render</Filter>
@@ -264,17 +252,23 @@
     <ClInclude Include="gui_param_tool.h">
       <Filter>sources\render</Filter>
     </ClInclude>
-    <ClInclude Include="..\stb\stb_image.h">
-      <Filter>sources\stb</Filter>
+    <ClInclude Include="..\..\backend\imgui_impl_glfw.h">
+      <Filter>sources\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\backend\imgui_impl_opengl3.h">
+      <Filter>sources\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\backend\imgui_impl_opengl3_loader.h">
+      <Filter>sources\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.txt" />
-    <None Include="..\..\misc\debuggers\imgui.natvis">
-      <Filter>sources</Filter>
-    </None>
     <None Include="..\..\.gitattributes" />
     <None Include="..\..\.gitignore" />
     <None Include="..\..\.editorconfig" />
+    <None Include="..\..\misc\debuggers\imgui.natvis">
+      <Filter>sources\imgui</Filter>
+    </None>
   </ItemGroup>
 </Project>

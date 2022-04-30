@@ -1,8 +1,7 @@
 #include "pch.h"
+"
+#include "material/material.h"
 
-#include "../render/instant_constant.h"
-#include "../render/object.h"
-#include "../render/instant_ray.h"
 using namespace instant_renderer;
 Material material_magenta{ new ConstantTexture(Color(1.0, 0.0, 1.0)), Color(0.0, 0.0, 0.0),
                            ReflectionType::DIFFUSE };

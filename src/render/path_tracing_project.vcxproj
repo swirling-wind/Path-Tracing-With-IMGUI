@@ -105,7 +105,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\libs\glad\include;..\src\libs;..\..\src;..\libs\glm;..\libs\nlohmann;..\..;..\..\backend;..\libs\glfw\include;..\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\glad\include;..\src\libs;..\..\;..\..\src;..\libs\glm;..\libs\nlohmann;..\..\backend;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <SDLCheck>false</SDLCheck>
@@ -144,7 +144,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\libs\glad\include;..\src\libs;..\..\src;..\libs\glm;..\libs\nlohmann;..\..;..\..\backend;..\libs\glfw\include;..\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\glad\include;..\src\libs;..\..\;..\..\src;..\libs\glm;..\libs\nlohmann;..\..\backend;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
@@ -244,7 +244,6 @@
     <ClInclude Include="..\sampling\sampling.h" />
     <ClInclude Include="..\sampling\sobol.h" />
     <ClInclude Include="..\scene\scene.h" />
-    <ClInclude Include="..\stb\stb_image.h" />
     <ClInclude Include="..\surface\surface.h" />
     <ClInclude Include="gui_param_tool.h" />
   </ItemGroup>

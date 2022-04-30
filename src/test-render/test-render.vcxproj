@@ -49,13 +49,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="test_camera.cpp" />
-    <ClCompile Include="test_object.cpp" />
-    <ClCompile Include="test_random.cpp" />
-    <ClCompile Include="test_scene.cpp" />
-    <ClCompile Include="test_tracer.cpp" />
-    <ClCompile Include="test_utility.cpp" />
-    <ClCompile Include="test_vec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\render\path_tracing_project.vcxproj">
@@ -94,13 +87,13 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>..\render;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>..\render\Debug\build_scene.obj;..\render\Debug\instant_bvh.obj;..\render\Debug\instant_camera.obj;..\render\Debug\hdr.obj;..\render\Debug\lattice_noise.obj;..\render\Debug\loader.obj;..\render\Debug\mapping.obj;..\render\Debug\instant_material.obj;..\render\Debug\obj_loader.obj;..\render\Debug\object.obj;..\render\Debug\random.obj;..\render\Debug\instant_ray.obj;..\render\Debug\instant_scene.obj;..\render\Debug\instant_surface.obj;..\render\Debug\texture.obj;..\render\Debug\tracer.obj;..\render\Debug\utility.obj;..\render\Debug\vec.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -127,15 +120,15 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>..\render;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>..\render\Debug\build_scene.obj;..\render\Debug\instant_bvh.obj;..\render\Debug\instant_camera.obj;..\render\Debug\hdr.obj;..\render\Debug\lattice_noise.obj;..\render\Debug\loader.obj;..\render\Debug\mapping.obj;..\render\Debug\instant_material.obj;..\render\Debug\obj_loader.obj;..\render\Debug\object.obj;..\render\Debug\random.obj;..\render\Debug\instant_ray.obj;..\render\Debug\instant_scene.obj;..\render\Debug\instant_surface.obj;..\render\Debug\texture.obj;..\render\Debug\tracer.obj;..\render\Debug\utility.obj;..\render\Debug\vec.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
