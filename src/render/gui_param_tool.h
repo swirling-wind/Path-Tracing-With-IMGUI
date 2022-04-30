@@ -26,6 +26,12 @@ namespace gui_tools
 
     struct shoot_params
     {
+        std::array<float, 3>camera_eye_pos = { 0.0f, 1.5f, -8.0f };
+        std::array<float, 3>camera_look_at = { 0.0f, 1.5f, 0.0f };
+
+        std::array<int, 2> output_image_size = { 1280, 720 };
+        std::array<int, 2> preview_image_size = { 1280, 720 };
+
         float focal_length = 50;
         float sensor_width = 35;
         float exposure_compensation = -1.5;
@@ -34,18 +40,19 @@ namespace gui_tools
         bool is_photon_map = false;
         bool is_octree = true;
         bool is_sah = false;
+
+        double photon_num = 1e6;
     };
 
     struct object_imported
     {
         std::array<float, 3> position{ 0.0,0.0,0.0 };
-        std::filesystem::path file_location; // path
+        std::filesystem::path file_location;
         int material_type{ 0 };
         std::array<float, 3> rotation{ 0.0,0.0,0.0 };
         std::array<float, 1> scale{ 1.0 };
     };
-
-
+    
     inline std::vector<std::filesystem::path> get_models_in_folder(const std::filesystem::path folder_path)
     {
         std::vector<std::filesystem::path> obj_path_vector;
@@ -61,7 +68,7 @@ namespace gui_tools
         return obj_path_vector;
     }
 
-    inline nlohmann::json generate_render_params(shoot_params shoot_image_params,
+    inline nlohmann::json generate_render_params(const shoot_params& shoot_image_params,
         std::string save_name,
         const std::array<float, 3>camera_eye_pos, const std::array<float, 3>camera_look_at,
         std::array<int, 2> output_image_size,
@@ -98,14 +105,21 @@ namespace gui_tools
 
         //BVH
         nlohmann::json bvh_type;
-        bvh_type["type"] = "octree";
+        if (shoot_image_params.is_octree)
+        {
+            bvh_type["type"] = "octree";
+        }
+        else
+        {
+            bvh_type["type"] = "quaternary_sah";
+            bvh_type["bins_per_axis"] = 8;            
+        }
         render_params["bvh"] = bvh_type;
-        //TODO
 
         if (shoot_image_params.is_photon_map)
         {
             nlohmann::json photon_map_json;
-            photon_map_json["emissions"] = 1e6;
+            photon_map_json["emissions"] = floor(shoot_image_params.photon_num);
             photon_map_json["caustic_factor"] = 10.0;
             photon_map_json["k_nearest_photons"] = 50;
             photon_map_json["max_photons_per_octree_leaf"] = 200;
@@ -225,13 +239,6 @@ namespace gui_tools
 
         //surfaces
         nlohmann::json surfaces_params(nlohmann::json::value_t::array);
-
-        nlohmann::json default_light;
-        default_light["type"] = "sphere";
-        default_light["material"] = "light";
-        default_light["radius"] = 0.5;
-        default_light["position"] = { 1.0, 5.1, 4.2 };
-        surfaces_params.insert(surfaces_params.end(), default_light);
 
         for (const auto& object : objects_vector)
         {

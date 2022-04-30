@@ -181,12 +181,12 @@ void main()
     )";
     const char* const fragment_shader_source_ptr = fragment_shader_source;
     auto fragment_shader=glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_source_ptr, NULL);
+    glShaderSource(fragment_shader, 1, &fragment_shader_source_ptr, nullptr);
     glCompileShader(fragment_shader);
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
     if (!success)
     {
-        glGetShaderInfoLog(fragment_shader, 512, NULL, infoLog);
+        glGetShaderInfoLog(fragment_shader, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }else
     {
@@ -201,7 +201,7 @@ void main()
     glLinkProgram(shader_program);
     glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(shader_program, 512, NULL, infoLog);
+        glGetProgramInfoLog(shader_program, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::LINK_FAILED\n" << infoLog << std::endl;
     }else
     {
@@ -210,19 +210,12 @@ void main()
 
     unsigned int texture;
     glGenTextures(1, &texture);
-
-    int texture_width, texture_height;
+    
 
     // Render parameters =====================================================================
     gui_tools::shoot_params shoot_photo_params;
 
-    std::array<int, 2> output_image_size = { 1280, 720 };
-    const std::array<int, 2> preview_image_size = { 1280, 720 };
-
     std::vector<gui_tools::object_imported> objects_vector;
-
-    std::array<float, 3>camera_eye_pos = { -0.2f, 2.2f, 10.0f };
-    std::array<float, 3>camera_look_at = { -0.2f, 1.7f, 0.0f };
 
     constexpr int filename_max_length = 101;
     char file_save_name[filename_max_length] = "new image";
@@ -230,6 +223,10 @@ void main()
     std::vector<glm::dvec3> preview_image;
 
     //  =======================================================================================
+
+    gui_tools::object_imported temp_light_object;
+    
+
 
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
     std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
@@ -249,19 +246,18 @@ void main()
         // 1. Show the big demo
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
-        //{
-        //    ImGui::Begin("OpenGL Texture Text");
-        //    ImGui::Text("pointer = %p", texture);
-        //    ImGui::Text("size = %d x %d", texture_width, texture_height);
-        //    ImGui::Image((void*)(intptr_t)texture, ImVec2(texture_width, texture_height));
-        //    ImGui::End();
-        //}
+
+
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
 
             ImGui::Begin("Path Tracing");
             // Render params
             ImGui::Checkbox("Use Photon Mapping or not", &shoot_photo_params.is_photon_map);
+            ImGui::InputDouble("photon num", &shoot_photo_params.photon_num, 1e6, 1e7, "%.0f");
+
+            ImGui::Text("BVH type: ");
+            ImGui::SameLine();
             if (ImGui::RadioButton("Octree", shoot_photo_params.is_octree))
             {
                 shoot_photo_params.is_octree = true;
@@ -284,8 +280,8 @@ void main()
 
             // Camera Position: Eye & LookAt
             ImGui::Text("Camera");
-            ImGui::InputFloat3("Eye Position", camera_eye_pos.data());
-            ImGui::InputFloat3("Look At", camera_look_at.data());
+            ImGui::InputFloat3("Eye Position", shoot_photo_params.camera_eye_pos.data());
+            ImGui::InputFloat3("Look At", shoot_photo_params.camera_look_at.data());
 
             // Display all imported objects
             ImGui::Text("\nObjects");
@@ -345,7 +341,7 @@ void main()
             if (ImGui::Button("\nOutput json"))
             {
                 std::string save_name{ file_save_name };
-                nlohmann::json test_json = generate_render_params(shoot_photo_params, save_name, camera_eye_pos, camera_look_at, output_image_size, objects_vector);
+                nlohmann::json test_json = generate_render_params(shoot_photo_params, save_name, shoot_photo_params.camera_eye_pos, shoot_photo_params.camera_look_at, shoot_photo_params.output_image_size, objects_vector);
 
                 std::ofstream out(save_name + ".json");
                 out << test_json;
@@ -358,7 +354,7 @@ void main()
             {
                 std::unique_ptr<Camera> camera_for_preview;
                 std::string preview_save_name{ file_save_name };
-                nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, preview_save_name, camera_eye_pos, camera_look_at, output_image_size, objects_vector);
+                nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, preview_save_name, shoot_photo_params.camera_eye_pos, shoot_photo_params.camera_look_at, shoot_photo_params.output_image_size, objects_vector);
                 try
                 {
                     camera_for_preview = std::make_unique<Camera>(preview_render_json, shoot_photo_params.is_photon_map);
@@ -386,7 +382,7 @@ void main()
                     texture_vec.emplace_back(preview_image[i]);
                 }
 
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, preview_image_size.at(0), preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, shoot_photo_params.preview_image_size.at(0), shoot_photo_params.preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
                 glUseProgram(shader_program);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, texture);
@@ -395,11 +391,11 @@ void main()
                 std::cout << "done\n";
             }
 
-            if (ImGui::Button("\nStart offline Rendering in Current Setting"))
+            if (ImGui::Button("\nStart offline Rendering"))
             {
                 std::unique_ptr<Camera> camera;
                 std::string save_name{ file_save_name };
-                nlohmann::json render_json = generate_render_params(shoot_photo_params, save_name, camera_eye_pos, camera_look_at, output_image_size, objects_vector);
+                nlohmann::json render_json = generate_render_params(shoot_photo_params, save_name, shoot_photo_params.camera_eye_pos, shoot_photo_params.camera_look_at, shoot_photo_params.output_image_size, objects_vector);
 
                 try
                 {
