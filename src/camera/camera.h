@@ -15,6 +15,7 @@
 #include "../scene/scene.h"
 #include "../common/work-queue.h"
 #include "../common/option.h"
+#include "render/gui_param_tool.h"
 
 class Integrator;
 
@@ -25,6 +26,8 @@ public:
     Camera(const nlohmann::json& j, const Option& option);
 
     std::vector<glm::dvec3> preview();
+    void previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_tools::render_status>& status);
+
     void capture();
     void sampleImage();
 

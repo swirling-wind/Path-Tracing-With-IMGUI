@@ -210,6 +210,11 @@ void main()
 
     unsigned int texture;
     glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
 
     // Render parameters =====================================================================
@@ -220,13 +225,14 @@ void main()
     constexpr int filename_max_length = 101;
     char file_save_name[filename_max_length] = "new image";
 
+    std::atomic current_status {gui_tools::render_status::awaiting};
     std::vector<glm::dvec3> preview_image;
+    std::unique_ptr<Camera> camera_for_preview;
 
     //  =======================================================================================
 
     gui_tools::object_imported temp_light_object;
-    
-
+    //TODO - Add default light source
 
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
     std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
@@ -275,9 +281,8 @@ void main()
             ImGui::SameLine();
 
             // Preview
-            if (ImGui::Button("Preview"))
-            {
-                std::unique_ptr<Camera> camera_for_preview;
+            if (ImGui::Button("Preview") && current_status == gui_tools::render_status::awaiting)
+            {                
                 std::string preview_save_name{ file_save_name };
                 nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, preview_save_name, shoot_photo_params.camera_eye_pos, shoot_photo_params.camera_look_at, shoot_photo_params.output_image_size, objects_vector);
                 try
@@ -290,33 +295,19 @@ void main()
                     return -1;
                 }
 
-                preview_image = camera_for_preview->preview();
+                // Start preview rendering
+                current_status = gui_tools::render_status::rendering_for_preview;
 
-                std::cerr << "Copy complete\n";
-                
-                glBindTexture(GL_TEXTURE_2D, texture);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                
-                std::vector<glm::vec3> texture_vec;
-                texture_vec.reserve(preview_image.size());
-                for (int i = 0; i < preview_image.size(); i++)
-                {
-                    texture_vec.emplace_back(preview_image[i]);
-                }
+      /*          preview_image = camera_for_preview->preview();
+                current_status = gui_tools::render_status::finished_preview;*/
 
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, shoot_photo_params.preview_image_size.at(0), shoot_photo_params.preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
-                glUseProgram(shader_program);
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, texture);
-                glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0);
-                glUseProgram(0);
-                std::cout << "done\n";
+                std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status));
+                f.detach();
+
+                std::cerr << "Start preview\n";
             }
 
-            if (ImGui::Button("\nStart offline Rendering"))
+            if (ImGui::Button("\nStart offline Rendering") && current_status == gui_tools::render_status::awaiting)
             {
                 std::unique_ptr<Camera> camera;
                 std::string save_name{ file_save_name };
@@ -332,6 +323,26 @@ void main()
                     return -1;
                 }
                 camera->capture();
+            }
+
+            if (current_status == gui_tools::render_status::finished_preview)
+            {
+                std::vector<glm::vec3> texture_vec;
+                texture_vec.reserve(preview_image.size());
+                for (int i = 0; i < preview_image.size(); i++)
+                {
+                    texture_vec.emplace_back(preview_image[i]);
+                }
+
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, shoot_photo_params.preview_image_size.at(0), shoot_photo_params.preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
+                glUseProgram(shader_program);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0);
+                glUseProgram(0);
+
+                current_status = gui_tools::render_status::awaiting;
+                std::cout << "done\n";
             }
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

@@ -14,6 +14,14 @@ namespace gui_tools
 {
     constexpr int num_of_material_list = 18;
 
+    enum class render_status : int {
+        awaiting,
+        rendering_for_preview,
+        finished_preview,
+        rendering_for_offline,
+        finished_offline
+    };
+
     inline std::array<const char*, num_of_material_list> material_list = {
         "default", "light",  "wood", "walnut", "oak",
         "gold", "nickel", "copper", "iron", "brass",
@@ -30,7 +38,7 @@ namespace gui_tools
         std::array<float, 3>camera_look_at = { 0.0f, 1.5f, 0.0f };
 
         std::array<int, 2> output_image_size = { 1280, 720 };
-        std::array<int, 2> preview_image_size = { 1280, 720 };
+        const std::array<int, 2> preview_image_size = { 1280, 720 };
 
         float focal_length = 50;
         float sensor_width = 35;
@@ -53,7 +61,7 @@ namespace gui_tools
         std::array<float, 1> scale{ 1.0 };
     };
     
-    inline std::vector<std::filesystem::path> get_models_in_folder(const std::filesystem::path folder_path)
+    inline std::vector<std::filesystem::path> get_models_in_folder(const std::filesystem::path& folder_path)
     {
         std::vector<std::filesystem::path> obj_path_vector;
         for (const std::filesystem::directory_entry& file : std::filesystem::directory_iterator(folder_path))
@@ -72,7 +80,7 @@ namespace gui_tools
         std::string save_name,
         const std::array<float, 3>camera_eye_pos, const std::array<float, 3>camera_look_at,
         std::array<int, 2> output_image_size,
-        std::vector<object_imported> objects_vector)
+        const std::vector<object_imported>& objects_vector)
     {
 
         nlohmann::json render_params;
