@@ -203,7 +203,7 @@ std::vector<glm::dvec3> Camera::preview()
 
 void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_tools::render_status>& status)
 {
-    std::cout << std::endl << std::string(28, '-') << "| MAIN PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
+    std::cout << std::endl << std::string(28, '-') << "| CHILD THREAD PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
     std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
     auto before = std::chrono::system_clock::now();
     sampleImage();
@@ -213,7 +213,7 @@ void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_to
     std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
     gui_image = image.get_adjusted_blob();
     status = gui_tools::render_status::finished_preview;
-    std::cerr << "Finish preview render\n";
+    std::cerr << "Finish inner preview render\n";
 }
 
 void Camera::capture()
