@@ -43,6 +43,8 @@ inline double clamp(double x, double min, double max)
 
 std::vector<glm::dvec3> Image::get_adjusted_blob()
 {
+    //TODO to retuurn float vec3
+
     double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
     double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
     

@@ -188,18 +188,18 @@ void Camera::lookAt(const glm::dvec3& p)
     up = glm::normalize(glm::cross(forward, left));
 }
 
-std::vector<glm::dvec3> Camera::preview()
-{
-    std::cout << std::endl << std::string(28, '-') << "| MAIN PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
-    std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
-    auto before = std::chrono::system_clock::now();
-    sampleImage();
-    auto now = std::chrono::system_clock::now();
-    std::cout << "\r" + std::string(100, ' ') + "\r";
-    std::cout << "Preview Completed: " << Format::date(now);
-    std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
-    return image.get_adjusted_blob();
-}
+//std::vector<glm::dvec3> Camera::preview()
+//{
+//    std::cout << std::endl << std::string(28, '-') << "| MAIN PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
+//    std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
+//    auto before = std::chrono::system_clock::now();
+//    sampleImage();
+//    auto now = std::chrono::system_clock::now();
+//    std::cout << "\r" + std::string(100, ' ') + "\r";
+//    std::cout << "Preview Completed: " << Format::date(now);
+//    std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
+//    return image.get_adjusted_blob();
+//}
 
 void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_tools::render_status>& status)
 {

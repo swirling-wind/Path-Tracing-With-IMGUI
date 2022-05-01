@@ -227,7 +227,7 @@ void main()
     constexpr int filename_max_length = 101;
     char file_save_name[filename_max_length] = "new image";
 
-    std::atomic current_status {gui_tools::render_status::awaiting};
+    std::atomic current_status {gui_tools::render_status::awaiting_without_bvh};
     std::vector<glm::dvec3> preview_image;
     std::unique_ptr<Camera> camera_for_preview;
 
@@ -260,18 +260,12 @@ void main()
         {
             ImGui::Begin("Control panel");
             
-            {
-                ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                ImGui::PushTextWrapPos(550.0f);
-                ImGui::Text(("\n  " + status_text + "  \n\n").c_str());
-                draw_list->AddRect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(100, 100, 100, 255));
-                ImGui::PopTextWrapPos();
-            }
-
-            //ImGui::BeginChild("test", ImVec2(0, ImGui::GetFontSize() * 2.0f), true);
-            //ImGui::Text(status_text.c_str());
-            //ImGui::EndChild();
-
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            ImGui::PushTextWrapPos(550.0f);
+            ImGui::Text(("\n  " + status_text + "  \n\n").c_str());
+            draw_list->AddRect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(100, 100, 100, 255));
+            ImGui::PopTextWrapPos();
+            
             // Render params
             gui_render_widgets::show_render_params(shoot_photo_params);
 
@@ -288,19 +282,63 @@ void main()
             if (ImGui::Button("\nOutput json"))
             {
                 std::string save_name{ file_save_name };
-                nlohmann::json test_json = generate_render_params(shoot_photo_params, save_name, shoot_photo_params.camera_eye_pos, shoot_photo_params.camera_look_at, shoot_photo_params.output_image_size, objects_vector);
+                nlohmann::json test_json = generate_render_params(shoot_photo_params, save_name, objects_vector);
                 std::ofstream out(save_name + ".json");
                 out << test_json;
             }
-            ImGui::SameLine();
+
+            if (ImGui::Button("Test status"))
+            {
+                std::cout << "\n" << static_cast<std::underlying_type_t<gui_tools::render_status>>(current_status.load()) << std::endl;
+            }
+
+            // Start prepare scene
+            if (ImGui::Button("Set scene to preview"))
+            {
+                if (current_status == gui_tools::render_status::awaiting_with_bvh)
+                {
+                    current_status = gui_tools::render_status::scene_prepared_ready_to_preview;
+                }
+                else 
+                {
+                    nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, "", objects_vector);
+                    try
+                    {
+                        camera_for_preview = std::make_unique<Camera>(preview_render_json, shoot_photo_params.is_photon_map);
+                    }
+                    catch (const std::exception& ex)
+                    {
+                        std::cout << ex.what() << std::endl;
+                        return -1;
+                    }
+                    current_status = gui_tools::render_status::scene_prepared_ready_to_preview;
+                    std::cerr << "Successfully set the scene\n";
+                }                
+            }
+
+            // Finish prepared scene render
+            if (current_status == gui_tools::render_status::scene_prepared_ready_to_preview)
+            {
+                // Start preview rendering
+                current_status = gui_tools::render_status::rendering_for_preview;
+
+                nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, "", objects_vector);
+                camera_for_preview->importRenderParams(preview_render_json);
+
+                std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status));
+                f.detach();
+
+                std::cerr << "Start preview prepared scene\n";
+            }
+
 
             // Preview
             if (ImGui::Button("Preview"))
             {
-                status_text = "Preview ...";
-                if (current_status != gui_tools::render_status::awaiting)
+                status_text = "Full Preview ...";
+                if (current_status != gui_tools::render_status::awaiting_without_bvh && current_status != gui_tools::render_status::awaiting_with_bvh)
                 {
-                    std::cerr << "Wait to start preview.\n";
+                    std::cerr << "Wait to start full preview.\n";
                 }
                 else if (objects_vector.empty())
                 {
@@ -309,7 +347,7 @@ void main()
                 else
                 {
                     std::string preview_save_name{ file_save_name };
-                    nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, preview_save_name, shoot_photo_params.camera_eye_pos, shoot_photo_params.camera_look_at, shoot_photo_params.output_image_size, objects_vector);
+                    nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, "", objects_vector);
                     try
                     {
                         camera_for_preview = std::make_unique<Camera>(preview_render_json, shoot_photo_params.is_photon_map);
@@ -330,11 +368,11 @@ void main()
                 }
             }
 
-            if (ImGui::Button("\nStart offline Rendering") && current_status == gui_tools::render_status::awaiting)
+            if (ImGui::Button("\nStart offline Rendering"))
             {
                 std::unique_ptr<Camera> camera;
                 std::string save_name{ file_save_name };
-                nlohmann::json render_json = generate_render_params(shoot_photo_params, save_name, shoot_photo_params.camera_eye_pos, shoot_photo_params.camera_look_at, shoot_photo_params.output_image_size, objects_vector);
+                nlohmann::json render_json = generate_render_params(shoot_photo_params, save_name, objects_vector);
 
                 try
                 {
@@ -364,7 +402,7 @@ void main()
                 glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0);
                 glUseProgram(0);
 
-                current_status = gui_tools::render_status::awaiting;
+                current_status = gui_tools::render_status::awaiting_with_bvh;
                 std::cout << "Preview display done\n";
                 status_text = "Preview Displayed !";
             }

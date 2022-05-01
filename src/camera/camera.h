@@ -25,7 +25,9 @@ public:
     Camera(const nlohmann::json& j, bool is_photon_map);
     Camera(const nlohmann::json& j, const Option& option);
 
-    std::vector<glm::dvec3> preview();
+    void importRenderParams(const nlohmann::json& j);
+
+    //std::vector<glm::dvec3> preview();
     void previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_tools::render_status>& status);
 
     void capture();
@@ -70,7 +72,7 @@ private:
         glm::ivec2 max;
     };
 
-    void importRenderParams(const nlohmann::json& j);
+   
 
     void samplePixel(size_t x, size_t y);
     void sampleImageThread(WorkQueue<Bucket>& buckets);

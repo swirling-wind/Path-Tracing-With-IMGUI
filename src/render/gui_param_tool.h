@@ -15,9 +15,14 @@ namespace gui_tools
     constexpr int num_of_material_list = 18;
 
     enum class render_status : int {
-        awaiting,
+        awaiting_without_bvh,
+        awaiting_with_bvh,
+
+        scene_prepared_ready_to_preview,
+
         rendering_for_preview,
         finished_preview,
+
         rendering_for_offline,
         finished_offline
     };
@@ -78,8 +83,6 @@ namespace gui_tools
 
     inline nlohmann::json generate_render_params(const shoot_params& shoot_image_params,
         std::string save_name,
-        const std::array<float, 3>camera_eye_pos, const std::array<float, 3>camera_look_at,
-        std::array<int, 2> output_image_size,
         const std::vector<object_imported>& objects_vector)
     {
 
@@ -92,13 +95,13 @@ namespace gui_tools
         nlohmann::json one_instantce_camera;
         one_instantce_camera["focal_length"] = shoot_image_params.focal_length;
         one_instantce_camera["sensor_width"] = shoot_image_params.sensor_width;
-        one_instantce_camera["eye"] = camera_eye_pos;
-        one_instantce_camera["look_at"] = camera_look_at;
+        one_instantce_camera["eye"] = shoot_image_params.camera_eye_pos;
+        one_instantce_camera["look_at"] = shoot_image_params.camera_look_at;
 
         //Image
         nlohmann::json image_params;
-        image_params["width"] = output_image_size.at(0);
-        image_params["height"] = output_image_size.at(1);
+        image_params["width"] = shoot_image_params.output_image_size.at(0);
+        image_params["height"] = shoot_image_params.output_image_size.at(1);
         image_params["exposure_compensation"] = shoot_image_params.exposure_compensation;
         image_params["gain_compensation"] = shoot_image_params.gain_compensation;
         image_params["tonemapper"] = "ACES";
