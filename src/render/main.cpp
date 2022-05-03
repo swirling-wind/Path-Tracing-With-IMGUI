@@ -302,13 +302,13 @@ void main()
 
                 if (current_status == gui_params::render_status::awaiting)
                 {
-                    // Same, no need to build scene
+                    // Same property, no need to build scene
                     if (integrator_and_scene_properties == previous_integrator_and_scene_properties)
                     {
                         current_status = gui_params::render_status::scene_prepared_ready_to_preview;
                     }
                     else
-                    {//Different, rebuild scene
+                    {// Different properties, rebuild scene
                         previous_integrator_and_scene_properties = integrator_and_scene_properties;
                         try
                         {

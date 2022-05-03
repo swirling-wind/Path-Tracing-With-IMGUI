@@ -145,6 +145,10 @@ void Camera::sampleImageForPreview()
     {
         thread = std::make_unique<std::thread>(f, this, std::ref(buckets));
     }
+
+    std::function<void(Camera*, WorkQueue<Bucket>&)> p = &Camera::printPreviewInfoThread;
+    std::thread print_thread(p, this, std::ref(buckets));
+    print_thread.join();
     
     for (auto& thread : threads)
     {
@@ -257,6 +261,51 @@ void Camera::capture()
     std::cout << "\r" + std::string(100, ' ') + "\r";
     std::cout << "Render Completed: " << Format::date(now);
     std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
+}
+
+void Camera::printPreviewInfoThread(WorkQueue<Bucket>& buckets)
+{
+    auto printProgressInfo = [](double progress, size_t msec_duration, size_t sps, std::ostream& out)
+    {
+        auto ETA = std::chrono::system_clock::now() + std::chrono::milliseconds(msec_duration);
+
+        std::stringstream ss;
+        ss << "\rTime remaining: " << Format::timeDuration(msec_duration)
+            << " || " << Format::progress(progress)
+            //<< " || ETA: " << Format::date(ETA)
+            << " || Samples/s: " << Format::largeNumber(sps) + "    ";
+
+        out << ss.str();
+    };
+
+    while (!buckets.empty())
+    {
+        if (num_sampled_pixels != last_num_sampled_pixels)
+        {
+            size_t delta_pixels = num_sampled_pixels - last_num_sampled_pixels;
+            size_t pixels_left = image.num_pixels - num_sampled_pixels;
+
+            auto now = std::chrono::steady_clock::now();
+            auto delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update);
+
+            times.push_back(static_cast<double>(delta_pixels) / delta_t.count());
+            if (times.size() > num_times)
+                times.pop_front();
+
+            // moving average
+            double pixels_per_msec = std::accumulate(times.begin(), times.end(), 0.0) / times.size();
+
+            double progress = 100.0 * static_cast<double>(num_sampled_pixels) / image.num_pixels;
+            size_t msec_left = static_cast<size_t>(pixels_left / pixels_per_msec);
+            size_t sps = static_cast<size_t>(pixels_per_msec * 1000.0 * pow2(static_cast<double>(sqrtspp)));
+
+            printProgressInfo(progress, msec_left, sps, std::cout);
+
+            last_update = now;
+            last_num_sampled_pixels = num_sampled_pixels;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
 }
 
 void Camera::printInfoThread(WorkQueue<Bucket>& buckets)

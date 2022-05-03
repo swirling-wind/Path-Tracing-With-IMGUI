@@ -79,6 +79,7 @@ private:
     void samplePixel(size_t x, size_t y);
     void sampleImageThread(WorkQueue<Bucket>& buckets);
 
+    void printPreviewInfoThread(WorkQueue<Bucket>& buckets);
     void printInfoThread(WorkQueue<Bucket>& buckets);
 
     const size_t bucket_size = 32;
