@@ -4,35 +4,37 @@
 
 namespace gui_render_widgets
 {
-    inline void show_render_params(gui_tools::shoot_params& shoot_photo_params)
+    inline void show_render_params(gui_tools::bvh_and_photon_params& integrator_params, gui_tools::camera_params& shot_params)
     {
-        ImGui::Checkbox("Use Photon Mapping or not", &shoot_photo_params.is_photon_map);
-        ImGui::InputDouble("Emission photon number", &shoot_photo_params.photon_num, 1e6, 1e7, "%.0f");
+        // BVH and Photon
+        ImGui::Checkbox("Use Photon Mapping or not", &integrator_params.is_photon_map);
+        ImGui::InputDouble("Emission photon number", &integrator_params.photon_num, 1e6, 1e7, "%.0f");
 
         ImGui::Text("BVH type: ");
         ImGui::SameLine();
-        if (ImGui::RadioButton("Octree", shoot_photo_params.is_octree))
+        if (ImGui::RadioButton("Octree", integrator_params.is_octree))
         {
-            shoot_photo_params.is_octree = true;
-            shoot_photo_params.is_sah = false;
+            integrator_params.is_octree = true;
+            integrator_params.is_sah = false;
         }
         ImGui::SameLine();
-        if (ImGui::RadioButton("SAH", shoot_photo_params.is_sah))
+        if (ImGui::RadioButton("SAH", integrator_params.is_sah))
         {
-            shoot_photo_params.is_octree = false;
-            shoot_photo_params.is_sah = true;
+            integrator_params.is_octree = false;
+            integrator_params.is_sah = true;
         }
 
+        
         // Image Params
-        ImGui::InputFloat("Focal Length", &shoot_photo_params.focal_length, 1.0f, 1.0f, "%.2f");
-        ImGui::InputFloat("Sensor Width", &shoot_photo_params.sensor_width, 1.0f, 1.0f, "%.2f");
-        ImGui::InputFloat("Exposure compensation", &shoot_photo_params.exposure_compensation, 0.1f, 1.0f, "%.2f");
-        ImGui::InputFloat("Gain Compensation", &shoot_photo_params.gain_compensation, 0.1f, 1.0f, "%.2f");
+        ImGui::InputFloat("Focal Length", &shot_params.focal_length, 1.0f, 1.0f, "%.2f");
+        ImGui::InputFloat("Sensor Width", &shot_params.sensor_width, 1.0f, 1.0f, "%.2f");
+        ImGui::InputFloat("Exposure compensation", &shot_params.exposure_compensation, 0.1f, 1.0f, "%.2f");
+        ImGui::InputFloat("Gain Compensation", &shot_params.gain_compensation, 0.1f, 1.0f, "%.2f");
 
         // Camera Position: Eye & LookAt
         ImGui::Text("\nCamera");
-        ImGui::InputFloat3("Eye Position", shoot_photo_params.camera_eye_pos.data());
-        ImGui::InputFloat3("Look At", shoot_photo_params.camera_look_at.data());
+        ImGui::InputFloat3("Eye Position", shot_params.camera_eye_pos.data());
+        ImGui::InputFloat3("Look At", shot_params.camera_look_at.data());
     }
 
     inline void show_imported_objects(std::vector<gui_tools::object_imported>& objects_vector)

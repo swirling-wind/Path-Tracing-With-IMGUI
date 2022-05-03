@@ -11,9 +11,7 @@
 #include <cstdio>
 
 namespace gui_tools
-{
-    constexpr int num_of_material_list = 18;
-
+{    
     enum class render_status : int {
         awaiting_without_bvh,
         awaiting_with_bvh,
@@ -27,6 +25,7 @@ namespace gui_tools
         finished_offline
     };
 
+    constexpr int num_of_material_list = 18;
     inline std::array<const char*, num_of_material_list> material_list = {
         "default", "light",  "wood", "walnut", "oak",
         "gold", "nickel", "copper", "iron", "brass",
@@ -37,7 +36,16 @@ namespace gui_tools
         "water", "F9_light"
     };
 
-    struct shoot_params
+     struct bvh_and_photon_params
+     {
+         bool is_photon_map = false;
+         bool is_octree = true;
+         bool is_sah = false;
+
+         double photon_num = 1e6;
+     };
+
+    struct camera_params
     {
         std::array<float, 3>camera_eye_pos = { 0.0f, 1.5f, -8.0f };
         std::array<float, 3>camera_look_at = { 0.0f, 1.5f, 0.0f };
@@ -50,11 +58,6 @@ namespace gui_tools
         float exposure_compensation = -1.5;
         float gain_compensation = 0.0;
         int side_spp = 3;
-        bool is_photon_map = false;
-        bool is_octree = true;
-        bool is_sah = false;
-
-        double photon_num = 1e6;
     };
 
     struct object_imported
@@ -81,62 +84,69 @@ namespace gui_tools
         return obj_path_vector;
     }
 
-    inline nlohmann::json generate_render_params(const shoot_params& shoot_image_params,
-        std::string save_name,
-        const std::vector<object_imported>& objects_vector)
+    inline nlohmann::json generate_camera_and_image_properties(const camera_params& shot_params, std::string save_name)
     {
-
-        nlohmann::json render_params;
-        render_params["num_render_threads"] = -1;
-        render_params["ior"] = 1;
-
+        nlohmann::json render_properties_for_camera;
         //camera
         nlohmann::json camera_params(nlohmann::json::value_t::array);
         nlohmann::json one_instantce_camera;
-        one_instantce_camera["focal_length"] = shoot_image_params.focal_length;
-        one_instantce_camera["sensor_width"] = shoot_image_params.sensor_width;
-        one_instantce_camera["eye"] = shoot_image_params.camera_eye_pos;
-        one_instantce_camera["look_at"] = shoot_image_params.camera_look_at;
+        one_instantce_camera["focal_length"] = shot_params.focal_length;
+        one_instantce_camera["sensor_width"] = shot_params.sensor_width;
+        one_instantce_camera["eye"] = shot_params.camera_eye_pos;
+        one_instantce_camera["look_at"] = shot_params.camera_look_at;
 
         //Image
         nlohmann::json image_params;
-        image_params["width"] = shoot_image_params.output_image_size.at(0);
-        image_params["height"] = shoot_image_params.output_image_size.at(1);
-        image_params["exposure_compensation"] = shoot_image_params.exposure_compensation;
-        image_params["gain_compensation"] = shoot_image_params.gain_compensation;
+        image_params["width"] = shot_params.output_image_size.at(0);
+        image_params["height"] = shot_params.output_image_size.at(1);
+        image_params["exposure_compensation"] = shot_params.exposure_compensation;
+        image_params["gain_compensation"] = shot_params.gain_compensation;
         image_params["tonemapper"] = "ACES";
         one_instantce_camera["image"] = image_params;
 
-        one_instantce_camera["sqrtspp"] = shoot_image_params.side_spp;
+        one_instantce_camera["sqrtspp"] = shot_params.side_spp;
         one_instantce_camera["savename"] = save_name;
 
         camera_params.insert(camera_params.end(), one_instantce_camera);
-        render_params["cameras"] = camera_params;
+        render_properties_for_camera["cameras"] = camera_params;
 
+        return render_properties_for_camera;
+    }
 
-        //BVH
+    inline nlohmann::json generate_bvh_and_photon_properties(const bvh_and_photon_params& integrator_params)
+    {
+        nlohmann::json render_properties_for_bvh_and_photon;
+        render_properties_for_bvh_and_photon["num_render_threads"] = -1; // All
+
         nlohmann::json bvh_type;
-        if (shoot_image_params.is_octree)
+        if (integrator_params.is_octree)
         {
             bvh_type["type"] = "octree";
         }
         else
         {
             bvh_type["type"] = "quaternary_sah";
-            bvh_type["bins_per_axis"] = 8;            
+            bvh_type["bins_per_axis"] = 8;
         }
-        render_params["bvh"] = bvh_type;
+        render_properties_for_bvh_and_photon["bvh"] = bvh_type;
 
-        if (shoot_image_params.is_photon_map)
+        if (integrator_params.is_photon_map)
         {
             nlohmann::json photon_map_json;
-            photon_map_json["emissions"] = floor(shoot_image_params.photon_num);
+            photon_map_json["emissions"] = floor(integrator_params.photon_num);
             photon_map_json["caustic_factor"] = 10.0;
             photon_map_json["k_nearest_photons"] = 50;
             photon_map_json["max_photons_per_octree_leaf"] = 200;
             photon_map_json["direct_visualization"] = false;
-            render_params["photon_map"] = photon_map_json;
+            render_properties_for_bvh_and_photon["photon_map"] = photon_map_json;
         }
+        return render_properties_for_bvh_and_photon;
+    }
+
+    inline nlohmann::json generate_material_and_object_properties(const std::vector<object_imported>& objects_vector)
+    {
+        nlohmann::json render_properties_for_material_and_objects;
+        render_properties_for_material_and_objects["ior"] = 1;
 
         //Materials
         nlohmann::json material_params;
@@ -246,7 +256,7 @@ namespace gui_tools
         material_params["F9_light"] = f9_light_params;
 
 
-        render_params["materials"] = material_params;
+        render_properties_for_material_and_objects["materials"] = material_params;
 
         //surfaces
         nlohmann::json surfaces_params(nlohmann::json::value_t::array);
@@ -266,9 +276,51 @@ namespace gui_tools
             surfaces_params.insert(surfaces_params.end(), obj_json);
         }
 
-        render_params["surfaces"] = surfaces_params;
+        render_properties_for_material_and_objects["surfaces"] = surfaces_params;
 
-        return render_params;
+        return render_properties_for_material_and_objects;
+    }
+
+    inline nlohmann::json generate_total_render_properties(
+        const nlohmann::json& render_properties_for_camera,
+        const nlohmann::json& render_properties_for_bvh_and_photon,
+        const nlohmann::json& render_properties_for_material_and_objects
+    )
+    {
+        nlohmann::json render_properties;
+        
+        // Camera
+        render_properties.update(render_properties_for_camera);
+
+        // BVH and photon
+        render_properties.update(render_properties_for_bvh_and_photon);
+
+        // Materials and surfaces
+        render_properties.update(render_properties_for_material_and_objects);
+        return render_properties;
+    }
+
+    inline nlohmann::json generate_total_render_properties(
+        const camera_params& shot_params, std::string save_name,
+        const bvh_and_photon_params& integrator_params,
+        const std::vector<object_imported>& objects_vector
+    )
+    {
+        nlohmann::json render_properties;
+
+        // Camera
+        const nlohmann::json render_properties_for_camera = generate_camera_and_image_properties(shot_params, save_name);
+        render_properties.update(render_properties_for_camera);
+
+        // BVH and photon
+        const nlohmann::json render_properties_for_bvh_and_photon = generate_bvh_and_photon_properties(integrator_params);
+        render_properties.update(render_properties_for_bvh_and_photon);
+
+        // Materials and surfaces
+        const nlohmann::json render_properties_for_material_and_objects = generate_material_and_object_properties(objects_vector);
+        render_properties.update(render_properties_for_material_and_objects);
+
+        return render_properties;
     }
 }
 

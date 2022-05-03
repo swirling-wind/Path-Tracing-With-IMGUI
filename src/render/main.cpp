@@ -221,7 +221,8 @@ void main()
 
     std::string status_text {"Awaiting order"};
 
-    gui_tools::shoot_params shoot_photo_params;
+    gui_tools::camera_params shot_params;
+    gui_tools::bvh_and_photon_params integrator_params;
     std::vector<gui_tools::object_imported> objects_vector;
 
     constexpr int filename_max_length = 101;
@@ -267,7 +268,7 @@ void main()
             ImGui::PopTextWrapPos();
             
             // Render params
-            gui_render_widgets::show_render_params(shoot_photo_params);
+            gui_render_widgets::show_render_params(integrator_params, shot_params);
 
             // Display all imported objects
             gui_render_widgets::show_imported_objects(objects_vector);
@@ -276,13 +277,13 @@ void main()
             gui_render_widgets::show_add_object(obj_found_in_path, objects_vector);
             
             ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
-            ImGui::InputInt("Side samples per pixel", &shoot_photo_params.side_spp);
+            ImGui::InputInt("Side samples per pixel", &shot_params.side_spp);
 
             // Output gui_params as json
             if (ImGui::Button("\nOutput json"))
             {
                 std::string save_name{ file_save_name };
-                nlohmann::json test_json = generate_render_params(shoot_photo_params, save_name, objects_vector);
+                nlohmann::json test_json = generate_total_render_properties(shot_params, save_name, integrator_params, objects_vector);
                 std::ofstream out(save_name + ".json");
                 out << test_json;
             }
@@ -301,10 +302,10 @@ void main()
                 }
                 else 
                 {
-                    nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, "", objects_vector);
+                    nlohmann::json preview_total_render_properties = generate_total_render_properties(shot_params, "", integrator_params, objects_vector);
                     try
                     {
-                        camera_for_preview = std::make_unique<Camera>(preview_render_json, shoot_photo_params.is_photon_map);
+                        camera_for_preview = std::make_unique<Camera>(preview_total_render_properties, integrator_params.is_photon_map);
                     }
                     catch (const std::exception& ex)
                     {
@@ -323,8 +324,8 @@ void main()
                 // Start preview rendering
                 current_status = gui_tools::render_status::rendering_for_preview;
 
-                nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, "", objects_vector);
-                camera_for_preview->importRenderParams(preview_render_json);
+                nlohmann::json preview_total_render_properties = generate_total_render_properties(shot_params, "", integrator_params, objects_vector);
+                camera_for_preview->importRenderParams(preview_total_render_properties);
 
                 std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status));
                 f.detach();
@@ -349,10 +350,10 @@ void main()
                 else
                 {
                     std::string preview_save_name{ file_save_name };
-                    nlohmann::json preview_render_json = generate_render_params(shoot_photo_params, "", objects_vector);
+                    nlohmann::json preview_total_render_properties = generate_total_render_properties(shot_params, "", integrator_params, objects_vector);
                     try
                     {
-                        camera_for_preview = std::make_unique<Camera>(preview_render_json, shoot_photo_params.is_photon_map);
+                        camera_for_preview = std::make_unique<Camera>(preview_total_render_properties, integrator_params.is_photon_map);
                     }
                     catch (const std::exception& ex)
                     {
@@ -375,11 +376,11 @@ void main()
             {
                 std::unique_ptr<Camera> camera;
                 std::string save_name{ file_save_name };
-                nlohmann::json render_json = generate_render_params(shoot_photo_params, save_name, objects_vector);
+                nlohmann::json offline_total_render_properties = generate_total_render_properties(shot_params, save_name, integrator_params, objects_vector);
 
                 try
                 {
-                    camera = std::make_unique<Camera>(render_json, shoot_photo_params.is_photon_map);
+                    camera = std::make_unique<Camera>(offline_total_render_properties, integrator_params.is_photon_map);
                 }
                 catch (const std::exception& ex)
                 {
@@ -398,7 +399,7 @@ void main()
                     texture_vec.emplace_back(i);
                 }
 
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, shoot_photo_params.preview_image_size.at(0), shoot_photo_params.preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, shot_params.preview_image_size.at(0), shot_params.preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
                 glUseProgram(shader_program);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, texture);
