@@ -29,7 +29,7 @@ Camera::Camera(const nlohmann::json& j, bool is_photon_map)
         integrator = std::make_shared<PathTracer>(j);
     }
 
-    importRenderParams(j);
+    //import_camera_and_image_properties(j);
 }
 
 Camera::Camera(const nlohmann::json &j, const Option &option)
@@ -43,10 +43,10 @@ Camera::Camera(const nlohmann::json &j, const Option &option)
         integrator = std::make_shared<PathTracer>(j);
     }
 
-    importRenderParams(j);
+    //import_camera_and_image_properties(j);
 }
 
-void Camera::importRenderParams(const nlohmann::json& j)
+void Camera::import_camera_and_image_properties(const nlohmann::json& j)
 {
     const nlohmann::json& c = j.at("cameras").at(0);
     image = Image(c.at("image"));
@@ -229,20 +229,20 @@ void Camera::lookAt(const glm::dvec3& p)
     up = glm::normalize(glm::cross(forward, left));
 }
 
-void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_tools::render_status>& status)
+void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_params::render_status>& status)
 {
     std::cout << std::endl << std::string(28, '-') << "| CHILD THREAD PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
     std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
 
-    //auto before = std::chrono::system_clock::now();
+    auto before = std::chrono::system_clock::now();
     sampleImageForPreview();
-    //auto now = std::chrono::system_clock::now();
-    //std::cout << "\r" + std::string(100, ' ') + "\r";
-    //std::cout << "Preview Completed: " << Format::date(now);
-    //std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
+    auto now = std::chrono::system_clock::now();
+    std::cout << "\r" + std::string(100, ' ') + "\r";
+    std::cout << "Preview Completed: " << Format::date(now);
+    std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
 
     gui_image = image.get_adjusted_blob();
-    status = gui_tools::render_status::finished_preview;
+    status = gui_params::render_status::finished_preview;
     std::cerr << "Finish inner preview render\n";
 }
 

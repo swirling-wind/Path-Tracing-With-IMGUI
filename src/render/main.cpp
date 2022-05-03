@@ -28,7 +28,7 @@
 #include <thread>
 #include <GLFW/glfw3.h> 
 
-#include "gui_render_widgets.h"
+#include "gui_widgets.h"
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
@@ -98,7 +98,7 @@ int main(int, char**)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    bool show_demo_window = true;
+    bool show_demo_window = false;
 
     // Preview Essentials ========================================================================
     
@@ -220,26 +220,27 @@ void main()
     // Render parameters =====================================================================
 
     std::string status_text {"Awaiting order"};
+    nlohmann::json previous_integrator_and_scene_properties;
 
-    gui_tools::camera_params shot_params;
-    gui_tools::bvh_and_photon_params integrator_params;
-    std::vector<gui_tools::object_imported> objects_vector;
+    gui_params::camera_params shot_params;
+    gui_params::bvh_and_photon_params integrator_params;
+    std::vector<gui_params::object_imported> objects_vector;
 
     constexpr int filename_max_length = 101;
     char file_save_name[filename_max_length] = "new image";
 
-    std::atomic current_status {gui_tools::render_status::awaiting_without_bvh};
+    std::atomic current_status {gui_params::render_status::awaiting};
     std::vector<glm::dvec3> preview_image;
     std::unique_ptr<Camera> camera_for_preview;
 
     //  =======================================================================================
 
-    gui_tools::object_imported temp_light_object;
+    gui_params::object_imported temp_light_object;
     //TODO - Add default light source in object_vector
 
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
     std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
-    const std::vector<std::filesystem::path> obj_found_in_path = gui_tools::get_models_in_folder(model_path);
+    const std::vector<std::filesystem::path> obj_found_in_path = gui_params::get_models_in_folder(model_path);
     std::cout << obj_found_in_path.size() << std::endl;
 
     // Main loop    ============================================================================
@@ -256,7 +257,6 @@ void main()
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
-
         // 2. Show render control window
         {
             ImGui::Begin("Control panel");
@@ -268,13 +268,13 @@ void main()
             ImGui::PopTextWrapPos();
             
             // Render params
-            gui_render_widgets::show_render_params(integrator_params, shot_params);
+            gui_widgets::show_render_params(integrator_params, shot_params);
 
             // Display all imported objects
-            gui_render_widgets::show_imported_objects(objects_vector);
+            gui_widgets::show_imported_objects(objects_vector);
 
             // Press button to add a new object 
-            gui_render_widgets::show_add_object(obj_found_in_path, objects_vector);
+            gui_widgets::show_available_objects(obj_found_in_path, objects_vector);
             
             ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
             ImGui::InputInt("Side samples per pixel", &shot_params.side_spp);
@@ -283,49 +283,61 @@ void main()
             if (ImGui::Button("\nOutput json"))
             {
                 std::string save_name{ file_save_name };
-                nlohmann::json test_json = generate_total_render_properties(shot_params, save_name, integrator_params, objects_vector);
+                nlohmann::json test_json = generate_total_render_properties(shot_params, integrator_params, objects_vector);
                 std::ofstream out(save_name + ".json");
                 out << test_json;
             }
 
+            ImGui::SameLine();
+
             if (ImGui::Button("Test status"))
             {
-                std::cout << "\n" << static_cast<std::underlying_type_t<gui_tools::render_status>>(current_status.load()) << std::endl;
+                std::cout << "\n - STATUS - " << static_cast<std::underlying_type_t<gui_params::render_status>>(current_status.load()) << std::endl;
             }
 
-            // Start prepare scene
+            // Prepare integrator and scene
             if (ImGui::Button("Set scene and preview"))
             {
-                if (current_status == gui_tools::render_status::awaiting_with_bvh)
+                nlohmann::json integrator_and_scene_properties = generate_integrator_and_material_objects_properties(integrator_params, objects_vector);
+
+                if (current_status == gui_params::render_status::awaiting)
                 {
-                    current_status = gui_tools::render_status::scene_prepared_ready_to_preview;
+                    // Same, no need to build scene
+                    if (integrator_and_scene_properties == previous_integrator_and_scene_properties)
+                    {
+                        current_status = gui_params::render_status::scene_prepared_ready_to_preview;
+                    }
+                    else
+                    {//Different, rebuild scene
+                        previous_integrator_and_scene_properties = integrator_and_scene_properties;
+                        try
+                        {
+                            camera_for_preview = std::make_unique<Camera>(integrator_and_scene_properties, integrator_params.is_photon_map);
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            std::cout << ex.what() << std::endl;
+                            return -1;
+                        }
+                        current_status = gui_params::render_status::scene_prepared_ready_to_preview;
+                        std::cout << "Successfully Prepare the scene, ready to preview\n";
+                        status_text = "Successfully Prepare the scene, ready to preview";
+                    }
                 }
-                else 
+                else
                 {
-                    nlohmann::json preview_total_render_properties = generate_total_render_properties(shot_params, "", integrator_params, objects_vector);
-                    try
-                    {
-                        camera_for_preview = std::make_unique<Camera>(preview_total_render_properties, integrator_params.is_photon_map);
-                    }
-                    catch (const std::exception& ex)
-                    {
-                        std::cout << ex.what() << std::endl;
-                        return -1;
-                    }
-                    current_status = gui_tools::render_status::scene_prepared_ready_to_preview;
-                    std::cout << "Successfully set the scene, ready to preview\n";
-                    status_text = "Successfully set the scene, ready to preview";
-                }                
+                    std::cout << "Now Renderer is busy rendering ...";
+                }
             }
 
-            // Finish prepared scene render
-            if (current_status == gui_tools::render_status::scene_prepared_ready_to_preview)
+            // After preparation, Finish render
+            if (current_status == gui_params::render_status::scene_prepared_ready_to_preview)
             {
                 // Start preview rendering
-                current_status = gui_tools::render_status::rendering_for_preview;
+                current_status = gui_params::render_status::rendering_for_preview;
 
-                nlohmann::json preview_total_render_properties = generate_total_render_properties(shot_params, "", integrator_params, objects_vector);
-                camera_for_preview->importRenderParams(preview_total_render_properties);
+                nlohmann::json preview_total_render_properties = generate_camera_and_image_properties(shot_params);
+                camera_for_preview->import_camera_and_image_properties(preview_total_render_properties);
 
                 std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status));
                 f.detach();
@@ -334,63 +346,54 @@ void main()
                 status_text = "Start render preview scene, ready to display";
             }
 
+            //// Preview
+            //if (ImGui::Button("Preview"))
+            //{
+            //    if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
+            //    {
+            //        status_text = "Full Preview ...";
+            //        nlohmann::json preview_total_render_properties = generate_total_render_properties(shot_params, integrator_params, objects_vector);
+            //        try
+            //        {
+            //            camera_for_preview = std::make_unique<Camera>(preview_total_render_properties, integrator_params.is_photon_map);
+            //        }
+            //        catch (const std::exception& ex)
+            //        {
+            //            std::cout << ex.what() << std::endl;
+            //            return -1;
+            //        }
+            //        // Start preview rendering
+            //        current_status = gui_params::render_status::rendering_for_preview;
+            //        std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status));
+            //        f.detach();
+            //        std::cout << "Start preview\n";
+            //        status_text = "Start preview rendering";
+            //    }
+            //}
 
-            // Preview
-            if (ImGui::Button("Preview"))
+            if (ImGui::Button("\nStart offline Render"))
             {
-                status_text = "Full Preview ...";
-                if (current_status != gui_tools::render_status::awaiting_without_bvh && current_status != gui_tools::render_status::awaiting_with_bvh)
+                if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
                 {
-                    std::cerr << "Wait to start full preview.\n";
-                }
-                else if (objects_vector.empty())
-                {
-                    std::cerr << "No object added to scene.\n";
-                }
-                else
-                {
-                    std::string preview_save_name{ file_save_name };
-                    nlohmann::json preview_total_render_properties = generate_total_render_properties(shot_params, "", integrator_params, objects_vector);
+                    status_text = "Offline Render ...";
+                    std::string save_name{ file_save_name };
+                    nlohmann::json offline_total_render_properties = generate_total_render_properties(shot_params, save_name, integrator_params, objects_vector);
+
+                    std::unique_ptr<Camera> camera;
                     try
                     {
-                        camera_for_preview = std::make_unique<Camera>(preview_total_render_properties, integrator_params.is_photon_map);
+                        camera = std::make_unique<Camera>(offline_total_render_properties, integrator_params.is_photon_map);
                     }
                     catch (const std::exception& ex)
                     {
                         std::cout << ex.what() << std::endl;
                         return -1;
                     }
-
-                    // Start preview rendering
-                    current_status = gui_tools::render_status::rendering_for_preview;
-
-                    std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status));
-                    f.detach();
-
-                    std::cout << "Start preview\n";
-                    status_text = "Start preview rendering";
+                    camera->capture();
                 }
             }
 
-            if (ImGui::Button("\nStart offline Rendering"))
-            {
-                std::unique_ptr<Camera> camera;
-                std::string save_name{ file_save_name };
-                nlohmann::json offline_total_render_properties = generate_total_render_properties(shot_params, save_name, integrator_params, objects_vector);
-
-                try
-                {
-                    camera = std::make_unique<Camera>(offline_total_render_properties, integrator_params.is_photon_map);
-                }
-                catch (const std::exception& ex)
-                {
-                    std::cout << ex.what() << std::endl;
-                    return -1;
-                }
-                camera->capture();
-            }
-
-            if (current_status == gui_tools::render_status::finished_preview)
+            if (current_status == gui_params::render_status::finished_preview)
             {
                 std::vector<glm::vec3> texture_vec;
                 texture_vec.reserve(preview_image.size());
@@ -406,7 +409,7 @@ void main()
                 glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0);
                 glUseProgram(0);
 
-                current_status = gui_tools::render_status::awaiting_with_bvh;
+                current_status = gui_params::render_status::awaiting;
                 std::cout << "Preview Displayed !\n";
                 status_text = "Preview Displayed !";
             }
@@ -468,7 +471,6 @@ void main()
 int test_render_main()
 {
     std::cout << "Scene directory:" << std::endl << Scene::path.string() << std::endl << std::endl;
-
 
     std::vector<Option> options;
     try

@@ -247,7 +247,7 @@
     <ClInclude Include="..\scene\scene.h" />
     <ClInclude Include="..\surface\surface.h" />
     <ClInclude Include="gui_param_tool.h" />
-    <ClInclude Include="gui_render_widgets.h" />
+    <ClInclude Include="gui_widgets.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\.editorconfig" />

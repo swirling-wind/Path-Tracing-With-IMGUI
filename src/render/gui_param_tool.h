@@ -10,11 +10,10 @@
 #include <nlohmann/json.hpp>
 #include <cstdio>
 
-namespace gui_tools
+namespace gui_params
 {    
     enum class render_status : int {
-        awaiting_without_bvh,
-        awaiting_with_bvh,
+        awaiting,
 
         scene_prepared_ready_to_preview,
 
@@ -84,7 +83,7 @@ namespace gui_tools
         return obj_path_vector;
     }
 
-    inline nlohmann::json generate_camera_and_image_properties(const camera_params& shot_params, std::string save_name)
+    inline nlohmann::json generate_camera_and_image_properties(const camera_params& shot_params)
     {
         nlohmann::json render_properties_for_camera;
         //camera
@@ -105,7 +104,7 @@ namespace gui_tools
         one_instantce_camera["image"] = image_params;
 
         one_instantce_camera["sqrtspp"] = shot_params.side_spp;
-        one_instantce_camera["savename"] = save_name;
+        one_instantce_camera["savename"] = "preview_image";
 
         camera_params.insert(camera_params.end(), one_instantce_camera);
         render_properties_for_camera["cameras"] = camera_params;
@@ -281,6 +280,24 @@ namespace gui_tools
         return render_properties_for_material_and_objects;
     }
 
+    inline nlohmann::json generate_integrator_and_material_objects_properties(
+        const bvh_and_photon_params& integrator_params,
+        const std::vector<object_imported>& objects_vector
+    )
+    {
+        nlohmann::json integrator_and_scene_properties;
+        
+        // BVH and photon
+        const nlohmann::json render_properties_for_bvh_and_photon = generate_bvh_and_photon_properties(integrator_params);
+        integrator_and_scene_properties.update(render_properties_for_bvh_and_photon);
+
+        // Materials and surfaces
+        const nlohmann::json render_properties_for_material_and_objects = generate_material_and_object_properties(objects_vector);
+        integrator_and_scene_properties.update(render_properties_for_material_and_objects);
+
+        return integrator_and_scene_properties;
+    }
+
     inline nlohmann::json generate_total_render_properties(
         const nlohmann::json& render_properties_for_camera,
         const nlohmann::json& render_properties_for_bvh_and_photon,
@@ -301,7 +318,7 @@ namespace gui_tools
     }
 
     inline nlohmann::json generate_total_render_properties(
-        const camera_params& shot_params, std::string save_name,
+        const camera_params& shot_params,
         const bvh_and_photon_params& integrator_params,
         const std::vector<object_imported>& objects_vector
     )
@@ -309,8 +326,33 @@ namespace gui_tools
         nlohmann::json render_properties;
 
         // Camera
-        const nlohmann::json render_properties_for_camera = generate_camera_and_image_properties(shot_params, save_name);
+        const nlohmann::json render_properties_for_camera = generate_camera_and_image_properties(shot_params);
         render_properties.update(render_properties_for_camera);
+
+        // BVH and photon
+        const nlohmann::json render_properties_for_bvh_and_photon = generate_bvh_and_photon_properties(integrator_params);
+        render_properties.update(render_properties_for_bvh_and_photon);
+
+        // Materials and surfaces
+        const nlohmann::json render_properties_for_material_and_objects = generate_material_and_object_properties(objects_vector);
+        render_properties.update(render_properties_for_material_and_objects);
+
+        return render_properties;
+    }
+
+    inline nlohmann::json generate_total_render_properties(
+        const camera_params& shot_params, const std::string save_name,
+        const bvh_and_photon_params& integrator_params,
+        const std::vector<object_imported>& objects_vector
+    )
+    {
+        nlohmann::json render_properties;
+
+        // Camera
+        const nlohmann::json render_properties_for_camera = generate_camera_and_image_properties(shot_params);
+        render_properties.update(render_properties_for_camera);
+
+        render_properties["cameras"]["savename"] = save_name;
 
         // BVH and photon
         const nlohmann::json render_properties_for_bvh_and_photon = generate_bvh_and_photon_properties(integrator_params);
