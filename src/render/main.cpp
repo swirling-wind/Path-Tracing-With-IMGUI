@@ -293,7 +293,7 @@ void main()
             }
 
             // Start prepare scene
-            if (ImGui::Button("Set scene to preview"))
+            if (ImGui::Button("Set scene and preview"))
             {
                 if (current_status == gui_tools::render_status::awaiting_with_bvh)
                 {
@@ -312,7 +312,8 @@ void main()
                         return -1;
                     }
                     current_status = gui_tools::render_status::scene_prepared_ready_to_preview;
-                    std::cerr << "Successfully set the scene\n";
+                    std::cout << "Successfully set the scene, ready to preview\n";
+                    status_text = "Successfully set the scene, ready to preview";
                 }                
             }
 
@@ -328,7 +329,8 @@ void main()
                 std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status));
                 f.detach();
 
-                std::cerr << "Start preview prepared scene\n";
+                std::cout << "Start render preview scene, ready to display\n";
+                status_text = "Start render preview scene, ready to display";
             }
 
 
@@ -364,7 +366,8 @@ void main()
                     std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status));
                     f.detach();
 
-                    std::cerr << "Start preview\n";
+                    std::cout << "Start preview\n";
+                    status_text = "Start preview rendering";
                 }
             }
 
@@ -403,7 +406,7 @@ void main()
                 glUseProgram(0);
 
                 current_status = gui_tools::render_status::awaiting_with_bvh;
-                std::cout << "Preview display done\n";
+                std::cout << "Preview Displayed !\n";
                 status_text = "Preview Displayed !";
             }
 

@@ -119,6 +119,47 @@ void Camera::samplePixel(size_t x, size_t y)
 }
 
 
+void Camera::sampleImageForPreview()
+{
+    std::vector<Bucket> buckets_vec;
+    for (size_t x = 0; x < image.width; x += bucket_size)
+    {
+        size_t x_end = x + bucket_size;
+        if (x_end >= image.width) x_end = image.width;
+        for (size_t y = 0; y < image.height; y += bucket_size)
+        {
+            size_t y_end = y + bucket_size;
+            if (y_end >= image.height) y_end = image.height;
+            buckets_vec.push_back(Bucket(glm::ivec2(x, y), glm::ivec2(x_end, y_end)));
+        }
+    }
+
+    std::shuffle(buckets_vec.begin(), buckets_vec.end(), Random::engine);
+    WorkQueue<Bucket> buckets(buckets_vec);
+    buckets_vec.clear();
+
+    std::function<void(Camera*, WorkQueue<Bucket>&)> f = &Camera::sampleImageThread;
+
+    std::vector<std::unique_ptr<std::thread>> threads(integrator->num_threads);
+    for (auto& thread : threads)
+    {
+        thread = std::make_unique<std::thread>(f, this, std::ref(buckets));
+    }
+    
+    for (auto& thread : threads)
+    {
+        thread->join();
+    }
+
+    for (int y = 0; y < image.height; y++)
+    {
+        for (int x = 0; x < image.width; x++)
+        {
+            image(x, y) = film.scan(x, y);
+        }
+    }
+}
+
 void Camera::sampleImage()
 {
     std::vector<Bucket> buckets_vec;
@@ -188,29 +229,18 @@ void Camera::lookAt(const glm::dvec3& p)
     up = glm::normalize(glm::cross(forward, left));
 }
 
-//std::vector<glm::dvec3> Camera::preview()
-//{
-//    std::cout << std::endl << std::string(28, '-') << "| MAIN PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
-//    std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
-//    auto before = std::chrono::system_clock::now();
-//    sampleImage();
-//    auto now = std::chrono::system_clock::now();
-//    std::cout << "\r" + std::string(100, ' ') + "\r";
-//    std::cout << "Preview Completed: " << Format::date(now);
-//    std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
-//    return image.get_adjusted_blob();
-//}
-
 void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_tools::render_status>& status)
 {
     std::cout << std::endl << std::string(28, '-') << "| CHILD THREAD PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
     std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
-    auto before = std::chrono::system_clock::now();
-    sampleImage();
-    auto now = std::chrono::system_clock::now();
-    std::cout << "\r" + std::string(100, ' ') + "\r";
-    std::cout << "Preview Completed: " << Format::date(now);
-    std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
+
+    //auto before = std::chrono::system_clock::now();
+    sampleImageForPreview();
+    //auto now = std::chrono::system_clock::now();
+    //std::cout << "\r" + std::string(100, ' ') + "\r";
+    //std::cout << "Preview Completed: " << Format::date(now);
+    //std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
+
     gui_image = image.get_adjusted_blob();
     status = gui_tools::render_status::finished_preview;
     std::cerr << "Finish inner preview render\n";

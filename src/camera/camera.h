@@ -31,7 +31,9 @@ public:
     void previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_tools::render_status>& status);
 
     void capture();
+
     void sampleImage();
+    void sampleImageForPreview();
 
     std::vector<glm::dvec3> getImage()
     {
