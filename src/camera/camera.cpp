@@ -32,7 +32,7 @@ Camera::Camera(const nlohmann::json& j, bool is_photon_map)
     //import_camera_and_image_properties(j);
 }
 
-Camera::Camera(const nlohmann::json &j, const Option &option)
+Camera::Camera(const nlohmann::json& j, const Option& option)
 {
     if (option.photon_map)
     {
@@ -92,7 +92,7 @@ void Camera::samplePixel(size_t x, size_t y)
 
     Sampler::initiate(static_cast<uint32_t>(y * image.width + x));
 
-    for(int i = 0; i < spp; i++)
+    for (int i = 0; i < spp; i++)
     {
         Sampler::setIndex(i);
 
@@ -149,7 +149,7 @@ void Camera::sampleImageForPreview()
     std::function<void(Camera*, WorkQueue<Bucket>&)> p = &Camera::printPreviewInfoThread;
     std::thread print_thread(p, this, std::ref(buckets));
     print_thread.join();
-    
+
     for (auto& thread : threads)
     {
         thread->join();
@@ -228,7 +228,7 @@ void Camera::sampleImageThread(WorkQueue<Bucket>& buckets)
 void Camera::lookAt(const glm::dvec3& p)
 {
     forward = glm::normalize(p - eye);
-    left = glm::cross({0.0, 1.0, 0.0}, forward);
+    left = glm::cross({ 0.0, 1.0, 0.0 }, forward);
     left = glm::length(left) < C::EPSILON ? glm::dvec3(-1.0, 0.0, 0.0) : glm::normalize(left);
     up = glm::normalize(glm::cross(forward, left));
 }
@@ -265,41 +265,44 @@ void Camera::capture()
 
 void Camera::printPreviewInfoThread(WorkQueue<Bucket>& buckets)
 {
-    auto printProgressInfo = [](double progress, size_t msec_duration, size_t sps, std::ostream& out)
+    auto printProgressInfo = [](double progress, size_t milliseconds_duration, std::ostream& output)
     {
-        auto ETA = std::chrono::system_clock::now() + std::chrono::milliseconds(msec_duration);
+        auto estimated_time = std::chrono::system_clock::now() + std::chrono::milliseconds(milliseconds_duration);
 
-        std::stringstream ss;
-        ss << "\rTime remaining: " << Format::timeDuration(msec_duration)
+        std::stringstream string_stream;
+        string_stream << "\rTime remaining: " << Format::timeDuration(milliseconds_duration)
             << " || " << Format::progress(progress)
-            //<< " || ETA: " << Format::date(ETA)
-            << " || Samples/s: " << Format::largeNumber(sps) + "    ";
+            << " || ETA: " << Format::date(estimated_time) + "    ";
 
-        out << ss.str();
+        output << string_stream.str();
     };
+
+    times.clear();
+    num_sampled_pixels = 0;
+    last_num_sampled_pixels = 0;
+    last_update = std::chrono::steady_clock::now();
 
     while (!buckets.empty())
     {
         if (num_sampled_pixels != last_num_sampled_pixels)
         {
-            size_t delta_pixels = num_sampled_pixels - last_num_sampled_pixels;
-            size_t pixels_left = image.num_pixels - num_sampled_pixels;
+            const size_t delta_pixels = num_sampled_pixels - last_num_sampled_pixels;
+            const size_t pixels_left = image.num_pixels - num_sampled_pixels;
 
             auto now = std::chrono::steady_clock::now();
             auto delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update);
 
             times.push_back(static_cast<double>(delta_pixels) / delta_t.count());
+
             if (times.size() > num_times)
                 times.pop_front();
 
             // moving average
-            double pixels_per_msec = std::accumulate(times.begin(), times.end(), 0.0) / times.size();
+            const double pixels_per_milliseconds = std::accumulate(times.begin(), times.end(), 0.0) / times.size();
+            const double progress = 100.0 * static_cast<double>(num_sampled_pixels) / image.num_pixels;
+            const size_t milliseconds_left = static_cast<size_t>(pixels_left / pixels_per_milliseconds);
 
-            double progress = 100.0 * static_cast<double>(num_sampled_pixels) / image.num_pixels;
-            size_t msec_left = static_cast<size_t>(pixels_left / pixels_per_msec);
-            size_t sps = static_cast<size_t>(pixels_per_msec * 1000.0 * pow2(static_cast<double>(sqrtspp)));
-
-            printProgressInfo(progress, msec_left, sps, std::cout);
+            printProgressInfo(progress, milliseconds_left, std::cout);
 
             last_update = now;
             last_num_sampled_pixels = num_sampled_pixels;
@@ -316,9 +319,9 @@ void Camera::printInfoThread(WorkQueue<Bucket>& buckets)
 
         std::stringstream ss;
         ss << "\rTime remaining: " << Format::timeDuration(msec_duration)
-           << " || " << Format::progress(progress)
-           << " || ETA: " << Format::date(ETA)
-           << " || Samples/s: " << Format::largeNumber(sps) + "    ";
+            << " || " << Format::progress(progress)
+            << " || ETA: " << Format::date(ETA)
+            << " || Samples/s: " << Format::largeNumber(sps) + "    ";
 
         out << ss.str();
     };
