@@ -263,7 +263,7 @@ void main()
         {
             ImGui::Begin("Control panel");
 
-            if (current_status == gui_params::render_status::rendering_for_preview)
+            if (current_status == gui_params::render_status::busy_rendering)
             {
                 ImGui::ProgressBar(render_progress, ImVec2(0.0f, 0.0f));
                 ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
@@ -317,6 +317,7 @@ void main()
                     // Same property, no need to build scene
                     if (integrator_and_scene_properties == previous_integrator_and_scene_properties)
                     {
+                        std::cerr << "Same scene.\n";
                         current_status = gui_params::render_status::scene_prepared_ready_to_preview;
                     }
                     else
@@ -324,16 +325,20 @@ void main()
                         previous_integrator_and_scene_properties = integrator_and_scene_properties;
                         try
                         {
-                            camera_for_preview = std::make_unique<Camera>(integrator_and_scene_properties, integrator_params.is_photon_map);
+                            camera_for_preview = std::make_unique<Camera>();
+                            std::cerr << "Start init" << "\n";
+                            current_status = gui_params::render_status::busy_initing_scene;
+                            std::thread f(&Camera::init_integrator_and_scene, camera_for_preview.get(), integrator_and_scene_properties, integrator_params.is_photon_map, std::ref(current_status));
+                            f.detach();
+
+                            std::cout << "Now building preview and integrator\n";
+                            status_text = "Now building preview and integrator";
                         }
                         catch (const std::exception& ex)
                         {
                             std::cout << ex.what() << std::endl;
                             return -1;
                         }
-                        current_status = gui_params::render_status::scene_prepared_ready_to_preview;
-                        std::cout << "Successfully Prepare the scene, ready to preview\n";
-                        status_text = "Successfully Prepare the scene, ready to preview";
                     }
                 }
                 else
@@ -346,7 +351,7 @@ void main()
             if (current_status == gui_params::render_status::scene_prepared_ready_to_preview)
             {
                 // Start preview rendering
-                current_status = gui_params::render_status::rendering_for_preview;
+                current_status = gui_params::render_status::busy_rendering;
 
                 nlohmann::json preview_total_render_properties = generate_camera_and_image_properties(shot_params);
                 camera_for_preview->import_camera_and_image_properties(preview_total_render_properties);
@@ -358,6 +363,7 @@ void main()
                 status_text = "Start render preview scene, ready to display";
             }
 
+            //To be deleted. Turn to use preview to save offline render result
             if (ImGui::Button("\nStart offline Render"))
             {
                 if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))

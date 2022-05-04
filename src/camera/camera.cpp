@@ -46,6 +46,21 @@ Camera::Camera(const nlohmann::json& j, const Option& option)
     //import_camera_and_image_properties(j);
 }
 
+void Camera::init_integrator_and_scene(nlohmann::json j, bool is_photon_map, std::atomic<gui_params::render_status>& status)
+{
+    if (is_photon_map)
+    {
+        integrator = std::make_shared<PhotonMapper>(j);
+    }
+    else
+    {
+        integrator = std::make_shared<PathTracer>(j);
+    }
+    status = gui_params::render_status::scene_prepared_ready_to_preview;
+    std::cout << "Successfully Prepare the scene, ready to preview\n";
+}
+
+
 void Camera::import_camera_and_image_properties(const nlohmann::json& j)
 {
     const nlohmann::json& c = j.at("cameras").at(0);

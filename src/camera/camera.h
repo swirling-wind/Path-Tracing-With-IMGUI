@@ -22,8 +22,11 @@ class Integrator;
 class Camera
 {
 public:
+    Camera() = default;
     Camera(const nlohmann::json& j, bool is_photon_map);
     Camera(const nlohmann::json& j, const Option& option);
+
+    void init_integrator_and_scene(nlohmann::json j, bool is_photon_map, std::atomic<gui_params::render_status>& status);
 
     void import_camera_and_image_properties(const nlohmann::json& j);
 

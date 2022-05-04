@@ -15,9 +15,11 @@ namespace gui_params
     enum class render_status : int {
         awaiting,
 
+        busy_initing_scene,
+
         scene_prepared_ready_to_preview,
 
-        rendering_for_preview,
+        busy_rendering,
         finished_preview,
 
         rendering_for_offline,
