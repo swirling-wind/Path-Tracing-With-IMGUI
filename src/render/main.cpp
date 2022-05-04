@@ -98,7 +98,7 @@ int main(int, char**)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    bool show_demo_window = false;
+    bool show_demo_window = true;
 
     // Preview Essentials ========================================================================
     
@@ -233,6 +233,8 @@ void main()
     std::vector<glm::dvec3> preview_image;
     std::unique_ptr<Camera> camera_for_preview;
 
+    double render_progress = 0.0;
+
     //  =======================================================================================
 
     gui_params::object_imported temp_light_object;
@@ -260,12 +262,22 @@ void main()
         // 2. Show render control window
         {
             ImGui::Begin("Control panel");
+
+            if (current_status == gui_params::render_status::rendering_for_preview)
+            {
+                ImGui::ProgressBar(render_progress, ImVec2(0.0f, 0.0f));
+                ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+                ImGui::Text("Progress Bar");
+            }
+            else
+            {
+                ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                ImGui::PushTextWrapPos(550.0f);
+                ImGui::Text(("\n  " + status_text + "  \n\n").c_str());
+                draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(100, 100, 100, 255));
+                ImGui::PopTextWrapPos();
+            }
             
-            ImDrawList* draw_list = ImGui::GetWindowDrawList();
-            ImGui::PushTextWrapPos(550.0f);
-            ImGui::Text(("\n  " + status_text + "  \n\n").c_str());
-            draw_list->AddRect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(100, 100, 100, 255));
-            ImGui::PopTextWrapPos();
             
             // Render params
             gui_widgets::show_render_params(integrator_params, shot_params);
@@ -339,37 +351,12 @@ void main()
                 nlohmann::json preview_total_render_properties = generate_camera_and_image_properties(shot_params);
                 camera_for_preview->import_camera_and_image_properties(preview_total_render_properties);
 
-                std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status));
+                std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status), std::ref(render_progress));
                 f.detach();
 
                 std::cout << "Start render preview scene, ready to display\n";
                 status_text = "Start render preview scene, ready to display";
             }
-
-            //// Preview
-            //if (ImGui::Button("Preview"))
-            //{
-            //    if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
-            //    {
-            //        status_text = "Full Preview ...";
-            //        nlohmann::json preview_total_render_properties = generate_total_render_properties(shot_params, integrator_params, objects_vector);
-            //        try
-            //        {
-            //            camera_for_preview = std::make_unique<Camera>(preview_total_render_properties, integrator_params.is_photon_map);
-            //        }
-            //        catch (const std::exception& ex)
-            //        {
-            //            std::cout << ex.what() << std::endl;
-            //            return -1;
-            //        }
-            //        // Start preview rendering
-            //        current_status = gui_params::render_status::rendering_for_preview;
-            //        std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status));
-            //        f.detach();
-            //        std::cout << "Start preview\n";
-            //        status_text = "Start preview rendering";
-            //    }
-            //}
 
             if (ImGui::Button("\nStart offline Render"))
             {

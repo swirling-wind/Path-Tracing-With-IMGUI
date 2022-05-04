@@ -119,7 +119,7 @@ void Camera::samplePixel(size_t x, size_t y)
 }
 
 
-void Camera::sampleImageForPreview()
+void Camera::sampleImageForPreview(double& render_progress)
 {
     std::vector<Bucket> buckets_vec;
     for (size_t x = 0; x < image.width; x += bucket_size)
@@ -146,8 +146,8 @@ void Camera::sampleImageForPreview()
         thread = std::make_unique<std::thread>(f, this, std::ref(buckets));
     }
 
-    std::function<void(Camera*, WorkQueue<Bucket>&)> p = &Camera::printPreviewInfoThread;
-    std::thread print_thread(p, this, std::ref(buckets));
+    std::function<void(Camera*, WorkQueue<Bucket>&, double&)> p = &Camera::printPreviewInfoThread;
+    std::thread print_thread(p, this, std::ref(buckets), std::ref(render_progress));
     print_thread.join();
 
     for (auto& thread : threads)
@@ -233,13 +233,13 @@ void Camera::lookAt(const glm::dvec3& p)
     up = glm::normalize(glm::cross(forward, left));
 }
 
-void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_params::render_status>& status)
+void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_params::render_status>& status, double& render_progress)
 {
     std::cout << std::endl << std::string(28, '-') << "| CHILD THREAD PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
     std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
 
     auto before = std::chrono::system_clock::now();
-    sampleImageForPreview();
+    sampleImageForPreview(render_progress);
     auto now = std::chrono::system_clock::now();
     std::cout << "\r" + std::string(100, ' ') + "\r";
     std::cout << "Preview Completed: " << Format::date(now);
@@ -263,15 +263,16 @@ void Camera::capture()
     std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
 }
 
-void Camera::printPreviewInfoThread(WorkQueue<Bucket>& buckets)
+void Camera::printPreviewInfoThread(WorkQueue<Bucket>& buckets, double& render_progress)
 {
-    auto printProgressInfo = [](double progress, size_t milliseconds_duration, std::ostream& output)
+    auto printProgressInfo = [](double progress, size_t milliseconds_duration, double& render_progress, std::ostream& output)
     {
         auto estimated_time = std::chrono::system_clock::now() + std::chrono::milliseconds(milliseconds_duration);
+        render_progress = progress;
 
         std::stringstream string_stream;
         string_stream << "\rTime remaining: " << Format::timeDuration(milliseconds_duration)
-            << " || " << Format::progress(progress)
+            << " || " << Format::progress(progress * 100.0)
             << " || ETA: " << Format::date(estimated_time) + "    ";
 
         output << string_stream.str();
@@ -299,10 +300,10 @@ void Camera::printPreviewInfoThread(WorkQueue<Bucket>& buckets)
 
             // moving average
             const double pixels_per_milliseconds = std::accumulate(times.begin(), times.end(), 0.0) / times.size();
-            const double progress = 100.0 * static_cast<double>(num_sampled_pixels) / image.num_pixels;
+            const double progress = static_cast<double>(num_sampled_pixels) / image.num_pixels;
             const size_t milliseconds_left = static_cast<size_t>(pixels_left / pixels_per_milliseconds);
 
-            printProgressInfo(progress, milliseconds_left, std::cout);
+            printProgressInfo(progress, milliseconds_left, render_progress, std::cout);
 
             last_update = now;
             last_num_sampled_pixels = num_sampled_pixels;

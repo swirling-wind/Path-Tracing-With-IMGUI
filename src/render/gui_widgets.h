@@ -86,7 +86,7 @@ namespace gui_widgets
             }
 
             ImGui::SameLine();
-            if (ImGui::Button("Remove"))
+            if (ImGui::Button(("Remove " + index).c_str()))
             {
                 delete_object_index = iter - objects_vector.begin();
             }
@@ -96,17 +96,6 @@ namespace gui_widgets
         {
             objects_vector.erase(objects_vector.begin() + delete_object_index);
         }
-
-
-         //Remove the last imported object
-     /*   if (!objects_vector.empty())
-        {
-            ImGui::SameLine();
-            if (ImGui::Button("Remove"))
-            {
-                objects_vector.pop_back();
-            }
-        }*/
     }
 
     inline void show_available_objects(const std::vector<std::filesystem::path>& obj_found_in_path, std::vector<gui_params::object_imported>& objects_vector)

@@ -28,12 +28,12 @@ public:
     void import_camera_and_image_properties(const nlohmann::json& j);
 
     //std::vector<glm::dvec3> preview();
-    void previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_params::render_status>& status);
+    void previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_params::render_status>& status, double& render_progress);
 
     void capture();
 
     void sampleImage();
-    void sampleImageForPreview();
+    void sampleImageForPreview(double& render_progress);
 
     std::vector<glm::dvec3> getImage()
     {
@@ -79,7 +79,7 @@ private:
     void samplePixel(size_t x, size_t y);
     void sampleImageThread(WorkQueue<Bucket>& buckets);
 
-    void printPreviewInfoThread(WorkQueue<Bucket>& buckets);
+    void printPreviewInfoThread(WorkQueue<Bucket>& buckets, double& render_progress);
     void printInfoThread(WorkQueue<Bucket>& buckets);
 
     const size_t bucket_size = 32;
