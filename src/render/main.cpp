@@ -320,7 +320,7 @@ void main()
             {
                 nlohmann::json integrator_and_scene_properties = generate_integrator_and_material_objects_properties(integrator_params, objects_vector);
 
-                if (current_status == gui_params::render_status::awaiting)
+                if (current_status == gui_params::render_status::awaiting && (!objects_vector.empty()))
                 {
                     // Same property, no need to build scene
                     if (integrator_and_scene_properties == previous_integrator_and_scene_properties)
@@ -351,7 +351,8 @@ void main()
                 }
                 else
                 {
-                    std::cout << "Now Renderer is busy rendering ...";
+                    std::cout << "No available scene to render\n";
+                    status_text = "No available scene to render";
                 }
             }
 

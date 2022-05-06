@@ -44,6 +44,7 @@ namespace gui_widgets
         if (integrator_params.is_photon_map)
         {
             ImGui::InputDouble("Emission photon number", &integrator_params.photon_num, 1e6, 1e7, "%.0f");
+            integrator_params.photon_num = std::clamp(integrator_params.photon_num, 1e6, 9e8);
         }
 
         ImGui::Text("BVH type: ");
@@ -70,7 +71,8 @@ namespace gui_widgets
         }
         if (integrator_params.is_quaternary_sah || integrator_params.is_binary_sah)
         {
-            ImGui::SliderInt("Slabs number", &integrator_params.bins_per_axis, 4, 32);
+            ImGui::InputInt("Slabs number", &integrator_params.bins_per_axis, 1, 4);
+            integrator_params.bins_per_axis = std::clamp(integrator_params.bins_per_axis, 2, 32);
         }
 
     }
@@ -96,7 +98,8 @@ namespace gui_widgets
         ImGui::InputFloat("Sensor Width", &shot_params.sensor_width, 1.0f, 1.0f, "%.2f");
         ImGui::InputFloat("Exposure compensation", &shot_params.exposure_compensation, 0.1f, 1.0f, "%.2f");
         ImGui::InputFloat("Gain Compensation", &shot_params.gain_compensation, 0.1f, 1.0f, "%.2f");
-        ImGui::InputInt("Side samples per pixel", &shot_params.side_spp);
+        ImGui::InputInt("Side samples per pixel", &shot_params.side_spp, 1, 5);
+        shot_params.side_spp = std::clamp(shot_params.side_spp, 1, 100);
                 
         ImGui::Text("Camera");
         ImGui::InputFloat3("Eye Position", shot_params.camera_eye_pos.data());
