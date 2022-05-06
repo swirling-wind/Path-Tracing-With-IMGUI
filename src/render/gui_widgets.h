@@ -24,37 +24,84 @@ namespace gui_widgets
     }
 
 
-    inline void show_render_params(gui_params::bvh_and_photon_params& integrator_params, gui_params::camera_params& shot_params)
+    inline void show_integrator_params(gui_params::bvh_and_photon_params& integrator_params)
     {
         // BVH and Photon
-        ImGui::Checkbox("Use Photon Mapping or not", &integrator_params.is_photon_map);
-        ImGui::InputDouble("Emission photon number", &integrator_params.photon_num, 1e6, 1e7, "%.0f");
+        ImGui::Text("Integrator: ");
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Path Tracing", integrator_params.is_path_tracing))
+        {
+            integrator_params.is_path_tracing = true;
+            integrator_params.is_photon_map = false;
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Photon Mapping", integrator_params.is_photon_map))
+        {
+            integrator_params.is_path_tracing = false;
+            integrator_params.is_photon_map = true;
+
+        }
+        if (integrator_params.is_photon_map)
+        {
+            ImGui::InputDouble("Emission photon number", &integrator_params.photon_num, 1e6, 1e7, "%.0f");
+        }
 
         ImGui::Text("BVH type: ");
         ImGui::SameLine();
         if (ImGui::RadioButton("Octree", integrator_params.is_octree))
         {
             integrator_params.is_octree = true;
-            integrator_params.is_sah = false;
+            integrator_params.is_quaternary_sah = false;
+            integrator_params.is_binary_sah = false;
         }
         ImGui::SameLine();
-        if (ImGui::RadioButton("SAH", integrator_params.is_sah))
+        if (ImGui::RadioButton("Quaternary SAH", integrator_params.is_quaternary_sah))
         {
             integrator_params.is_octree = false;
-            integrator_params.is_sah = true;
+            integrator_params.is_quaternary_sah = true;
+            integrator_params.is_binary_sah = false;
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Binary SAH", integrator_params.is_binary_sah))
+        {
+            integrator_params.is_octree = false;
+            integrator_params.is_quaternary_sah = false;
+            integrator_params.is_binary_sah = true;
+        }
+        if (integrator_params.is_quaternary_sah || integrator_params.is_binary_sah)
+        {
+            ImGui::SliderInt("Slabs number", &integrator_params.bins_per_axis, 4, 32);
         }
 
-        
-        // Image Params
+    }
+
+    inline void show_camera_params(gui_params::camera_params& shot_params)
+    {
+        ImGui::Text("Tone mapping: ");
+        ImGui::SameLine();
+        if (ImGui::RadioButton("ACES", shot_params.is_aces_tone_mapper))
+        {
+            shot_params.is_aces_tone_mapper = true;
+            shot_params.is_hable_tone_mapper = false;
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Hable", shot_params.is_hable_tone_mapper))
+        {
+            shot_params.is_aces_tone_mapper = false;
+            shot_params.is_hable_tone_mapper = true;
+        }
+
+        ImGui::Text("\nImage");
         ImGui::InputFloat("Focal Length", &shot_params.focal_length, 1.0f, 1.0f, "%.2f");
         ImGui::InputFloat("Sensor Width", &shot_params.sensor_width, 1.0f, 1.0f, "%.2f");
         ImGui::InputFloat("Exposure compensation", &shot_params.exposure_compensation, 0.1f, 1.0f, "%.2f");
         ImGui::InputFloat("Gain Compensation", &shot_params.gain_compensation, 0.1f, 1.0f, "%.2f");
-
-        // Camera Position: Eye & LookAt
-        ImGui::Text("\nCamera");
+        ImGui::InputInt("Side samples per pixel", &shot_params.side_spp);
+                
+        ImGui::Text("Camera");
         ImGui::InputFloat3("Eye Position", shot_params.camera_eye_pos.data());
         ImGui::InputFloat3("Look At", shot_params.camera_look_at.data());
+        
     }
 
     inline void show_imported_objects(std::vector<gui_params::object_imported>& objects_vector)

@@ -10,6 +10,8 @@
 #include <nlohmann/json.hpp>
 #include <cstdio>
 
+#include "common/util.h"
+
 namespace gui_params
 {    
     enum class render_status : int {
@@ -37,28 +39,64 @@ namespace gui_params
         "water", "F9_light"
     };
 
+    struct material_params
+    {
+        struct emittance
+        {
+            bool is_emitting = false;
+            double scale = 1.0;
+            double temperature = -1.0;
+        };
+
+        struct ior
+        {
+            bool is_complex_ior = false;
+            double simple_ior = 1.0;
+            glm::dvec3 real_ior = glm::dvec3(0);
+            glm::dvec3 imaginary_ior = glm::dvec3(0);
+            std::string refractive_data_file_path;
+        };
+
+        double roughness = 0.0;
+        double specular_roughness = 0.0;
+        double transparency = 0.0;
+        bool perfect_mirror = false;
+        glm::dvec3 reflectance = glm::dvec3(1.0);
+        glm::dvec3 specular_reflectance = glm::dvec3(1.0);
+        glm::dvec3 transmittance = glm::dvec3(1.0);
+        emittance emittance;
+    };
+
+
+
      struct bvh_and_photon_params
      {
+         bool is_path_tracing = true;
          bool is_photon_map = false;
-         bool is_octree = true;
-         bool is_sah = false;
-
          double photon_num = 1e6;
+
+         bool is_octree = true;
+         bool is_quaternary_sah = false;
+         bool is_binary_sah = false;
+         int bins_per_axis = 8;         
      };
 
     struct camera_params
     {
-        std::array<float, 3>camera_eye_pos = { 0.0f, 1.5f, -8.0f };
-        std::array<float, 3>camera_look_at = { 0.0f, 1.5f, 0.0f };
-
-        std::array<int, 2> output_image_size = { 1280, 720 };
-        const std::array<int, 2> preview_image_size = { 1280, 720 };
-
         float focal_length = 50;
         float sensor_width = 35;
+        std::array<float, 3>camera_eye_pos = { 0.0f, 1.5f, -8.0f };
+        std::array<float, 3>camera_look_at = { 0.0f, 1.5f, 0.0f };
+        int side_spp = 3;
+
+        std::array<int, 2> output_image_size = { 1280, 720 };
         float exposure_compensation = -1.5;
         float gain_compensation = 0.0;
-        int side_spp = 3;
+        bool is_aces_tone_mapper = true;
+        bool is_hable_tone_mapper = false;
+
+        const std::array<int, 2> preview_image_size = { 1280, 720 };
+        
     };
 
     struct object_imported
@@ -85,16 +123,71 @@ namespace gui_params
         return obj_path_vector;
     }
 
+    inline camera_params read_camera_and_image_properties(const nlohmann::json& total_properties)
+    {
+        const nlohmann::json& camera_properties = total_properties.at("cameras").at(0);
+        camera_params imported_camera_params;
+        imported_camera_params.focal_length = camera_properties.at("focal_length").get<double>() / 1000.0;
+        imported_camera_params.sensor_width = camera_properties.at("sensor_width").get<double>() / 1000.0;
+        imported_camera_params.camera_eye_pos = camera_properties.at("eye");
+        imported_camera_params.camera_look_at = camera_properties.at("look_at");
+        imported_camera_params.side_spp = camera_properties.at("sqrtspp");
+
+        const nlohmann::json& image_properties = camera_properties.at("image");
+        imported_camera_params.output_image_size.at(0) = image_properties.at("width");
+        imported_camera_params.output_image_size.at(1) = image_properties.at("height");
+        imported_camera_params.exposure_compensation = getOptional(image_properties, "exposure_compensation", -1.0);
+        imported_camera_params.gain_compensation= getOptional(image_properties, "gain_compensation", 0.0);
+
+        std::string tone_mapper = getOptional<std::string>(image_properties, "tonemapper", "ACES");
+        if (tone_mapper == "ACES")
+        {
+            imported_camera_params.is_aces_tone_mapper = true;
+            imported_camera_params.is_hable_tone_mapper = false;
+        }else
+        {
+            imported_camera_params.is_aces_tone_mapper = false;
+            imported_camera_params.is_hable_tone_mapper = true;
+        }
+
+        return imported_camera_params;
+    }
+
+    inline bvh_and_photon_params read_bvh_and_photon_properties(const nlohmann::json& total_properties)
+    {
+        
+        bvh_and_photon_params imported_integrator_params;
+        if (total_properties.find("bvh") != total_properties.end())
+        {
+            std::string type = getOptional<std::string>(total_properties.at("bvh"), "type", "OCTREE");
+            //TODO
+        }
+        imported_integrator_params.is_octree;
+        imported_integrator_params.is_quaternary_sah;
+        imported_integrator_params.is_binary_sah;
+
+        imported_integrator_params.is_photon_map;
+        const nlohmann::json& pm = total_properties.at("photon_map");
+        imported_integrator_params.photon_num;
+
+    }
+
+    inline std::vector<object_imported> read_material_and_object_properties(const nlohmann::json& total_properties)
+    {
+        //TODO
+    }
+
+
     inline nlohmann::json generate_camera_and_image_properties(const camera_params& shot_params)
     {
         nlohmann::json render_properties_for_camera;
         //camera
         nlohmann::json camera_params(nlohmann::json::value_t::array);
-        nlohmann::json one_instantce_camera;
-        one_instantce_camera["focal_length"] = shot_params.focal_length;
-        one_instantce_camera["sensor_width"] = shot_params.sensor_width;
-        one_instantce_camera["eye"] = shot_params.camera_eye_pos;
-        one_instantce_camera["look_at"] = shot_params.camera_look_at;
+        nlohmann::json new_camera_instance;
+        new_camera_instance["focal_length"] = shot_params.focal_length;
+        new_camera_instance["sensor_width"] = shot_params.sensor_width;
+        new_camera_instance["eye"] = shot_params.camera_eye_pos;
+        new_camera_instance["look_at"] = shot_params.camera_look_at;
 
         //Image
         nlohmann::json image_params;
@@ -102,13 +195,13 @@ namespace gui_params
         image_params["height"] = shot_params.output_image_size.at(1);
         image_params["exposure_compensation"] = shot_params.exposure_compensation;
         image_params["gain_compensation"] = shot_params.gain_compensation;
-        image_params["tonemapper"] = "ACES";
-        one_instantce_camera["image"] = image_params;
+        image_params["tonemapper"] = shot_params.is_aces_tone_mapper ? "ACES" : "HABLE";
+        new_camera_instance["image"] = image_params;
 
-        one_instantce_camera["sqrtspp"] = shot_params.side_spp;
-        one_instantce_camera["savename"] = "preview_image";
+        new_camera_instance["sqrtspp"] = shot_params.side_spp;
+        new_camera_instance["savename"] = "preview_image";
 
-        camera_params.insert(camera_params.end(), one_instantce_camera);
+        camera_params.insert(camera_params.end(), new_camera_instance);
         render_properties_for_camera["cameras"] = camera_params;
 
         return render_properties_for_camera;

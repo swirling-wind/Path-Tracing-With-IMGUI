@@ -236,10 +236,6 @@ void main()
     double render_progress = 0.0;
 
     //  =======================================================================================
-
-    gui_params::object_imported temp_light_object;
-    //TODO - Add default light source in object_vector
-
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
     std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
     const std::vector<std::filesystem::path> obj_found_in_path = gui_params::get_models_in_folder(model_path);
@@ -277,10 +273,22 @@ void main()
                 draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(100, 100, 100, 255));
                 ImGui::PopTextWrapPos();
             }
-            
+
+            ///////////////////////////////
+            if (ImGui::Button("Materials Management"))
+                ImGui::OpenPopup("manage_material");
+            if (ImGui::BeginPopup("manage_material", ImGuiWindowFlags_MenuBar))
+            {
+                ImGui::Text("Hello from popup!");
+                ImGui::Button("This is a dummy button..");
+                ImGui::EndPopup();
+            }
+
+            /////////////////////////////////
             
             // Render params
-            gui_widgets::show_render_params(integrator_params, shot_params);
+            gui_widgets::show_integrator_params(integrator_params);
+            gui_widgets::show_camera_params(shot_params);
 
             // Display all imported objects
             gui_widgets::show_imported_objects(objects_vector);
@@ -289,7 +297,7 @@ void main()
             gui_widgets::show_available_objects(obj_found_in_path, objects_vector);
             
             ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
-            ImGui::InputInt("Side samples per pixel", &shot_params.side_spp);
+            
 
             // Output gui_params as json
             if (ImGui::Button("\nOutput json"))
