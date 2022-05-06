@@ -155,7 +155,7 @@ namespace gui_widgets
         for (auto iter = obj_found_in_path.begin(); iter != obj_found_in_path.end(); ++iter)
         {
             const auto index = iter - obj_found_in_path.begin();
-            if (ImGui::Button(iter->string().data()))
+            if (ImGui::Button(iter->filename().string().data()))
             {
                 gui_params::object_imported temp_object;
                 temp_object.file_location = iter->filename();

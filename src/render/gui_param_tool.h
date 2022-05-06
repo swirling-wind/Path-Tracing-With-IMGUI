@@ -2,12 +2,36 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <filesystem>
 #include <iostream>
 #include <nlohmann/json.hpp>
 
 #include "common/util.h"
+
+namespace gui_params
+{
+    struct material_params;
+}
+
+namespace convert_camera_params
+{
+    
+}
+
+
+namespace convert_material
+{
+    inline void from_json(const nlohmann::json& j, gui_params::material_params& material_param)
+    {
+
+    }
+    inline void to_json(const nlohmann::json& j, gui_params::material_params& material_param)
+    {
+
+    }
+}
 
 namespace gui_params
 {    
@@ -36,46 +60,18 @@ namespace gui_params
         "water", "F9_light"
     };
 
-    struct material_params
+    struct bvh_and_photon_params
     {
-        struct emittance
-        {
-            bool is_emitting = false;
-            double scale = 1.0;
-            double temperature = -1.0;
-        };
+        bool is_path_tracing = true;
+        bool is_photon_map = false;
+        double photon_num = 1e6;
+        double caustic_multiplier = 10.0;
 
-        struct ior
-        {
-            bool is_complex_ior = false;
-            double simple_ior = 1.0;
-            glm::dvec3 real_ior = glm::dvec3(0);
-            glm::dvec3 imaginary_ior = glm::dvec3(0);
-            std::string refractive_data_file_path;
-        };
-
-        double roughness = 0.0;
-        double specular_roughness = 0.0;
-        double transparency = 0.0;
-        bool perfect_mirror = false;
-        glm::dvec3 reflectance = glm::dvec3(1.0);
-        glm::dvec3 specular_reflectance = glm::dvec3(1.0);
-        glm::dvec3 transmittance = glm::dvec3(1.0);
-        emittance emittance;
+        bool is_octree = true;
+        bool is_quaternary_sah = false;
+        bool is_binary_sah = false;
+        int bins_per_axis = 8;
     };
-
-     struct bvh_and_photon_params
-     {
-         bool is_path_tracing = true;
-         bool is_photon_map = false;
-         double photon_num = 1e6;
-         double caustic_multiplier = 10.0;
-
-         bool is_octree = true;
-         bool is_quaternary_sah = false;
-         bool is_binary_sah = false;
-         int bins_per_axis = 8;         
-     };
 
     struct camera_params
     {
@@ -102,7 +98,53 @@ namespace gui_params
         std::array<float, 3> rotation{ 0.0,0.0,0.0 };
         std::array<float, 1> scale{ 1.0 };
     };
-    
+
+    struct material_params
+    {
+        struct emittance_param
+        {
+            bool is_emitting = false;
+            double scale = 1.0;
+            double temperature = -1.0;
+        };
+
+        struct ior_param
+        {
+            double simple_ior = 1.0;
+
+            bool is_complex_ior = false;
+            glm::dvec3 real_ior = glm::dvec3(0);
+            glm::dvec3 imaginary_ior = glm::dvec3(0);
+
+            bool use_complex_refractive_index = false;
+            std::filesystem::path complex_refractive_index_file_path;
+        };
+
+        std::string material_name;
+
+        double roughness = 0.0;
+        double specular_roughness = 0.0;
+        double transparency = 0.0;
+        bool perfect_mirror = false;
+        glm::dvec3 reflectance = glm::dvec3(1.0);
+        glm::dvec3 specular_reflectance = glm::dvec3(1.0);
+        glm::dvec3 transmittance = glm::dvec3(1.0);
+
+        emittance_param emittance;
+        ior_param ior;
+    };
+
+    struct object_with_material
+    {
+        bool is_smooth = true;
+        std::filesystem::path model_file_location;
+        material_params material_type;
+        std::array<float, 3> position{ 0.0,0.0,0.0 };
+        std::array<float, 3> rotation{ 0.0,0.0,0.0 };
+        std::array<float, 1> scale{ 1.0 };
+    };
+
+
     inline std::vector<std::filesystem::path> get_models_in_folder(const std::filesystem::path& folder_path)
     {
         std::vector<std::filesystem::path> obj_path_vector;
@@ -187,9 +229,29 @@ namespace gui_params
         return imported_integrator_params;
     }
 
-    inline std::vector<object_imported> read_material_and_object_properties(const nlohmann::json& total_properties)
+    inline std::unordered_map<std::string, material_params> read_material_properties(const nlohmann::json& total_properties)
     {
-        //TODO
+        std::unordered_map<std::string, material_params> materials = total_properties.at("materials");
+        return materials;
+    }
+
+    inline std::vector<object_with_material> read_object_properties(const nlohmann::json& total_properties)
+    {
+        std::unordered_map<std::string, material_params> materials = read_material_properties(total_properties);
+
+
+        std::vector<object_with_material> object_vec;
+        for (const auto& surface : total_properties.at("surfaces"))
+        {
+            std::string material_name = "default";
+            if (surface.find("material") != surface.end())
+            {
+                material_name = surface.at("material");
+            }
+
+        }
+
+        return object_vec;
     }
 
 

@@ -110,6 +110,33 @@ void Material::computeProperties()
     a = glm::dvec2(specular_roughness);
 }
 
+void get_reflectance_from_json(const nlohmann::json& j, const std::string& field, glm::dvec3& reflectance)
+{
+    if (j.find(field) != j.end())
+    {
+        const nlohmann::json& r = j.at(field);
+        if (r.type() == nlohmann::json::value_t::string)
+        {
+            std::string hex_string = r.get<std::string>();
+            if (hex_string.size() == 7 && hex_string[0] == '#')
+            {
+                hex_string.erase(0, 1);
+                std::stringstream ss;
+                ss << std::hex << hex_string;
+
+                uint32_t color_int;
+                ss >> color_int;
+
+                reflectance = intToColor(color_int);
+            }
+        }
+        else
+        {
+            reflectance = r.get<glm::dvec3>();
+        }
+    }
+};
+
 void from_json(const nlohmann::json &j, Material &m)
 {
     auto getReflectance = [&](const std::string &field, glm::dvec3 &reflectance)
