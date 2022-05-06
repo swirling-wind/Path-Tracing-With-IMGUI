@@ -357,7 +357,7 @@ void main()
                 // Start preview rendering
                 current_status = gui_params::render_status::busy_rendering;
 
-                nlohmann::json preview_total_render_properties = generate_camera_and_image_properties(shot_params);
+                nlohmann::json preview_total_render_properties = shot_params;
                 camera_for_preview->import_camera_and_image_properties(preview_total_render_properties);
 
                 std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status), std::ref(render_progress));

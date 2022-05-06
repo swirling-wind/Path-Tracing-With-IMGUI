@@ -252,6 +252,33 @@ namespace gui_params
 
         return object_vec;
     }*/
+    //TODO
+
+    inline void to_json(nlohmann::json& render_properties_for_camera, const camera_params& shot_params)
+    {
+        //camera
+        nlohmann::json camera_params(nlohmann::json::value_t::array);
+        nlohmann::json new_camera_instance;
+        new_camera_instance["focal_length"] = shot_params.focal_length;
+        new_camera_instance["sensor_width"] = shot_params.sensor_width;
+        new_camera_instance["eye"] = shot_params.camera_eye_pos;
+        new_camera_instance["look_at"] = shot_params.camera_look_at;
+
+        //Image
+        nlohmann::json image_params;
+        image_params["width"] = shot_params.output_image_size.at(0);
+        image_params["height"] = shot_params.output_image_size.at(1);
+        image_params["exposure_compensation"] = shot_params.exposure_compensation;
+        image_params["gain_compensation"] = shot_params.gain_compensation;
+        image_params["tonemapper"] = shot_params.is_aces_tone_mapper ? "ACES" : "HABLE";
+        new_camera_instance["image"] = image_params;
+
+        new_camera_instance["sqrtspp"] = shot_params.side_spp;
+        new_camera_instance["savename"] = "preview";
+
+        camera_params.insert(camera_params.end(), new_camera_instance);
+        render_properties_for_camera["cameras"] = camera_params;
+    }
 
 
     inline nlohmann::json generate_camera_and_image_properties(const camera_params& shot_params)
@@ -503,7 +530,7 @@ namespace gui_params
         nlohmann::json render_properties;
 
         // Camera
-        const nlohmann::json render_properties_for_camera = generate_camera_and_image_properties(shot_params);
+        const nlohmann::json render_properties_for_camera = shot_params;
         render_properties.update(render_properties_for_camera);
 
         // BVH and photon
@@ -526,7 +553,7 @@ namespace gui_params
         nlohmann::json render_properties;
 
         // Camera
-        const nlohmann::json render_properties_for_camera = generate_camera_and_image_properties(shot_params);
+        const nlohmann::json render_properties_for_camera = shot_params;
         render_properties.update(render_properties_for_camera);
 
         render_properties["cameras"]["savename"] = save_name;
