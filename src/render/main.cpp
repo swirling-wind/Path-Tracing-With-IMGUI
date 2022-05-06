@@ -318,10 +318,10 @@ void main()
             // Prepare integrator and scene
             if (ImGui::Button("Set scene and preview"))
             {
-                nlohmann::json integrator_and_scene_properties = generate_integrator_and_material_objects_properties(integrator_params, objects_vector);
-
-                if (current_status == gui_params::render_status::awaiting && (!objects_vector.empty()))
+                if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
                 {
+                    nlohmann::json integrator_and_scene_properties = generate_integrator_and_material_objects_properties(integrator_params, objects_vector);
+
                     // Same property, no need to build scene
                     if (integrator_and_scene_properties == previous_integrator_and_scene_properties)
                     {
@@ -348,11 +348,6 @@ void main()
                             return -1;
                         }
                     }
-                }
-                else
-                {
-                    std::cout << "No available scene to render\n";
-                    status_text = "No available scene to render";
                 }
             }
 

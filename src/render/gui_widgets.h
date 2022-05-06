@@ -44,7 +44,9 @@ namespace gui_widgets
         if (integrator_params.is_photon_map)
         {
             ImGui::InputDouble("Emission photon number", &integrator_params.photon_num, 1e6, 1e7, "%.0f");
+            ImGui::InputDouble("Caustic photon multiplier", &integrator_params.caustic_multiplier, 1.0, 2.0, "%.0f");
             integrator_params.photon_num = std::clamp(integrator_params.photon_num, 1e6, 9e8);
+            integrator_params.caustic_multiplier = std::clamp(integrator_params.caustic_multiplier, 1.0, 50.0);
         }
 
         ImGui::Text("BVH type: ");
