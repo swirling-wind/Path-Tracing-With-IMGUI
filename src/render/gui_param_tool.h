@@ -21,17 +21,17 @@ namespace convert_camera_params
 }
 
 
-namespace convert_material
-{
-    inline void from_json(const nlohmann::json& j, gui_params::material_params& material_param)
-    {
-
-    }
-    inline void to_json(const nlohmann::json& j, gui_params::material_params& material_param)
-    {
-
-    }
-}
+//namespace convert_material
+//{
+//    inline void from_json(const nlohmann::json& j, gui_params::material_params& material_param)
+//    {
+//
+//    }
+//    inline void to_json(const nlohmann::json& j, gui_params::material_params& material_param)
+//    {
+//
+//    }
+//}
 
 namespace gui_params
 {    
@@ -229,7 +229,7 @@ namespace gui_params
         return imported_integrator_params;
     }
 
-    inline std::unordered_map<std::string, material_params> read_material_properties(const nlohmann::json& total_properties)
+ /*   inline std::unordered_map<std::string, material_params> read_material_properties(const nlohmann::json& total_properties)
     {
         std::unordered_map<std::string, material_params> materials = total_properties.at("materials");
         return materials;
@@ -238,7 +238,6 @@ namespace gui_params
     inline std::vector<object_with_material> read_object_properties(const nlohmann::json& total_properties)
     {
         std::unordered_map<std::string, material_params> materials = read_material_properties(total_properties);
-
 
         std::vector<object_with_material> object_vec;
         for (const auto& surface : total_properties.at("surfaces"))
@@ -252,7 +251,7 @@ namespace gui_params
         }
 
         return object_vec;
-    }
+    }*/
 
 
     inline nlohmann::json generate_camera_and_image_properties(const camera_params& shot_params)
