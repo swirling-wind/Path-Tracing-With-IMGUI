@@ -176,8 +176,10 @@ namespace integrator_space
 
 namespace material_space
 {
+    using float3_array = std::array<float, 3>;
+
     inline std::filesystem::path ior_path = std::filesystem::current_path() / "refractive";
-    inline void get_reflectance_from_properties(const nlohmann::json& j, const std::string& field, glm::dvec3& reflectance)
+    inline void get_reflectance_from_properties(const nlohmann::json& j, const std::string& field, float3_array reflectance)
     {
         if (j.find(field) != j.end())
         {
@@ -193,13 +195,13 @@ namespace material_space
 
                     uint32_t color_int;
                     ss >> color_int;
-
-                    reflectance = intToColor(color_int);
+                    
+                    reflectance = float3_array{static_cast<float>((color_int >> 16) & 0xFF)/255.0f, static_cast<float>((color_int >> 8) & 0xFF)/255.0f, static_cast<float>(color_int & 0xFF)/255.0f};
                 }
             }
             else
             {
-                reflectance = r.get<glm::dvec3>();
+                reflectance = r.get<float3_array>();
             }
         }
     };
@@ -212,8 +214,8 @@ namespace material_space
             float simple_ior = 1.0;
 
             bool is_complex_ior = false;
-            glm::dvec3 real_ior = glm::dvec3(0);
-            glm::dvec3 imaginary_ior = glm::dvec3(0);
+            float3_array real_ior = {0.0f,0.0f,0.0f};
+            float3_array imaginary_ior = {0.0f,0.0f,0.0f};
 
             bool is_refractive_index_file = false;
             std::filesystem::path complex_refractive_index_file_path;
@@ -221,15 +223,15 @@ namespace material_space
 
         std::string material_name;
         
-        double roughness = 0.0;
-        double specular_roughness = 0.0;
-        double transparency = 0.0;
+        float roughness = 0.0;
+        float specular_roughness = 0.0;
+        float transparency = 0.0;
         bool is_perfect_mirror = false;
-        glm::dvec3 reflectance = glm::dvec3(1.0);
-        glm::dvec3 specular_reflectance = glm::dvec3(1.0);
-        glm::dvec3 transmittance = glm::dvec3(1.0);
+        float3_array reflectance = {1.0f,1.0f,1.0f};
+        float3_array specular_reflectance = { 1.0f,1.0f,1.0f };
+        float3_array transmittance = { 1.0f,1.0f,1.0f };
 
-        glm::dvec3 emittance = glm::dvec3(0.0);
+        float3_array emittance = { 0.0f,0.0f,0.0f };
         ior_param ior;
     };
 
@@ -254,18 +256,18 @@ namespace material_space
 
                 if (temperature > 0.0)
                 {
-                    material_param.emittance = sRGB::RGB(CIE::Illuminant::blackbody(temperature) * scale);
+                    material_param.emittance = sRGB::RGB_float(CIE::Illuminant::blackbody(temperature) * scale);
                 }
                 else
                 {
                     std::string illuminant = getOptional<std::string>(emittance_property, "illuminant", "D65");
                     std::transform(illuminant.begin(), illuminant.end(), illuminant.begin(), toupper);
-                    material_param.emittance = sRGB::RGB(CIE::Illuminant::whitePoint(illuminant.c_str()) * scale);
+                    material_param.emittance = sRGB::RGB_float(CIE::Illuminant::whitePoint(illuminant.c_str()) * scale);
                 }
             }
             else
             {
-                material_param.emittance = emittance_property.get<glm::dvec3>();
+                material_param.emittance = emittance_property.get<float3_array>();
             }
         }
 
@@ -277,8 +279,8 @@ namespace material_space
                 material_param.ior.is_simple_ior = false;
                 material_param.ior.is_complex_ior = true;
                 material_param.ior.is_refractive_index_file = false;
-                material_param.ior.imaginary_ior = getOptional(ior_property, "imaginary", glm::dvec3(0.0));
-                material_param.ior.real_ior = getOptional(ior_property, "real", glm::dvec3(1.0));
+                material_param.ior.imaginary_ior = getOptional(ior_property, "imaginary", float3_array{ 0.0f });
+                material_param.ior.real_ior = getOptional(ior_property, "real", float3_array{ 0.0f });
 
             }
             else if (ior_property.type() == nlohmann::json::value_t::string)
@@ -304,10 +306,10 @@ namespace material_space
         material_properties["specular_roughness"] = material_param.specular_roughness;
         material_properties["transparency"] = material_param.transparency;
         material_properties["perfect_mirror"] = material_param.is_perfect_mirror;
-        material_properties["reflectance"] = { material_param.reflectance.r, material_param.reflectance.g, material_param.reflectance.b };
-        material_properties["specular_reflectance"] = { material_param.specular_reflectance.r, material_param.specular_reflectance.g, material_param.specular_reflectance.b };
-        material_properties["transmittance"] = { material_param.transmittance.r, material_param.transmittance.g, material_param.transmittance.b };
-        material_properties["emittance"] = { material_param.emittance.r, material_param.emittance.g, material_param.emittance.b };
+        material_properties["reflectance"] = { material_param.reflectance.at(0), material_param.reflectance.at(1), material_param.reflectance.at(2) };
+        material_properties["specular_reflectance"] = { material_param.specular_reflectance.at(0), material_param.specular_reflectance.at(1), material_param.specular_reflectance.at(2) };
+        material_properties["transmittance"] = { material_param.transmittance.at(0), material_param.transmittance.at(1), material_param.transmittance.at(2) };
+        material_properties["emittance"] = { material_param.emittance.at(0), material_param.emittance.at(1), material_param.emittance.at(2) };
         
         if (material_param.ior.is_simple_ior)
         {
@@ -316,8 +318,8 @@ namespace material_space
         else if (material_param.ior.is_complex_ior)
         {
             nlohmann::json complex_ior;
-            complex_ior["real"] = { material_param.ior.real_ior.r, material_param.ior.real_ior.g, material_param.ior.real_ior.b };
-            complex_ior["imaginary"] = { material_param.ior.imaginary_ior.r, material_param.ior.imaginary_ior.g, material_param.ior.imaginary_ior.b };
+            complex_ior["real"] = { material_param.ior.real_ior.at(0), material_param.ior.real_ior.at(1), material_param.ior.real_ior.at(2) };
+            complex_ior["imaginary"] = { material_param.ior.imaginary_ior.at(0), material_param.ior.imaginary_ior.at(1), material_param.ior.imaginary_ior.at(2) };
             material_properties["ior"] = complex_ior;
         }
         else if (material_param.ior.is_refractive_index_file)

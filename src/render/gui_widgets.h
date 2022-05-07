@@ -25,27 +25,28 @@ namespace gui_widgets
 
     inline void show_material_manager(std::vector<material_space::material_params>& material_vec)
     {
-        if (ImGui::Button("Materials Management"))
-            ImGui::OpenPopup("manage_material");
-        if (ImGui::BeginPopup("manage_material", ImGuiWindowFlags_MenuBar))
+       
+
+        if (material_vec.empty())
         {
-
-            if (material_vec.empty())
-            {
-                ImGui::Text("No material ...");
-            }
-
-            for (auto& one_material : material_vec)
-            {
-                ImGui::Text(one_material.material_name.c_str());
-                ImGui::InputDouble("Roughness: ", &one_material.roughness, 0.1, 0.1);
-
-
-            }
-
-
-            ImGui::EndPopup();
+            ImGui::Text("No material ...");
         }
+
+        for (auto& one_material : material_vec)
+        {
+            ImGui::Text(one_material.material_name.c_str());
+            ImGui::InputFloat("Roughness: ", &one_material.roughness, 0.1, 0.1);
+
+
+        }
+
+
+        ImGui::EndPopup();
+        
+    }
+
+    inline void add_new_material(const std::string& material_name, std::vector<material_space::material_params>& material_vec)
+    {
         
     }
 

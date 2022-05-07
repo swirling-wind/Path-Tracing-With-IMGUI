@@ -70,4 +70,21 @@ namespace sRGB
         }
         return out;
     }
+
+    using float3_array = std::array<float, 3>;
+    inline float3_array gammaExpand(const float3_array& in)
+    {
+        float3_array out;
+        for (uint8_t c = 0; c < 3; c++)
+        {
+            out[c] = in[c] <= 0.04045 ? in[c] / 12.92 : std::pow((in[c] + 0.055) / 1.055, 2.4);
+        }
+        return out;
+    }
+
+    constexpr float3_array RGB_float(const glm::dvec3& XYZ)
+    {
+        glm::dvec3 result = mult(XYZ2RGB, XYZ);
+        return float3_array{ static_cast<float>(result.r),static_cast<float>(result.g),static_cast<float>(result.b) };
+    }
 }

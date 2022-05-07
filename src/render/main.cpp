@@ -58,7 +58,7 @@ int main(int, char**)
     const char* glsl_version = "#version 130";
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1920, 1080, "Path Tracing", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1920, 1080, "Blaze Render", nullptr, nullptr);
 
     // Set window icon
     int icon_width, icon_height, icon_channels;
@@ -280,8 +280,15 @@ void main()
 
             /////////////////////////////////
 
+            if (ImGui::Button("Materials Management"))
+                ImGui::OpenPopup("manage_material");
+            if (ImGui::BeginPopup("manage_material", ImGuiWindowFlags_MenuBar))
+            {
+                gui_widgets::show_material_manager(material_vec);
+            }
+
             /////////////////////////////////
-            
+
             // Render params
             gui_widgets::show_integrator_params(integrator_params);
             gui_widgets::show_camera_params(shot_params);
@@ -364,27 +371,27 @@ void main()
             }
 
             //To be deleted. Turn to use preview to save offline render result
-            if (ImGui::Button("\nStart offline Render"))
-            {
-                if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
-                {
-                    status_text = "Offline Render ...";
-                    std::string save_name{ file_save_name };
-                    nlohmann::json offline_total_render_properties = generate_total_render_properties(shot_params, save_name, integrator_params, objects_vector);
+            //if (ImGui::Button("\nStart offline Render"))
+            //{
+            //    if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
+            //    {
+            //        status_text = "Offline Render ...";
+            //        std::string save_name{ file_save_name };
+            //        nlohmann::json offline_total_render_properties = generate_total_render_properties(shot_params, save_name, integrator_params, objects_vector);
 
-                    std::unique_ptr<Camera> camera;
-                    try
-                    {
-                        camera = std::make_unique<Camera>(offline_total_render_properties, integrator_params.is_photon_map);
-                    }
-                    catch (const std::exception& ex)
-                    {
-                        std::cout << ex.what() << std::endl;
-                        return -1;
-                    }
-                    camera->capture();
-                }
-            }
+            //        std::unique_ptr<Camera> camera;
+            //        try
+            //        {
+            //            camera = std::make_unique<Camera>(offline_total_render_properties, integrator_params.is_photon_map);
+            //        }
+            //        catch (const std::exception& ex)
+            //        {
+            //            std::cout << ex.what() << std::endl;
+            //            return -1;
+            //        }
+            //        camera->capture();
+            //    }
+            //}
 
             if (current_status == gui_params_space::render_status::finished_preview)
             {
