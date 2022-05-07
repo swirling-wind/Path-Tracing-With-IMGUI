@@ -26,12 +26,12 @@ public:
     Camera(const nlohmann::json& j, bool is_photon_map);
     Camera(const nlohmann::json& j, const Option& option);
 
-    void init_integrator_and_scene(nlohmann::json j, bool is_photon_map, std::atomic<gui_params::render_status>& status);
+    void init_integrator_and_scene(nlohmann::json j, bool is_photon_map, std::atomic<gui_params_space::render_status>& status);
 
     void import_camera_and_image_properties(const nlohmann::json& j);
 
     //std::vector<glm::dvec3> preview();
-    void previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_params::render_status>& status, double& render_progress);
+    void previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_params_space::render_status>& status, double& render_progress);
 
     void capture();
 

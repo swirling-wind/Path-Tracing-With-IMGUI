@@ -46,7 +46,7 @@ Camera::Camera(const nlohmann::json& j, const Option& option)
     //import_camera_and_image_properties(j);
 }
 
-void Camera::init_integrator_and_scene(nlohmann::json j, bool is_photon_map, std::atomic<gui_params::render_status>& status)
+void Camera::init_integrator_and_scene(nlohmann::json j, bool is_photon_map, std::atomic<gui_params_space::render_status>& status)
 {
     if (is_photon_map)
     {
@@ -56,7 +56,7 @@ void Camera::init_integrator_and_scene(nlohmann::json j, bool is_photon_map, std
     {
         integrator = std::make_shared<PathTracer>(j);
     }
-    status = gui_params::render_status::scene_prepared_ready_to_preview;
+    status = gui_params_space::render_status::scene_prepared_ready_to_preview;
     std::cout << "Successfully Prepare the scene, ready to preview\n";
 }
 
@@ -248,7 +248,7 @@ void Camera::lookAt(const glm::dvec3& p)
     up = glm::normalize(glm::cross(forward, left));
 }
 
-void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_params::render_status>& status, double& render_progress)
+void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_params_space::render_status>& status, double& render_progress)
 {
     std::cout << std::endl << std::string(28, '-') << "| CHILD THREAD PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
     std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
@@ -261,7 +261,7 @@ void Camera::previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_pa
     std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
 
     gui_image = image.get_adjusted_blob();
-    status = gui_params::render_status::finished_preview;
+    status = gui_params_space::render_status::finished_preview;
     std::cerr << "Finish inner preview render\n";
 }
 

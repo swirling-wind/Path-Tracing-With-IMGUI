@@ -224,12 +224,12 @@ void main()
 
     camera_space::camera_params shot_params;
     integrator_space::bvh_and_photon_params integrator_params;
-    std::vector<gui_params::object_imported> objects_vector;
+    std::vector<gui_params_space::object_imported> objects_vector;
 
     constexpr int filename_max_length = 101;
     char file_save_name[filename_max_length] = "new image";
 
-    std::atomic current_status {gui_params::render_status::awaiting};
+    std::atomic current_status {gui_params_space::render_status::awaiting};
     std::vector<glm::dvec3> preview_image;
     std::unique_ptr<Camera> camera_for_preview;
 
@@ -238,7 +238,7 @@ void main()
     //  =======================================================================================
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
     std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
-    const std::vector<std::filesystem::path> obj_found_in_path = gui_params::get_models_in_folder(model_path);
+    const std::vector<std::filesystem::path> obj_found_in_path = gui_params_space::get_models_in_folder(model_path);
     std::cout << obj_found_in_path.size() << std::endl;
 
     // Main loop    ============================================================================
@@ -259,7 +259,7 @@ void main()
         {
             ImGui::Begin("Control panel");
 
-            if (current_status == gui_params::render_status::busy_rendering)
+            if (current_status == gui_params_space::render_status::busy_rendering)
             {
                 ImGui::ProgressBar(render_progress, ImVec2(0.0f, 0.0f));
                 ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
@@ -312,7 +312,7 @@ void main()
 
             if (ImGui::Button("Test status"))
             {
-                std::cout << "\n - STATUS - " << static_cast<std::underlying_type_t<gui_params::render_status>>(current_status.load()) << std::endl;
+                std::cout << "\n - STATUS - " << static_cast<std::underlying_type_t<gui_params_space::render_status>>(current_status.load()) << std::endl;
             }
 
             // Prepare integrator and scene
@@ -320,13 +320,13 @@ void main()
             {
                 if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
                 {
-                    nlohmann::json integrator_and_scene_properties = generate_integrator_and_material_objects_properties(integrator_params, objects_vector);
+                    nlohmann::json integrator_and_scene_properties = generate_both_integrator_and_material_objects_properties(integrator_params, objects_vector);
 
                     // Same property, no need to build scene
                     if (integrator_and_scene_properties == previous_integrator_and_scene_properties)
                     {
                         std::cerr << "Same scene.\n";
-                        current_status = gui_params::render_status::scene_prepared_ready_to_preview;
+                        current_status = gui_params_space::render_status::scene_prepared_ready_to_preview;
                     }
                     else
                     {// Different properties, rebuild scene
@@ -335,7 +335,7 @@ void main()
                         {
                             camera_for_preview = std::make_unique<Camera>();
                             std::cerr << "Start init" << "\n";
-                            current_status = gui_params::render_status::busy_initing_scene;
+                            current_status = gui_params_space::render_status::busy_initing_scene;
                             std::thread f(&Camera::init_integrator_and_scene, camera_for_preview.get(), integrator_and_scene_properties, integrator_params.is_photon_map, std::ref(current_status));
                             f.detach();
 
@@ -352,10 +352,10 @@ void main()
             }
 
             // After preparation, Finish render
-            if (current_status == gui_params::render_status::scene_prepared_ready_to_preview)
+            if (current_status == gui_params_space::render_status::scene_prepared_ready_to_preview)
             {
                 // Start preview rendering
-                current_status = gui_params::render_status::busy_rendering;
+                current_status = gui_params_space::render_status::busy_rendering;
 
                 nlohmann::json preview_total_render_properties = shot_params;
                 camera_for_preview->import_camera_and_image_properties(preview_total_render_properties);
@@ -390,7 +390,7 @@ void main()
                 }
             }
 
-            if (current_status == gui_params::render_status::finished_preview)
+            if (current_status == gui_params_space::render_status::finished_preview)
             {
                 std::vector<glm::vec3> texture_vec;
                 texture_vec.reserve(preview_image.size());
@@ -406,7 +406,7 @@ void main()
                 glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0);
                 glUseProgram(0);
 
-                current_status = gui_params::render_status::awaiting;
+                current_status = gui_params_space::render_status::awaiting;
                 std::cout << "Preview Displayed !\n";
                 status_text = "Preview Displayed !";
             }

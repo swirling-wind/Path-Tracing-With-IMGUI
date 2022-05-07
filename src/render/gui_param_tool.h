@@ -171,42 +171,8 @@ namespace integrator_space
     }
 }
 
-namespace gui_params
-{    
-    enum class render_status : int {
-        awaiting,
-
-        busy_initing_scene,
-
-        scene_prepared_ready_to_preview,
-
-        busy_rendering,
-        finished_preview,
-
-        rendering_for_offline,
-        finished_offline
-    };
-
-    constexpr int num_of_material_list = 18;
-    inline std::array<const char*, num_of_material_list> material_list = {
-        "default", "light",  "wood", "walnut", "oak",
-        "gold", "nickel", "copper", "iron", "brass",
-        "palladium", "glass",
-
-        "shadow_green", "navy", "red", "green",
-
-        "water", "F9_light"
-    };
-
-    struct object_imported
-    {
-        std::array<float, 3> position{ 0.0,0.0,0.0 };
-        std::filesystem::path file_location;
-        int material_type{ 0 };
-        std::array<float, 3> rotation{ 0.0,0.0,0.0 };
-        std::array<float, 1> scale{ 1.0 };
-    };
-
+namespace object_and_material_space
+{
     struct material_params
     {
         struct emittance_param
@@ -253,6 +219,67 @@ namespace gui_params
     };
 
 
+    /*   inline std::unordered_map<std::string, material_params> read_material_properties(const nlohmann::json& total_properties)
+       {
+           std::unordered_map<std::string, material_params> materials = total_properties.at("materials");
+           return materials;
+       }
+
+       inline std::vector<object_with_material> read_object_properties(const nlohmann::json& total_properties)
+       {
+           std::unordered_map<std::string, material_params> materials = read_material_properties(total_properties);
+
+           std::vector<object_with_material> object_vec;
+           for (const auto& surface : total_properties.at("surfaces"))
+           {
+               std::string material_name = "default";
+               if (surface.find("material") != surface.end())
+               {
+                   material_name = surface.at("material");
+               }
+
+           }
+
+           return object_vec;
+       }*/
+}
+
+namespace gui_params_space
+{    
+    enum class render_status : int {
+        awaiting,
+
+        busy_initing_scene,
+
+        scene_prepared_ready_to_preview,
+
+        busy_rendering,
+        finished_preview,
+
+        rendering_for_offline,
+        finished_offline
+    };
+
+    constexpr int num_of_material_list = 18;
+    inline std::array<const char*, num_of_material_list> material_list = {
+        "default", "light",  "wood", "walnut", "oak",
+        "gold", "nickel", "copper", "iron", "brass",
+        "palladium", "glass",
+
+        "shadow_green", "navy", "red", "green",
+
+        "water", "F9_light"
+    };
+
+    struct object_imported
+    {
+        std::array<float, 3> position{ 0.0,0.0,0.0 };
+        std::filesystem::path file_location;
+        int material_type{ 0 };
+        std::array<float, 3> rotation{ 0.0,0.0,0.0 };
+        std::array<float, 1> scale{ 1.0 };
+    };
+
     inline std::vector<std::filesystem::path> get_models_in_folder(const std::filesystem::path& folder_path)
     {
         std::vector<std::filesystem::path> obj_path_vector;
@@ -267,37 +294,7 @@ namespace gui_params
         }
         return obj_path_vector;
     }
-
-
-
- /*   inline std::unordered_map<std::string, material_params> read_material_properties(const nlohmann::json& total_properties)
-    {
-        std::unordered_map<std::string, material_params> materials = total_properties.at("materials");
-        return materials;
-    }
-
-    inline std::vector<object_with_material> read_object_properties(const nlohmann::json& total_properties)
-    {
-        std::unordered_map<std::string, material_params> materials = read_material_properties(total_properties);
-
-        std::vector<object_with_material> object_vec;
-        for (const auto& surface : total_properties.at("surfaces"))
-        {
-            std::string material_name = "default";
-            if (surface.find("material") != surface.end())
-            {
-                material_name = surface.at("material");
-            }
-
-        }
-
-        return object_vec;
-    }*/
-    //TODO
-
- 
-
-   
+      
     inline nlohmann::json generate_material_and_object_properties(const std::vector<object_imported>& objects_vector)
     {
         nlohmann::json render_properties_for_material_and_objects;
@@ -436,7 +433,7 @@ namespace gui_params
         return render_properties_for_material_and_objects;
     }
 
-    inline nlohmann::json generate_integrator_and_material_objects_properties(
+    inline nlohmann::json generate_both_integrator_and_material_objects_properties(
         const integrator_space::bvh_and_photon_params& integrator_params,
         const std::vector<object_imported>& objects_vector
     )
