@@ -25,29 +25,52 @@ namespace gui_widgets
 
     inline void show_material_manager(std::vector<material_space::material_params>& material_vec)
     {
-       
-
         if (material_vec.empty())
         {
             ImGui::Text("No material ...");
         }
 
-        for (auto& one_material : material_vec)
+        int delete_material_index = -1;
+        for (auto iter = material_vec.begin(); iter != material_vec.end(); ++iter)
         {
-            ImGui::Text(one_material.material_name.c_str());
-            ImGui::InputFloat("Roughness: ", &one_material.roughness, 0.1, 0.1);
+            const auto index = std::to_string(iter - material_vec.begin());
+
+            ImGui::Text(("[" + index + "] " + iter->material_name).c_str());
+            ImGui::SliderFloat(("Roughness##" + index).c_str(), &iter->roughness, 0.0f, 1.0f);
+            ImGui::SliderFloat(("Specular Roughness##" + index).c_str(), &iter->specular_roughness, 0.0f, 1.0f);
+            //TODO
 
 
+            if (ImGui::Button(("Remove##" + index).c_str()))
+            {
+                delete_material_index = iter - material_vec.begin();
+            }
         }
 
-
-        ImGui::EndPopup();
-        
+        if (delete_material_index >= 0)
+        {
+            material_vec.erase(material_vec.begin() + delete_material_index);
+        }
     }
 
-    inline void add_new_material(const std::string& material_name, std::vector<material_space::material_params>& material_vec)
+    inline void add_new_material(bool& is_added_successfully, const char material_name[], material_space::material_params& new_material, std::vector<material_space::material_params>& material_vec)
     {
-        
+        new_material.material_name = std::string{ material_name };
+        ImGui::SliderFloat("Roughness", &new_material.roughness, 0.0f, 1.0f);
+        ImGui::SliderFloat("Specular Roughness", &new_material.specular_roughness, 0.0f, 1.0f);
+        //TODO
+
+
+        if (ImGui::Button(" Add "))
+        {
+            material_vec.emplace_back(new_material);
+            is_added_successfully = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Close"))
+        {
+            ImGui::CloseCurrentPopup();
+        }
     }
 
 
@@ -145,10 +168,10 @@ namespace gui_widgets
             const auto index = std::to_string(iter - objects_vector.begin());
 
             ImGui::Text(("\n" + iter->file_location.string() + " " + index).c_str());
-            ImGui::InputFloat3(("position " + index).c_str(), iter->position.data());
-            ImGui::InputFloat3(("rotation " + index).c_str(), iter->rotation.data());
+            ImGui::InputFloat3(("position##" + index).c_str(), iter->position.data());
+            ImGui::InputFloat3(("rotation##" + index).c_str(), iter->rotation.data());
             ImGui::SameLine();
-            ImGui::InputFloat(("scale " + index).c_str(), iter->scale.data(), 0.1f);
+            ImGui::InputFloat(("scale##" + index).c_str(), iter->scale.data(), 0.1f);
 
             if (ImGui::Button(("Select " + index + "'s material ..").c_str()))
                 ImGui::OpenPopup(("select_popup" + index).c_str());
@@ -165,7 +188,7 @@ namespace gui_widgets
             }
 
             ImGui::SameLine();
-            if (ImGui::Button(("Remove " + index).c_str()))
+            if (ImGui::Button(("Remove##" + index).c_str()))
             {
                 delete_object_index = iter - objects_vector.begin();
             }

@@ -226,7 +226,7 @@ void main()
     integrator_space::bvh_and_photon_params integrator_params;
     std::vector<gui_params_space::object_imported> objects_vector;
 
-    constexpr int filename_max_length = 101;
+    constexpr int filename_max_length = 51;
     char file_save_name[filename_max_length] = "new image";
 
     std::atomic current_status {gui_params_space::render_status::awaiting};
@@ -235,9 +235,12 @@ void main()
 
     double render_progress = 0.0;
 
-    constexpr int material_name_max_length = 101;
+    constexpr int material_name_max_length = 51;
     char material_name[material_name_max_length] = "new material";
+
     std::vector<material_space::material_params> material_vec;
+    material_space::material_params temp_added_material;
+    bool is_added_successfully = false;
 
     //  =======================================================================================
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
@@ -263,30 +266,72 @@ void main()
         {
             ImGui::Begin("Control panel");
 
+            //if (ImGui::BeginMenuBar())
+            //{//TODO
+            //    if (ImGui::BeginMenu("File"))
+            //    {
+            //        if (ImGui::MenuItem("Some menu item")) {}
+            //        ImGui::EndMenu();
+            //    }
+            //    ImGui::EndMenuBar();
+            //}
+
             if (current_status == gui_params_space::render_status::busy_rendering)
             {
-                ImGui::ProgressBar(render_progress, ImVec2(0.0f, 0.0f));
+                ImGui::ProgressBar(render_progress, ImVec2(-0.001f, 28.0f));
                 ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
                 ImGui::Text("Progress Bar");
             }
             else
             {
-                ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                ImGui::PushTextWrapPos(550.0f);
-                ImGui::Text(("\n  " + status_text + "  \n\n").c_str());
-                draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(100, 100, 100, 255));
-                ImGui::PopTextWrapPos();
+                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(4.0f / 7.0f, 0.6f, 0.6f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(4.0f / 7.0f, 0.7f, 0.7f));
+                ImGui::Button(status_text.c_str(), ImVec2(-0.001f, 28.0f));
+                ImGui::PopStyleColor(2);
+
+
+                //ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                //ImGui::PushTextWrapPos(550.0f);
+                //ImGui::Text(("\n  " + status_text + "  \n").c_str());
+                //draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(100, 100, 100, 255));
+                //ImGui::PopTextWrapPos();
             }
 
             /////////////////////////////////
 
             if (ImGui::Button("Materials Management"))
-                ImGui::OpenPopup("manage_material");
-            if (ImGui::BeginPopup("manage_material", ImGuiWindowFlags_MenuBar))
+            {
+                ImGui::OpenPopup("Manage materials");
+            }
+            if (ImGui::BeginPopup("Manage materials", ImGuiWindowFlags_MenuBar))
             {
                 gui_widgets::show_material_manager(material_vec);
+                ImGui::EndPopup();
+            }
+            ImGui::SameLine();
+
+            if (ImGui::Button("Add new material..."))
+            {
+                ImGui::OpenPopup("Add a new material");
+            }
+            if (ImGui::BeginPopup("Add a new material", ImGuiWindowFlags_MenuBar))
+            {
+                ImGui::InputText("Material name", material_name, IM_ARRAYSIZE(material_name));
+                gui_widgets::add_new_material(is_added_successfully, material_name, temp_added_material, material_vec);
+                ImGui::EndPopup();
             }
 
+            if (is_added_successfully)
+            {
+                ImGui::OpenPopup("Material is added successfully");
+            }
+            if (ImGui::BeginPopup("Material is added successfully"))
+            {
+                ImGui::Text("The material is added successfully");
+                is_added_successfully = false;
+                ImGui::EndPopup();
+            }
+            
             /////////////////////////////////
 
             // Render params
