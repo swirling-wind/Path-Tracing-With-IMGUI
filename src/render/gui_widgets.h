@@ -23,6 +23,32 @@ namespace gui_widgets
         return true;
     }
 
+    inline void show_material_manager(std::vector<material_space::material_params>& material_vec)
+    {
+        if (ImGui::Button("Materials Management"))
+            ImGui::OpenPopup("manage_material");
+        if (ImGui::BeginPopup("manage_material", ImGuiWindowFlags_MenuBar))
+        {
+
+            if (material_vec.empty())
+            {
+                ImGui::Text("No material ...");
+            }
+
+            for (auto& one_material : material_vec)
+            {
+                ImGui::Text(one_material.material_name.c_str());
+                ImGui::InputDouble("Roughness: ", &one_material.roughness, 0.1, 0.1);
+
+
+            }
+
+
+            ImGui::EndPopup();
+        }
+        
+    }
+
 
     inline void show_integrator_params(integrator_space::bvh_and_photon_params& integrator_params)
     {
@@ -43,10 +69,10 @@ namespace gui_widgets
         }
         if (integrator_params.is_photon_map)
         {
-            ImGui::InputDouble("Emission photon number", &integrator_params.photon_num, 1e6, 1e7, "%.0f");
-            ImGui::InputDouble("Caustic photon multiplier", &integrator_params.caustic_multiplier, 1.0, 2.0, "%.0f");
-            integrator_params.photon_num = std::clamp(integrator_params.photon_num, 1e6, 9e8);
-            integrator_params.caustic_multiplier = std::clamp(integrator_params.caustic_multiplier, 1.0, 50.0);
+            ImGui::InputFloat("Emission photon number", &integrator_params.photon_num, 1e6, 1e7, "%.0f");
+            ImGui::InputFloat("Caustic photon multiplier", &integrator_params.caustic_multiplier, 1.0, 2.0, "%.0f");
+            integrator_params.photon_num = std::clamp(integrator_params.photon_num, 1e6f, 9e8f);
+            integrator_params.caustic_multiplier = std::clamp(integrator_params.caustic_multiplier, 1.0f, 50.0f);
         }
 
         ImGui::Text("BVH type: ");

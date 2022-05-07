@@ -93,8 +93,8 @@ namespace integrator_space
     {
         bool is_path_tracing = true;
         bool is_photon_map = false;
-        double photon_num = 1e6;
-        double caustic_multiplier = 10.0;
+        float photon_num = 1e6;
+        float caustic_multiplier = 10.0;
 
         bool is_octree = true;
         bool is_quaternary_sah = false;
@@ -174,44 +174,42 @@ namespace integrator_space
     }
 }
 
-inline void get_reflectance_from_properties(const nlohmann::json& j, const std::string& field, glm::dvec3& reflectance)
-{
-    if (j.find(field) != j.end())
-    {
-        const nlohmann::json& r = j.at(field);
-        if (r.type() == nlohmann::json::value_t::string)
-        {
-            std::string hex_string = r.get<std::string>();
-            if (hex_string.size() == 7 && hex_string[0] == '#')
-            {
-                hex_string.erase(0, 1);
-                std::stringstream ss;
-                ss << std::hex << hex_string;
-
-                uint32_t color_int;
-                ss >> color_int;
-
-                reflectance = intToColor(color_int);
-            }
-        }
-        else
-        {
-            reflectance = r.get<glm::dvec3>();
-        }
-    }
-};
-
-
 namespace material_space
 {
     inline std::filesystem::path ior_path = std::filesystem::current_path() / "refractive";
+    inline void get_reflectance_from_properties(const nlohmann::json& j, const std::string& field, glm::dvec3& reflectance)
+    {
+        if (j.find(field) != j.end())
+        {
+            const nlohmann::json& r = j.at(field);
+            if (r.type() == nlohmann::json::value_t::string)
+            {
+                std::string hex_string = r.get<std::string>();
+                if (hex_string.size() == 7 && hex_string[0] == '#')
+                {
+                    hex_string.erase(0, 1);
+                    std::stringstream ss;
+                    ss << std::hex << hex_string;
+
+                    uint32_t color_int;
+                    ss >> color_int;
+
+                    reflectance = intToColor(color_int);
+                }
+            }
+            else
+            {
+                reflectance = r.get<glm::dvec3>();
+            }
+        }
+    };
 
     struct material_params
     {
         struct ior_param
         {
             bool is_simple_ior = true;
-            double simple_ior = 1.0;
+            float simple_ior = 1.0;
 
             bool is_complex_ior = false;
             glm::dvec3 real_ior = glm::dvec3(0);
@@ -220,11 +218,13 @@ namespace material_space
             bool is_refractive_index_file = false;
             std::filesystem::path complex_refractive_index_file_path;
         };
+
+        std::string material_name;
         
         double roughness = 0.0;
         double specular_roughness = 0.0;
         double transparency = 0.0;
-        bool perfect_mirror = false;
+        bool is_perfect_mirror = false;
         glm::dvec3 reflectance = glm::dvec3(1.0);
         glm::dvec3 specular_reflectance = glm::dvec3(1.0);
         glm::dvec3 transmittance = glm::dvec3(1.0);
@@ -238,7 +238,7 @@ namespace material_space
         getToOptional(material_properties, "roughness", material_param.roughness);
         getToOptional(material_properties, "specular_roughness", material_param.specular_roughness);
         getToOptional(material_properties, "transparency", material_param.transparency);
-        getToOptional(material_properties, "perfect_mirror", material_param.perfect_mirror);
+        getToOptional(material_properties, "perfect_mirror", material_param.is_perfect_mirror);
         get_reflectance_from_properties(material_properties, "reflectance", material_param.reflectance);
         get_reflectance_from_properties(material_properties, "specular_reflectance", material_param.specular_reflectance);
         get_reflectance_from_properties(material_properties, "transmittance", material_param.transmittance);
@@ -296,6 +296,35 @@ namespace material_space
                 ior_property.get_to(material_param.ior.simple_ior);
             }
         }
+    }
+
+    inline void to_json(nlohmann::json& material_properties, const material_params& material_param)
+    {//TODO: hasn't been tested
+        material_properties["roughness"] = material_param.roughness;
+        material_properties["specular_roughness"] = material_param.specular_roughness;
+        material_properties["transparency"] = material_param.transparency;
+        material_properties["perfect_mirror"] = material_param.is_perfect_mirror;
+        material_properties["reflectance"] = { material_param.reflectance.r, material_param.reflectance.g, material_param.reflectance.b };
+        material_properties["specular_reflectance"] = { material_param.specular_reflectance.r, material_param.specular_reflectance.g, material_param.specular_reflectance.b };
+        material_properties["transmittance"] = { material_param.transmittance.r, material_param.transmittance.g, material_param.transmittance.b };
+        material_properties["emittance"] = { material_param.emittance.r, material_param.emittance.g, material_param.emittance.b };
+        
+        if (material_param.ior.is_simple_ior)
+        {
+            material_properties["ior"] = material_param.ior.simple_ior;
+        }
+        else if (material_param.ior.is_complex_ior)
+        {
+            nlohmann::json complex_ior;
+            complex_ior["real"] = { material_param.ior.real_ior.r, material_param.ior.real_ior.g, material_param.ior.real_ior.b };
+            complex_ior["imaginary"] = { material_param.ior.imaginary_ior.r, material_param.ior.imaginary_ior.g, material_param.ior.imaginary_ior.b };
+            material_properties["ior"] = complex_ior;
+        }
+        else if (material_param.ior.is_refractive_index_file)
+        {
+            material_properties["ior"] = material_param.ior.complex_refractive_index_file_path.string();
+        }
+
     }
 }
 
@@ -450,7 +479,7 @@ namespace gui_params_space
 
         nlohmann::json glass_params;
         glass_params["ior"] = 1.5;
-        glass_params["transparancy"] = 1.0;
+        glass_params["transparency"] = 1.0;
         material_params["glass"] = glass_params;
 
         //

@@ -235,6 +235,10 @@ void main()
 
     double render_progress = 0.0;
 
+    constexpr int material_name_max_length = 101;
+    char material_name[material_name_max_length] = "new material";
+    std::vector<material_space::material_params> material_vec;
+
     //  =======================================================================================
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
     std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
@@ -274,15 +278,7 @@ void main()
                 ImGui::PopTextWrapPos();
             }
 
-            ///////////////////////////////
-            if (ImGui::Button("Materials Management"))
-                ImGui::OpenPopup("manage_material");
-            if (ImGui::BeginPopup("manage_material", ImGuiWindowFlags_MenuBar))
-            {
-                ImGui::Text("Hello from popup!");
-                ImGui::Button("This is a dummy button..");
-                ImGui::EndPopup();
-            }
+            /////////////////////////////////
 
             /////////////////////////////////
             
