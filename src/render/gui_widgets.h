@@ -24,7 +24,7 @@ namespace gui_widgets
     }
 
 
-    inline void show_integrator_params(gui_params::bvh_and_photon_params& integrator_params)
+    inline void show_integrator_params(integrator_space::bvh_and_photon_params& integrator_params)
     {
         // BVH and Photon
         ImGui::Text("Integrator: ");
@@ -79,7 +79,7 @@ namespace gui_widgets
 
     }
 
-    inline void show_camera_params(gui_params::camera_params& shot_params)
+    inline void show_camera_params(camera_space::camera_params& shot_params)
     {
         ImGui::Text("Tone mapping: ");
         ImGui::SameLine();

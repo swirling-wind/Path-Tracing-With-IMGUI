@@ -10,28 +10,166 @@
 
 #include "common/util.h"
 
-namespace gui_params
+namespace camera_space
 {
-    struct material_params;
+    struct camera_params
+    {
+        float focal_length = 50;
+        float sensor_width = 35;
+        std::array<float, 3>camera_eye_pos = { 0.0f, 1.5f, -8.0f };
+        std::array<float, 3>camera_look_at = { 0.0f, 1.5f, 0.0f };
+        int side_spp = 3;
+
+        std::array<int, 2> output_image_size = { 1280, 720 };
+        float exposure_compensation = -1.5;
+        float gain_compensation = 0.0;
+        bool is_aces_tone_mapper = true;
+        bool is_hable_tone_mapper = false;
+
+        const std::array<int, 2> preview_image_size = { 1280, 720 };
+    };
+
+    inline void from_json(const nlohmann::json& total_properties, camera_params& imported_camera_params)
+    {
+        const nlohmann::json& camera_properties = total_properties.at("cameras").at(0);
+        imported_camera_params.focal_length = camera_properties.at("focal_length").get<double>() / 1000.0;
+        imported_camera_params.sensor_width = camera_properties.at("sensor_width").get<double>() / 1000.0;
+        imported_camera_params.camera_eye_pos = camera_properties.at("eye");
+        imported_camera_params.camera_look_at = camera_properties.at("look_at");
+        imported_camera_params.side_spp = camera_properties.at("sqrtspp");
+
+        const nlohmann::json& image_properties = camera_properties.at("image");
+        imported_camera_params.output_image_size.at(0) = image_properties.at("width");
+        imported_camera_params.output_image_size.at(1) = image_properties.at("height");
+        imported_camera_params.exposure_compensation = getOptional(image_properties, "exposure_compensation", -1.0);
+        imported_camera_params.gain_compensation = getOptional(image_properties, "gain_compensation", 0.0);
+
+        const std::string tone_mapper = getOptional<std::string>(image_properties, "tonemapper", "ACES");
+        if (tone_mapper == "ACES")
+        {
+            imported_camera_params.is_aces_tone_mapper = true;
+            imported_camera_params.is_hable_tone_mapper = false;
+        }
+        else
+        {
+            imported_camera_params.is_aces_tone_mapper = false;
+            imported_camera_params.is_hable_tone_mapper = true;
+        }
+    }
+
+    inline void to_json(nlohmann::json& render_properties_for_camera, const camera_params& shot_params)
+    {
+        //camera
+        nlohmann::json camera_params(nlohmann::json::value_t::array);
+        nlohmann::json new_camera_instance;
+        new_camera_instance["focal_length"] = shot_params.focal_length;
+        new_camera_instance["sensor_width"] = shot_params.sensor_width;
+        new_camera_instance["eye"] = shot_params.camera_eye_pos;
+        new_camera_instance["look_at"] = shot_params.camera_look_at;
+
+        //Image
+        nlohmann::json image_params;
+        image_params["width"] = shot_params.output_image_size.at(0);
+        image_params["height"] = shot_params.output_image_size.at(1);
+        image_params["exposure_compensation"] = shot_params.exposure_compensation;
+        image_params["gain_compensation"] = shot_params.gain_compensation;
+        image_params["tonemapper"] = shot_params.is_aces_tone_mapper ? "ACES" : "HABLE";
+        new_camera_instance["image"] = image_params;
+
+        new_camera_instance["sqrtspp"] = shot_params.side_spp;
+        new_camera_instance["savename"] = "preview";
+
+        camera_params.insert(camera_params.end(), new_camera_instance);
+        render_properties_for_camera["cameras"] = camera_params;
+    }
 }
 
-namespace convert_camera_params
+namespace integrator_space
 {
-    
+    struct bvh_and_photon_params
+    {
+        bool is_path_tracing = true;
+        bool is_photon_map = false;
+        double photon_num = 1e6;
+        double caustic_multiplier = 10.0;
+
+        bool is_octree = true;
+        bool is_quaternary_sah = false;
+        bool is_binary_sah = false;
+        int bins_per_axis = 8;
+    };
+
+    inline void from_json(const nlohmann::json& total_properties, bvh_and_photon_params& imported_integrator_params)
+    {
+        imported_integrator_params.is_photon_map = (total_properties.find("photon_map") != total_properties.end());
+        imported_integrator_params.is_path_tracing = !(imported_integrator_params.is_photon_map);
+        if (imported_integrator_params.is_photon_map)
+        {
+            imported_integrator_params.photon_num = total_properties.at("photon_map").at("emissions");
+            imported_integrator_params.caustic_multiplier = total_properties.at("photon_map").at("caustic_factor");
+        }
+
+        std::string type = getOptional<std::string>(total_properties.at("bvh"), "type", "OCTREE");
+        std::transform(type.begin(), type.end(), type.begin(), toupper);
+        if (type == "OCTREE")
+        {
+            imported_integrator_params.is_octree = true;
+            imported_integrator_params.is_quaternary_sah = false;
+            imported_integrator_params.is_binary_sah = false;
+        }
+        else
+        {
+            imported_integrator_params.bins_per_axis = total_properties.at("bvh").at("bins_per_axis");
+            if (type == "QUATERNARY_SAH")
+            {
+                imported_integrator_params.is_octree = false;
+                imported_integrator_params.is_quaternary_sah = true;
+                imported_integrator_params.is_binary_sah = false;
+            }
+            else
+            {
+                imported_integrator_params.is_octree = false;
+                imported_integrator_params.is_quaternary_sah = false;
+                imported_integrator_params.is_binary_sah = true;
+            }
+        }
+    }
+
+    inline void to_json(nlohmann::json& render_properties_for_bvh_and_photon, const bvh_and_photon_params& integrator_params)
+    {
+        render_properties_for_bvh_and_photon["num_render_threads"] = -1; // All
+
+        nlohmann::json bvh_type;
+        if (integrator_params.is_octree)
+        {
+            bvh_type["type"] = "octree";
+        }
+        else
+        {
+            bvh_type["bins_per_axis"] = integrator_params.bins_per_axis;
+            if (integrator_params.is_quaternary_sah)
+            {
+                bvh_type["type"] = "quaternary_sah";
+            }
+            else
+            {
+                bvh_type["type"] = "binary_sah";
+            }
+        }
+        render_properties_for_bvh_and_photon["bvh"] = bvh_type;
+
+        if (integrator_params.is_photon_map)
+        {
+            nlohmann::json photon_map_json;
+            photon_map_json["emissions"] = floor(integrator_params.photon_num);
+            photon_map_json["caustic_factor"] = integrator_params.caustic_multiplier;
+            photon_map_json["k_nearest_photons"] = 50;
+            photon_map_json["max_photons_per_octree_leaf"] = 200;
+            photon_map_json["direct_visualization"] = false;
+            render_properties_for_bvh_and_photon["photon_map"] = photon_map_json;
+        }
+    }
 }
-
-
-//namespace convert_material
-//{
-//    inline void from_json(const nlohmann::json& j, gui_params::material_params& material_param)
-//    {
-//
-//    }
-//    inline void to_json(const nlohmann::json& j, gui_params::material_params& material_param)
-//    {
-//
-//    }
-//}
 
 namespace gui_params
 {    
@@ -58,36 +196,6 @@ namespace gui_params
         "shadow_green", "navy", "red", "green",
 
         "water", "F9_light"
-    };
-
-    struct bvh_and_photon_params
-    {
-        bool is_path_tracing = true;
-        bool is_photon_map = false;
-        double photon_num = 1e6;
-        double caustic_multiplier = 10.0;
-
-        bool is_octree = true;
-        bool is_quaternary_sah = false;
-        bool is_binary_sah = false;
-        int bins_per_axis = 8;
-    };
-
-    struct camera_params
-    {
-        float focal_length = 50;
-        float sensor_width = 35;
-        std::array<float, 3>camera_eye_pos = { 0.0f, 1.5f, -8.0f };
-        std::array<float, 3>camera_look_at = { 0.0f, 1.5f, 0.0f };
-        int side_spp = 3;
-
-        std::array<int, 2> output_image_size = { 1280, 720 };
-        float exposure_compensation = -1.5;
-        float gain_compensation = 0.0;
-        bool is_aces_tone_mapper = true;
-        bool is_hable_tone_mapper = false;
-
-        const std::array<int, 2> preview_image_size = { 1280, 720 };
     };
 
     struct object_imported
@@ -160,74 +268,7 @@ namespace gui_params
         return obj_path_vector;
     }
 
-    inline camera_params read_camera_and_image_properties(const nlohmann::json& total_properties)
-    {
-        const nlohmann::json& camera_properties = total_properties.at("cameras").at(0);
-        camera_params imported_camera_params;
-        imported_camera_params.focal_length = camera_properties.at("focal_length").get<double>() / 1000.0;
-        imported_camera_params.sensor_width = camera_properties.at("sensor_width").get<double>() / 1000.0;
-        imported_camera_params.camera_eye_pos = camera_properties.at("eye");
-        imported_camera_params.camera_look_at = camera_properties.at("look_at");
-        imported_camera_params.side_spp = camera_properties.at("sqrtspp");
 
-        const nlohmann::json& image_properties = camera_properties.at("image");
-        imported_camera_params.output_image_size.at(0) = image_properties.at("width");
-        imported_camera_params.output_image_size.at(1) = image_properties.at("height");
-        imported_camera_params.exposure_compensation = getOptional(image_properties, "exposure_compensation", -1.0);
-        imported_camera_params.gain_compensation= getOptional(image_properties, "gain_compensation", 0.0);
-
-        const std::string tone_mapper = getOptional<std::string>(image_properties, "tonemapper", "ACES");
-        if (tone_mapper == "ACES")
-        {
-            imported_camera_params.is_aces_tone_mapper = true;
-            imported_camera_params.is_hable_tone_mapper = false;
-        }else
-        {
-            imported_camera_params.is_aces_tone_mapper = false;
-            imported_camera_params.is_hable_tone_mapper = true;
-        }
-
-        return imported_camera_params;
-    }
-
-    inline bvh_and_photon_params read_bvh_and_photon_properties(const nlohmann::json& total_properties)
-    {
-        bvh_and_photon_params imported_integrator_params;
-
-        imported_integrator_params.is_photon_map = (total_properties.find("photon_map") != total_properties.end());
-        imported_integrator_params.is_path_tracing = !(imported_integrator_params.is_photon_map);
-        if (imported_integrator_params.is_photon_map)
-        {
-            imported_integrator_params.photon_num = total_properties.at("photon_map").at("emissions");
-            imported_integrator_params.caustic_multiplier = total_properties.at("photon_map").at("caustic_factor");
-        }
-
-        std::string type = getOptional<std::string>(total_properties.at("bvh"), "type", "OCTREE");
-        std::transform(type.begin(), type.end(), type.begin(), toupper);
-        if (type == "OCTREE")
-        {
-            imported_integrator_params.is_octree = true;
-            imported_integrator_params.is_quaternary_sah = false;
-            imported_integrator_params.is_binary_sah = false;
-        }
-        else
-        {
-            imported_integrator_params.bins_per_axis = total_properties.at("bvh").at("bins_per_axis");
-            if (type == "QUATERNARY_SAH")
-            {
-                imported_integrator_params.is_octree = false;
-                imported_integrator_params.is_quaternary_sah = true;
-                imported_integrator_params.is_binary_sah = false;
-            }else
-            {
-                imported_integrator_params.is_octree = false;
-                imported_integrator_params.is_quaternary_sah = false;
-                imported_integrator_params.is_binary_sah = true;
-            }
-        }
-
-        return imported_integrator_params;
-    }
 
  /*   inline std::unordered_map<std::string, material_params> read_material_properties(const nlohmann::json& total_properties)
     {
@@ -254,98 +295,9 @@ namespace gui_params
     }*/
     //TODO
 
-    inline void to_json(nlohmann::json& render_properties_for_camera, const camera_params& shot_params)
-    {
-        //camera
-        nlohmann::json camera_params(nlohmann::json::value_t::array);
-        nlohmann::json new_camera_instance;
-        new_camera_instance["focal_length"] = shot_params.focal_length;
-        new_camera_instance["sensor_width"] = shot_params.sensor_width;
-        new_camera_instance["eye"] = shot_params.camera_eye_pos;
-        new_camera_instance["look_at"] = shot_params.camera_look_at;
+ 
 
-        //Image
-        nlohmann::json image_params;
-        image_params["width"] = shot_params.output_image_size.at(0);
-        image_params["height"] = shot_params.output_image_size.at(1);
-        image_params["exposure_compensation"] = shot_params.exposure_compensation;
-        image_params["gain_compensation"] = shot_params.gain_compensation;
-        image_params["tonemapper"] = shot_params.is_aces_tone_mapper ? "ACES" : "HABLE";
-        new_camera_instance["image"] = image_params;
-
-        new_camera_instance["sqrtspp"] = shot_params.side_spp;
-        new_camera_instance["savename"] = "preview";
-
-        camera_params.insert(camera_params.end(), new_camera_instance);
-        render_properties_for_camera["cameras"] = camera_params;
-    }
-
-
-    inline nlohmann::json generate_camera_and_image_properties(const camera_params& shot_params)
-    {
-        nlohmann::json render_properties_for_camera;
-        //camera
-        nlohmann::json camera_params(nlohmann::json::value_t::array);
-        nlohmann::json new_camera_instance;
-        new_camera_instance["focal_length"] = shot_params.focal_length;
-        new_camera_instance["sensor_width"] = shot_params.sensor_width;
-        new_camera_instance["eye"] = shot_params.camera_eye_pos;
-        new_camera_instance["look_at"] = shot_params.camera_look_at;
-
-        //Image
-        nlohmann::json image_params;
-        image_params["width"] = shot_params.output_image_size.at(0);
-        image_params["height"] = shot_params.output_image_size.at(1);
-        image_params["exposure_compensation"] = shot_params.exposure_compensation;
-        image_params["gain_compensation"] = shot_params.gain_compensation;
-        image_params["tonemapper"] = shot_params.is_aces_tone_mapper ? "ACES" : "HABLE";
-        new_camera_instance["image"] = image_params;
-
-        new_camera_instance["sqrtspp"] = shot_params.side_spp;
-        new_camera_instance["savename"] = "preview";
-
-        camera_params.insert(camera_params.end(), new_camera_instance);
-        render_properties_for_camera["cameras"] = camera_params;
-
-        return render_properties_for_camera;
-    }
-
-    inline nlohmann::json generate_bvh_and_photon_properties(const bvh_and_photon_params& integrator_params)
-    {
-        nlohmann::json render_properties_for_bvh_and_photon;
-        render_properties_for_bvh_and_photon["num_render_threads"] = -1; // All
-
-        nlohmann::json bvh_type;
-        if (integrator_params.is_octree)
-        {
-            bvh_type["type"] = "octree";
-        }
-        else
-        {
-            bvh_type["bins_per_axis"] = integrator_params.bins_per_axis;
-            if (integrator_params.is_quaternary_sah)
-            {
-                bvh_type["type"] = "quaternary_sah";
-            }else
-            {
-                bvh_type["type"] = "binary_sah";
-            }
-        }
-        render_properties_for_bvh_and_photon["bvh"] = bvh_type;
-
-        if (integrator_params.is_photon_map)
-        {
-            nlohmann::json photon_map_json;
-            photon_map_json["emissions"] = floor(integrator_params.photon_num);
-            photon_map_json["caustic_factor"] = integrator_params.caustic_multiplier;
-            photon_map_json["k_nearest_photons"] = 50;
-            photon_map_json["max_photons_per_octree_leaf"] = 200;
-            photon_map_json["direct_visualization"] = false;
-            render_properties_for_bvh_and_photon["photon_map"] = photon_map_json;
-        }
-        return render_properties_for_bvh_and_photon;
-    }
-
+   
     inline nlohmann::json generate_material_and_object_properties(const std::vector<object_imported>& objects_vector)
     {
         nlohmann::json render_properties_for_material_and_objects;
@@ -485,14 +437,14 @@ namespace gui_params
     }
 
     inline nlohmann::json generate_integrator_and_material_objects_properties(
-        const bvh_and_photon_params& integrator_params,
+        const integrator_space::bvh_and_photon_params& integrator_params,
         const std::vector<object_imported>& objects_vector
     )
     {
         nlohmann::json integrator_and_scene_properties;
         
         // BVH and photon
-        const nlohmann::json render_properties_for_bvh_and_photon = generate_bvh_and_photon_properties(integrator_params);
+        const nlohmann::json render_properties_for_bvh_and_photon = integrator_params;
         integrator_and_scene_properties.update(render_properties_for_bvh_and_photon);
 
         // Materials and surfaces
@@ -522,8 +474,8 @@ namespace gui_params
     }
 
     inline nlohmann::json generate_total_render_properties(
-        const camera_params& shot_params,
-        const bvh_and_photon_params& integrator_params,
+        const camera_space::camera_params& shot_params,
+        const integrator_space::bvh_and_photon_params& integrator_params,
         const std::vector<object_imported>& objects_vector
     )
     {
@@ -534,7 +486,7 @@ namespace gui_params
         render_properties.update(render_properties_for_camera);
 
         // BVH and photon
-        const nlohmann::json render_properties_for_bvh_and_photon = generate_bvh_and_photon_properties(integrator_params);
+        const nlohmann::json render_properties_for_bvh_and_photon = integrator_params;
         render_properties.update(render_properties_for_bvh_and_photon);
 
         // Materials and surfaces
@@ -545,8 +497,8 @@ namespace gui_params
     }
 
     inline nlohmann::json generate_total_render_properties(
-        const camera_params& shot_params, const std::string save_name,
-        const bvh_and_photon_params& integrator_params,
+        const camera_space::camera_params& shot_params, const std::string save_name,
+        const integrator_space::bvh_and_photon_params& integrator_params,
         const std::vector<object_imported>& objects_vector
     )
     {
@@ -559,7 +511,7 @@ namespace gui_params
         render_properties["cameras"]["savename"] = save_name;
 
         // BVH and photon
-        const nlohmann::json render_properties_for_bvh_and_photon = generate_bvh_and_photon_properties(integrator_params);
+        const nlohmann::json render_properties_for_bvh_and_photon = integrator_params;
         render_properties.update(render_properties_for_bvh_and_photon);
 
         // Materials and surfaces

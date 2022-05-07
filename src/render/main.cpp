@@ -222,8 +222,8 @@ void main()
     std::string status_text {"Awaiting order"};
     nlohmann::json previous_integrator_and_scene_properties;
 
-    gui_params::camera_params shot_params;
-    gui_params::bvh_and_photon_params integrator_params;
+    camera_space::camera_params shot_params;
+    integrator_space::bvh_and_photon_params integrator_params;
     std::vector<gui_params::object_imported> objects_vector;
 
     constexpr int filename_max_length = 101;
