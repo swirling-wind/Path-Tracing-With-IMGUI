@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sstream>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -8,6 +9,8 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
+#include "color/illuminant.h"
+#include "color/srgb.h"
 #include "common/util.h"
 
 namespace camera_space
@@ -171,31 +174,53 @@ namespace integrator_space
     }
 }
 
-namespace object_and_material_space
+inline void get_reflectance_from_properties(const nlohmann::json& j, const std::string& field, glm::dvec3& reflectance)
 {
+    if (j.find(field) != j.end())
+    {
+        const nlohmann::json& r = j.at(field);
+        if (r.type() == nlohmann::json::value_t::string)
+        {
+            std::string hex_string = r.get<std::string>();
+            if (hex_string.size() == 7 && hex_string[0] == '#')
+            {
+                hex_string.erase(0, 1);
+                std::stringstream ss;
+                ss << std::hex << hex_string;
+
+                uint32_t color_int;
+                ss >> color_int;
+
+                reflectance = intToColor(color_int);
+            }
+        }
+        else
+        {
+            reflectance = r.get<glm::dvec3>();
+        }
+    }
+};
+
+
+namespace material_space
+{
+    inline std::filesystem::path ior_path = std::filesystem::current_path() / "refractive";
+
     struct material_params
     {
-        struct emittance_param
-        {
-            bool is_emitting = false;
-            double scale = 1.0;
-            double temperature = -1.0;
-        };
-
         struct ior_param
         {
+            bool is_simple_ior = true;
             double simple_ior = 1.0;
 
             bool is_complex_ior = false;
             glm::dvec3 real_ior = glm::dvec3(0);
             glm::dvec3 imaginary_ior = glm::dvec3(0);
 
-            bool use_complex_refractive_index = false;
+            bool is_refractive_index_file = false;
             std::filesystem::path complex_refractive_index_file_path;
         };
-
-        std::string material_name;
-
+        
         double roughness = 0.0;
         double specular_roughness = 0.0;
         double transparency = 0.0;
@@ -204,45 +229,97 @@ namespace object_and_material_space
         glm::dvec3 specular_reflectance = glm::dvec3(1.0);
         glm::dvec3 transmittance = glm::dvec3(1.0);
 
-        emittance_param emittance;
+        glm::dvec3 emittance = glm::dvec3(0.0);
         ior_param ior;
     };
 
+    inline void from_json(const nlohmann::json& material_properties, material_params& material_param)
+    {//TODO: hasn't been tested
+        getToOptional(material_properties, "roughness", material_param.roughness);
+        getToOptional(material_properties, "specular_roughness", material_param.specular_roughness);
+        getToOptional(material_properties, "transparency", material_param.transparency);
+        getToOptional(material_properties, "perfect_mirror", material_param.perfect_mirror);
+        get_reflectance_from_properties(material_properties, "reflectance", material_param.reflectance);
+        get_reflectance_from_properties(material_properties, "specular_reflectance", material_param.specular_reflectance);
+        get_reflectance_from_properties(material_properties, "transmittance", material_param.transmittance);
+        material_param.reflectance = sRGB::gammaExpand(material_param.reflectance);
+
+        if (material_properties.find("emittance") != material_properties.end())
+        {
+            const auto emittance_property = material_properties.at("emittance");
+            if (emittance_property.type() == nlohmann::json::value_t::object)
+            {
+                const double scale = getOptional(emittance_property, "scale", 1.0);
+                const double temperature = getOptional<double>(emittance_property, "temperature", -1.0);
+
+                if (temperature > 0.0)
+                {
+                    material_param.emittance = sRGB::RGB(CIE::Illuminant::blackbody(temperature) * scale);
+                }
+                else
+                {
+                    std::string illuminant = getOptional<std::string>(emittance_property, "illuminant", "D65");
+                    std::transform(illuminant.begin(), illuminant.end(), illuminant.begin(), toupper);
+                    material_param.emittance = sRGB::RGB(CIE::Illuminant::whitePoint(illuminant.c_str()) * scale);
+                }
+            }
+            else
+            {
+                material_param.emittance = emittance_property.get<glm::dvec3>();
+            }
+        }
+
+        if (material_properties.find("ior") != material_properties.end())
+        {
+            const auto ior_property = material_properties.at("ior");
+            if (ior_property.type() == nlohmann::json::value_t::object)
+            {
+                material_param.ior.is_simple_ior = false;
+                material_param.ior.is_complex_ior = true;
+                material_param.ior.is_refractive_index_file = false;
+                material_param.ior.imaginary_ior = getOptional(ior_property, "imaginary", glm::dvec3(0.0));
+                material_param.ior.real_ior = getOptional(ior_property, "real", glm::dvec3(1.0));
+
+            }
+            else if (ior_property.type() == nlohmann::json::value_t::string)
+            {
+                material_param.ior.is_simple_ior = false;
+                material_param.ior.is_complex_ior = false;
+                material_param.ior.is_refractive_index_file = true;
+                material_param.ior.complex_refractive_index_file_path = ior_path / ior_property.get<std::string>();
+            }
+            else
+            {
+                material_param.ior.is_simple_ior = true;
+                material_param.ior.is_complex_ior = false;
+                material_param.ior.is_refractive_index_file = false;
+                ior_property.get_to(material_param.ior.simple_ior);
+            }
+        }
+    }
+}
+
+namespace object_space
+{
     struct object_with_material
     {
         bool is_smooth = true;
         std::filesystem::path model_file_location;
-        material_params material_type;
+        material_space::material_params material_type;
         std::array<float, 3> position{ 0.0,0.0,0.0 };
         std::array<float, 3> rotation{ 0.0,0.0,0.0 };
         std::array<float, 1> scale{ 1.0 };
     };
 
 
-    /*   inline std::unordered_map<std::string, material_params> read_material_properties(const nlohmann::json& total_properties)
-       {
-           std::unordered_map<std::string, material_params> materials = total_properties.at("materials");
-           return materials;
-       }
+    inline void from_json(const nlohmann::json& total_properties, object_with_material object)
+    {
 
-       inline std::vector<object_with_material> read_object_properties(const nlohmann::json& total_properties)
-       {
-           std::unordered_map<std::string, material_params> materials = read_material_properties(total_properties);
-
-           std::vector<object_with_material> object_vec;
-           for (const auto& surface : total_properties.at("surfaces"))
-           {
-               std::string material_name = "default";
-               if (surface.find("material") != surface.end())
-               {
-                   material_name = surface.at("material");
-               }
-
-           }
-
-           return object_vec;
-       }*/
+    }
+    
 }
+    
+
 
 namespace gui_params_space
 {    
