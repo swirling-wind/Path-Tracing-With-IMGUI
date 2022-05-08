@@ -249,6 +249,7 @@ void main()
 
     material_space::material_map materials_map;
     material_space::material_params temp_added_material;
+    object_space::object_list objects_vector_with_material;
     //  =======================================================================================
 
     std::vector<std::filesystem::path> obj_found_in_path;
@@ -321,7 +322,7 @@ void main()
             ImGui::SameLine();
 
             // Import property file
-            gui_widgets::choose_property_file(properties_found_in_path, shot_params, integrator_params, materials_map);
+            gui_widgets::choose_property_file(properties_found_in_path, shot_params, integrator_params, materials_map, objects_vector_with_material);
 
             // Prepare integrator and scene
             if (ImGui::Button("Set scene and preview", ImVec2(-0.001f, 28.0f)))

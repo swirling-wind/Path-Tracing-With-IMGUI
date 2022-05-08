@@ -13,6 +13,12 @@
 #include "color/srgb.h"
 #include "common/util.h"
 
+namespace gui_constant_params
+{
+    const std::filesystem::path obj_file_path = std::filesystem::current_path() / "objects";
+    const std::filesystem::path property_file_path = std::filesystem::current_path() / "properties";
+}
+
 namespace camera_space
 {
     struct camera_params
@@ -208,7 +214,7 @@ namespace material_space
     inline float get_scale_from_total_emittance(const glm::dvec3 total_emittance)
     {
         double scale = 100.0;
-        glm::dvec3 temp_emittance{ total_emittance };
+        const glm::dvec3 temp_emittance{ total_emittance };
         while (temp_emittance.r / scale >= 1.0 || temp_emittance.g / scale >= 1.0  || temp_emittance.b / scale >= 1.0)
         {
             scale += 100.0;
@@ -256,7 +262,7 @@ namespace material_space
     using material_map = std::unordered_map<std::string, material_params>;
     
     inline void from_json(const nlohmann::json& material_properties, material_params& material_param)
-    {//TODO: hasn't been tested
+    {
         getToOptional(material_properties, "roughness", material_param.roughness);
         getToOptional(material_properties, "specular_roughness", material_param.specular_roughness);
         getToOptional(material_properties, "transparency", material_param.transparency);
@@ -363,37 +369,72 @@ namespace material_space
 
 namespace object_space
 {
+    using float3_array = std::array<float, 3>;
+
     struct object_with_material
     {
         bool is_smooth = true;
-        std::filesystem::path model_file_location;
+        std::string obj_file_name;
         std::string material_type;
         std::array<float, 3> position{ 0.0,0.0,0.0 };
         std::array<float, 3> rotation{ 0.0,0.0,0.0 };
         std::array<float, 1> scale{ 1.0 };
     };
 
+    using object_list = std::vector<object_with_material>;
 
-    inline void from_json(const nlohmann::json& total_properties, object_with_material& object)
+    inline void from_json(const nlohmann::json& total_properties, object_list& objects_vector)
     {
+        nlohmann::json objects_properties = total_properties.at("surfaces");
+        for (const auto& each_object : objects_properties)
+        {
+            std::string type = each_object.at("type");
+            if (type != "object")
+            {
+                continue;
+            }
 
+            object_with_material added_object;
+            added_object.material_type = getOptional(each_object, "material", "default");
+            added_object.position = getOptional(each_object, "position", float3_array{0.0f,0.0f,0.0f});
+            added_object.rotation = getOptional(each_object, "rotation", float3_array{0.0f,0.0f,0.0f});
+            added_object.scale = getOptional(each_object, "scale", std::array<float, 1>{ 1.0f });
+            added_object.is_smooth = getOptional(each_object, "smooth", true);
+            if (each_object.find("file") != each_object.end())
+            {
+                std::filesystem::path obj_path = each_object.at("file");
+                added_object.obj_file_name = obj_path.filename().string();
+            }
+            objects_vector.emplace_back(added_object);
+        }
     }
 
-    inline void to_json(nlohmann::json& object_properties, const object_with_material& object)
+    inline void to_json(nlohmann::json& object_properties, const object_list& objects_vector)
     {
-        
+        nlohmann::json surfaces_params(nlohmann::json::value_t::array);
+
+        for (const auto& object : objects_vector)
+        {
+            nlohmann::json obj_json;
+
+            obj_json["type"] = "object";
+            obj_json["material"] = object.material_type;
+            obj_json["smooth"] = object.is_smooth;
+            obj_json["position"] = object.position;
+            obj_json["file"] = object.obj_file_name;
+            obj_json["rotation"] = object.rotation;
+            obj_json["scale"] = object.scale.at(0);
+
+            surfaces_params.insert(surfaces_params.end(), obj_json);
+        }
+        object_properties["surfaces"] = surfaces_params;
     }
-    
 }
     
 
 
 namespace gui_params_space
 {
-    const std::filesystem::path model_path = std::filesystem::current_path() / "objects";
-    const std::filesystem::path ior_path = std::filesystem::current_path() / "ior";
-    const std::filesystem::path properties_path = std::filesystem::current_path() / "properties";
-
     enum class render_status : int {
         awaiting,
 
@@ -445,17 +486,17 @@ namespace gui_params_space
     inline void load_external_files(
         std::vector<std::filesystem::path>& obj_found_in_path,
         std::vector<std::filesystem::path>& properties_found_in_path)
-    {        
-        std::cout << "Display the .obj files in path: " << model_path.string() << std::endl;
-        obj_found_in_path = gui_params_space::get_files_in_folder(model_path, ".obj");
+    {
+        std::cout << "Display the .obj files in path: " << gui_constant_params::obj_file_path.string() << std::endl;
+        obj_found_in_path = gui_params_space::get_files_in_folder(gui_constant_params::obj_file_path, ".obj");
         std::cout << obj_found_in_path.size() << std::endl;
 
         //  =======================================================================================
-        std::cout << "\nDisplay the properties files in path: " << ior_path.string() << std::endl;
-        properties_found_in_path = gui_params_space::get_files_in_folder(properties_path, ".json");
+        std::cout << "\nDisplay the properties files in path: " << gui_constant_params::property_file_path.string() << std::endl;
+        properties_found_in_path = gui_params_space::get_files_in_folder(gui_constant_params::property_file_path, ".json");
         std::cout << properties_found_in_path.size() << std::endl;
     }
-      
+
     inline nlohmann::json generate_material_and_object_properties(const std::vector<object_imported>& objects_vector)
     {
         nlohmann::json render_properties_for_material_and_objects;
@@ -600,7 +641,7 @@ namespace gui_params_space
     )
     {
         nlohmann::json integrator_and_scene_properties;
-        
+
         // BVH and photon
         const nlohmann::json render_properties_for_bvh_and_photon = integrator_params;
         integrator_and_scene_properties.update(render_properties_for_bvh_and_photon);
@@ -619,7 +660,7 @@ namespace gui_params_space
     )
     {
         nlohmann::json render_properties;
-        
+
         // Camera
         render_properties.update(render_properties_for_camera);
 
