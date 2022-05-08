@@ -27,10 +27,8 @@ namespace gui_widgets
                     nlohmann::json total_properties;
                     scene_file >> total_properties;
                     scene_file.close();
-
-                    shot_params = total_properties.get<camera_space::camera_params>();
-                    integrator_params = total_properties.get<integrator_space::bvh_and_photon_params>();
-                    materials_map = total_properties.at("materials").get<material_space::material_map>();
+                    
+                    gui_params_space::get_all_params_from_properties(total_properties, shot_params, integrator_params, materials_map, objects_vector);
                 }
             }   
             ImGui::EndPopup();
@@ -41,7 +39,7 @@ namespace gui_widgets
     inline bool whether_able_to_render(
         const std::atomic<gui_params_space::render_status>& current_status,
         std::string& status_text,
-        const std::vector<gui_params_space::object_imported>& objects_vector
+        const object_space::object_list& objects_vector
     )
     {
         if (current_status != gui_params_space::render_status::awaiting)

@@ -336,7 +336,7 @@ namespace material_space
     }
 
     inline void to_json(nlohmann::json& material_properties, const material_params& material_param)
-    {//TODO: hasn't been tested
+    {
         material_properties["roughness"] = material_param.roughness;
         material_properties["specular_roughness"] = material_param.specular_roughness;
         material_properties["transparency"] = material_param.transparency;
@@ -348,9 +348,12 @@ namespace material_space
         if (material_param.emittance.is_emit)
         {
             nlohmann::json light_emittance;
-            light_emittance["emittance_scale"] = material_param.emittance.emittance_scale;
-            light_emittance["emittance_color"] = material_param.emittance.emittance_color;
-            material_properties["light_emittance"] = light_emittance;
+            const float scale = material_param.emittance.emittance_scale;
+            material_properties["emittance"] = {
+                material_param.emittance.emittance_color.at(0) * scale,
+                material_param.emittance.emittance_color.at(1) * scale,
+                material_param.emittance.emittance_color.at(2) * scale,
+            };
         }
         
         if (material_param.ior.is_simple_ior)
@@ -364,6 +367,17 @@ namespace material_space
             complex_ior["imaginary"] = { material_param.ior.imaginary_ior.at(0), material_param.ior.imaginary_ior.at(1), material_param.ior.imaginary_ior.at(2) };
             material_properties["ior"] = complex_ior;
         }
+    }
+
+    inline void to_json(nlohmann::json& total_properties, const material_map& materials_map)
+    {
+        nlohmann::json materials_properties;
+        for (const auto& single_material_property : materials_map)
+        {
+            materials_properties[single_material_property.first] = single_material_property.second;
+        }
+
+        total_properties["materials"] = materials_properties;
     }
 }
 
@@ -405,32 +419,74 @@ namespace object_space
         }
     }
 
-    //inline void to_json(nlohmann::json& object_properties, const object_list& objects_vector)
-    //{
-    //    nlohmann::json surfaces_params(nlohmann::json::value_t::array);
+    inline void to_json(nlohmann::json& object_properties, const object_list& objects_vector)
+    {
+        nlohmann::json surfaces_params(nlohmann::json::value_t::array);
 
-    //    for (const auto& object : objects_vector)
-    //    {
-    //        nlohmann::json obj_json;
+        for (const auto& object : objects_vector)
+        {
+            nlohmann::json obj_json;
 
-    //        obj_json["type"] = "object";
-    //        obj_json["material"] = object.material_type;
-    //        obj_json["smooth"] = object.is_smooth;
-    //        obj_json["position"] = object.position;
-    //        obj_json["file"] = object.obj_file_name;
-    //        obj_json["rotation"] = object.rotation;
-    //        obj_json["scale"] = object.scale.at(0);
+            obj_json["type"] = "object";
+            obj_json["material"] = object.material_type;
+            obj_json["smooth"] = object.is_smooth;
+            obj_json["position"] = object.position;
+            obj_json["file"] = object.obj_file_name;
+            obj_json["rotation"] = object.rotation;
+            obj_json["scale"] = object.scale.at(0);
 
-    //        surfaces_params.insert(surfaces_params.end(), obj_json);
-    //    }
-    //    object_properties["surfaces"] = surfaces_params;
-    //}
+            surfaces_params.insert(surfaces_params.end(), obj_json);
+        }
+        object_properties["surfaces"] = surfaces_params;
+    }
 }
     
 
 
 namespace gui_params_space
 {
+    inline void get_all_params_from_properties(const nlohmann::json& total_properties,
+        camera_space::camera_params& shot_params,
+        integrator_space::bvh_and_photon_params& integrator_params,
+        material_space::material_map& materials_map,
+        object_space::object_list& objects_vector
+    )
+    {
+        shot_params = total_properties.get<camera_space::camera_params>();
+        integrator_params = total_properties.get<integrator_space::bvh_and_photon_params>();
+        materials_map = total_properties.at("materials").get<material_space::material_map>();
+        objects_vector = total_properties.get<object_space::object_list>();
+    }
+
+    inline nlohmann::json generate_all_properties(
+        const camera_space::camera_params& shot_params,
+        const integrator_space::bvh_and_photon_params& integrator_params,
+        const material_space::material_map& materials_map,
+        const object_space::object_list& objects_vector
+    )
+    {
+        nlohmann::json total_properties = shot_params;
+        total_properties.update(integrator_params);
+        total_properties.update(materials_map);
+        total_properties.update(objects_vector);
+        return total_properties;
+    }
+
+    inline nlohmann::json generate_both_integrator_and_material_objects_properties(
+        const integrator_space::bvh_and_photon_params& integrator_params,
+        const material_space::material_map& materials_map,
+        const object_space::object_list& objects_vector
+
+    )
+    {
+        nlohmann::json integrator_and_scene_properties = integrator_params;
+        integrator_and_scene_properties.update(materials_map);
+        integrator_and_scene_properties.update(objects_vector);
+        return integrator_and_scene_properties;
+    }
+
+
+
     enum class render_status : int {
         awaiting,
 
@@ -631,23 +687,7 @@ namespace gui_params_space
         return render_properties_for_material_and_objects;
     }
 
-    inline nlohmann::json generate_both_integrator_and_material_objects_properties(
-        const integrator_space::bvh_and_photon_params& integrator_params,
-        const std::vector<object_imported>& objects_vector
-    )
-    {
-        nlohmann::json integrator_and_scene_properties;
 
-        // BVH and photon
-        const nlohmann::json render_properties_for_bvh_and_photon = integrator_params;
-        integrator_and_scene_properties.update(render_properties_for_bvh_and_photon);
-
-        // Materials and surfaces
-        const nlohmann::json render_properties_for_material_and_objects = generate_material_and_object_properties(objects_vector);
-        integrator_and_scene_properties.update(render_properties_for_material_and_objects);
-
-        return integrator_and_scene_properties;
-    }
 
     inline nlohmann::json generate_total_render_properties(
         const nlohmann::json& render_properties_for_camera,

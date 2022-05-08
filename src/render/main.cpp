@@ -237,7 +237,12 @@ void main()
 
     camera_space::camera_params shot_params;
     integrator_space::bvh_and_photon_params integrator_params;
-    std::vector<gui_params_space::object_imported> objects_vector;
+    object_space::object_list objects_vector;
+    material_space::material_map materials_map;
+    material_space::material_params temp_added_material;
+
+
+    //std::vector<gui_params_space::object_imported> objects_vector;
 
     std::atomic current_status {gui_params_space::render_status::awaiting};
     nlohmann::json previous_integrator_and_scene_properties;
@@ -246,10 +251,7 @@ void main()
 
     char file_save_name[NAME_MAX_LENGTH] = "new image";
     char material_name[NAME_MAX_LENGTH] = "new material";
-
-    material_space::material_map materials_map;
-    material_space::material_params temp_added_material;
-    object_space::object_list objects_vector_with_material;
+        
     //  =======================================================================================
 
     std::vector<std::filesystem::path> obj_found_in_path;
@@ -305,16 +307,16 @@ void main()
             gui_widgets::show_integrator_params(integrator_params);
             gui_widgets::show_camera_params(shot_params);
             // Display all imported objects
-            gui_widgets::show_imported_objects(objects_vector_with_material);
-            // Press button to add a new object 
-            gui_widgets::show_available_objects(obj_found_in_path, objects_vector);
+            gui_widgets::show_imported_objects(objects_vector);
+            // Press button to add a new object TODO
+            //gui_widgets::show_available_objects(obj_found_in_path, objects_vector);
             
             ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
             // Output gui_params as json
             if (ImGui::Button("\nOutput json"))
             {
                 std::string save_name{ file_save_name };
-                nlohmann::json test_json = generate_total_render_properties(shot_params, integrator_params, objects_vector);
+                nlohmann::json test_json = gui_params_space::generate_all_properties(shot_params, integrator_params, materials_map, objects_vector);
                 std::ofstream out(save_name + ".json");
                 out << test_json;
             }
@@ -322,14 +324,14 @@ void main()
             ImGui::SameLine();
 
             // Import property file
-            gui_widgets::choose_property_file(properties_found_in_path, shot_params, integrator_params, materials_map, objects_vector_with_material);
+            gui_widgets::choose_property_file(properties_found_in_path, shot_params, integrator_params, materials_map, objects_vector);
 
-            // Prepare integrator and scene
+             //Prepare integrator and scene
             if (ImGui::Button("Set scene and preview", ImVec2(-0.001f, 28.0f)))
             {
                 if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
                 {
-                    nlohmann::json integrator_and_scene_properties = generate_both_integrator_and_material_objects_properties(integrator_params, objects_vector);
+                    nlohmann::json integrator_and_scene_properties = gui_params_space::generate_both_integrator_and_material_objects_properties(integrator_params, materials_map, objects_vector);
 
                     // Same property, no need to build scene
                     if (integrator_and_scene_properties == previous_integrator_and_scene_properties)
