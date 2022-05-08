@@ -34,7 +34,18 @@
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
-
+static void HelpMarker(const char* desc)
+{
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -241,9 +252,8 @@ void main()
     //  =======================================================================================
 
     std::vector<std::filesystem::path> obj_found_in_path;
-    std::vector<std::filesystem::path> ior_found_in_path;
     std::vector<std::filesystem::path> properties_found_in_path;
-    gui_params_space::load_external_files(obj_found_in_path, ior_found_in_path, properties_found_in_path);
+    gui_params_space::load_external_files(obj_found_in_path, properties_found_in_path);
 
     // Main loop    ============================================================================
     while (!glfwWindowShouldClose(window))
@@ -284,7 +294,8 @@ void main()
             }
             if (ImGui::BeginPopup("Add a new material", ImGuiWindowFlags_MenuBar))
             {
-                ImGui::InputText("Material name", material_name, IM_ARRAYSIZE(material_name));
+                ImGui::InputText("Name", material_name, IM_ARRAYSIZE(material_name));
+                //HelpMarker("Materials' names should be different from each other. Otherwise the newer one will not be created.");
                 gui_widgets::add_new_material(material_name, temp_added_material, materials_map);
                 ImGui::EndPopup();
             }
@@ -310,7 +321,7 @@ void main()
             ImGui::SameLine();
 
             // Import property file
-            gui_widgets::choose_property_file(properties_found_in_path, shot_params, integrator_params);
+            gui_widgets::choose_property_file(properties_found_in_path, shot_params, integrator_params, materials_map);
 
             // Prepare integrator and scene
             if (ImGui::Button("Set scene and preview", ImVec2(-0.001f, 28.0f)))

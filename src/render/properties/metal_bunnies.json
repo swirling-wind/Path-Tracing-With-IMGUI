@@ -20,7 +20,7 @@
 
   "materials": {
     "default": {
-      "reflectance": 0.95
+      "reflectance": [0.95,0.95,0.95]
     },
     "light": {
       "emittance": [235.1913,195.1469,144.3919]

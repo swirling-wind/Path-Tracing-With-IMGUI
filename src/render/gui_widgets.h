@@ -6,7 +6,8 @@ namespace gui_widgets
 {
     inline void choose_property_file(const std::vector<std::filesystem::path>& property_vec,
         camera_space::camera_params& shot_params,
-        integrator_space::bvh_and_photon_params& integrator_params
+        integrator_space::bvh_and_photon_params& integrator_params,
+        material_space::material_map& materials_map
     )
     {
         if (ImGui::Button("Import property file"))
@@ -28,7 +29,7 @@ namespace gui_widgets
 
                     shot_params = total_properties.get<camera_space::camera_params>();
                     integrator_params = total_properties.get<integrator_space::bvh_and_photon_params>();
-
+                    materials_map = total_properties.at("materials").get<material_space::material_map>();
                 }
             }   
             ImGui::EndPopup();
@@ -89,28 +90,19 @@ namespace gui_widgets
                     if (iter->second.emittance.is_emit)
                     {
                         ImGui::ColorEdit3(("Emittance Color##" + m_name).c_str(), iter->second.emittance.emittance_color.data());
-                        ImGui::SliderFloat(("Emittance Scale##" + m_name).c_str(), &iter->second.emittance.emittance_scale, 1.0f, 200.0f);
+                        ImGui::SliderFloat(("Emittance Scale##" + m_name).c_str(), &iter->second.emittance.emittance_scale, 100.0f, 900.0f);
                     }
 
                     if (ImGui::RadioButton(("Simple IOR##" + m_name).c_str(), iter->second.ior.is_simple_ior))
                     {
                         iter->second.ior.is_simple_ior = true;
                         iter->second.ior.is_complex_ior = false;
-                        iter->second.ior.is_refractive_index_file = false;
                     }
                     ImGui::SameLine();
                     if (ImGui::RadioButton(("Complex IOR##" + m_name).c_str(), iter->second.ior.is_complex_ior))
                     {
                         iter->second.ior.is_simple_ior = false;
                         iter->second.ior.is_complex_ior = true;
-                        iter->second.ior.is_refractive_index_file = false;
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::RadioButton(("Refractive File##" + m_name).c_str(), iter->second.ior.is_refractive_index_file))
-                    {
-                        iter->second.ior.is_simple_ior = false;
-                        iter->second.ior.is_complex_ior = false;
-                        iter->second.ior.is_refractive_index_file = true;
                     }
                     if (iter->second.ior.is_simple_ior)
                     {
@@ -120,11 +112,6 @@ namespace gui_widgets
                     {
                         ImGui::InputFloat3((" Real IOR ##" + m_name).c_str(), iter->second.ior.real_ior.data());
                         ImGui::InputFloat3(("Imaginary IOR##" + m_name).c_str(), iter->second.ior.imaginary_ior.data());
-                    }
-                    if (iter->second.ior.is_refractive_index_file)
-                    {
-                        //TODO
-
                     }
                     ImGui::TreePop();
                 }

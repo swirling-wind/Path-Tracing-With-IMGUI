@@ -176,8 +176,7 @@ namespace material_space
 {
     using float3_array = std::array<float, 3>;
 
-    inline std::filesystem::path ior_path = std::filesystem::current_path() / "refractive";
-    inline void get_reflectance_from_properties(const nlohmann::json& j, const std::string& field, float3_array reflectance)
+    inline void get_reflectance_between_0_1(const nlohmann::json& j, const std::string& field, float3_array& reflectance)
     {
         if (j.find(field) != j.end())
         {
@@ -193,23 +192,26 @@ namespace material_space
 
                     uint32_t color_int;
                     ss >> color_int;
-                    
-                    reflectance = float3_array{static_cast<float>((color_int >> 16) & 0xFF)/255.0f, static_cast<float>((color_int >> 8) & 0xFF)/255.0f, static_cast<float>(color_int & 0xFF)/255.0f};
+
+                    //[0,1]
+                    reflectance = float3_array{ static_cast<float>((color_int >> 16) & 0xFF) / 255.0f, static_cast<float>((color_int >> 8) & 0xFF) / 255.0f, static_cast<float>(color_int & 0xFF) / 255.0f };
                 }
             }
-            else
+            else if (r.type() == nlohmann::json::value_t::array)
             {
+                //[0,1]
                 reflectance = r.get<float3_array>();
             }
         }
     };
+    
     inline float get_scale_from_total_emittance(const glm::dvec3 total_emittance)
     {
-        double scale = 1.0;
+        double scale = 100.0;
         glm::dvec3 temp_emittance{ total_emittance };
-        while (temp_emittance.r / scale > 254.9f || temp_emittance.g / scale > 254.9f || temp_emittance.b / scale > 254.9f)
+        while (temp_emittance.r / scale >= 1.0 || temp_emittance.g / scale >= 1.0  || temp_emittance.b / scale >= 1.0)
         {
-            scale *= 5;
+            scale += 100.0;
         }
         std::cerr << "Scale: " << scale << std::endl;
         return static_cast<float>(scale);
@@ -225,16 +227,13 @@ namespace material_space
             bool is_complex_ior = false;
             float3_array real_ior = { 0.0f,0.0f,0.0f };
             float3_array imaginary_ior = { 0.0f,0.0f,0.0f };
-
-            bool is_refractive_index_file = false;
-            std::filesystem::path complex_refractive_index_file_path;
         };
 
         struct emit_param
         {
             bool is_emit = false;
-            float3_array emittance_color = { 1.0f,1.0f,1.0f };
-            float emittance_scale = { 10.0f };
+            float3_array emittance_color = { 1.0f,1.0f,1.0f };  //[0,1]
+            float emittance_scale = { 100.0f };
         };
 
         std::string material_name;
@@ -242,6 +241,8 @@ namespace material_space
         float roughness = 0.0f;
         float specular_roughness = 0.0f;
         float transparency = 0.0f;
+
+        //[0,1]
         float3_array reflectance = {1.0f,1.0f,1.0f};
         float3_array specular_reflectance = { 1.0f,1.0f,1.0f };
         float3_array transmittance = { 1.0f,1.0f,1.0f };
@@ -253,16 +254,19 @@ namespace material_space
     };
 
     using material_map = std::unordered_map<std::string, material_params>;
-
+    
     inline void from_json(const nlohmann::json& material_properties, material_params& material_param)
     {//TODO: hasn't been tested
         getToOptional(material_properties, "roughness", material_param.roughness);
         getToOptional(material_properties, "specular_roughness", material_param.specular_roughness);
         getToOptional(material_properties, "transparency", material_param.transparency);
         getToOptional(material_properties, "perfect_mirror", material_param.is_perfect_mirror);
-        get_reflectance_from_properties(material_properties, "reflectance", material_param.reflectance);
-        get_reflectance_from_properties(material_properties, "specular_reflectance", material_param.specular_reflectance);
-        get_reflectance_from_properties(material_properties, "transmittance", material_param.transmittance);
+
+        // color range [0,1]
+        get_reflectance_between_0_1(material_properties, "reflectance", material_param.reflectance);
+        get_reflectance_between_0_1(material_properties, "specular_reflectance", material_param.specular_reflectance);
+        get_reflectance_between_0_1(material_properties, "transmittance", material_param.transmittance);
+
         material_param.reflectance = sRGB::gammaExpand(material_param.reflectance);
 
         if (material_properties.find("emittance") != material_properties.end())
@@ -290,8 +294,6 @@ namespace material_space
             {
                 temp_total_emittance = emittance_property.get<glm::dvec3>();
             }
-            std::cerr << "\nEmittance: " << temp_total_emittance << std::endl;
-
             material_param.emittance.emittance_scale = get_scale_from_total_emittance(temp_total_emittance);
             material_param.emittance.emittance_color = float3_array{
                 static_cast<float>(temp_total_emittance.r) / material_param.emittance.emittance_scale,
@@ -302,9 +304,9 @@ namespace material_space
         else if (material_properties.find("light_emittance") != material_properties.end())
         {
             material_param.emittance.is_emit = true;
-            const auto emittance_property = material_properties.at("light_emittance");
-            material_param.emittance.emittance_scale = getOptional(emittance_property, "emittance_scale", 10.0f);
-            material_param.emittance.emittance_color = getOptional(emittance_property, "emittance_color", float3_array{ 200,200,200 });
+            const nlohmann::json emittance_property = material_properties.at("light_emittance");
+            material_param.emittance.emittance_scale = getOptional(emittance_property, "emittance_scale", 100.0f);
+            material_param.emittance.emittance_color = getOptional(emittance_property, "emittance_color", float3_array{ 1.0f, 1.0f, 1.0f });
         }
 
         if (material_properties.find("ior") != material_properties.end())
@@ -314,23 +316,14 @@ namespace material_space
             {
                 material_param.ior.is_simple_ior = false;
                 material_param.ior.is_complex_ior = true;
-                material_param.ior.is_refractive_index_file = false;
-                material_param.ior.imaginary_ior = getOptional(ior_property, "imaginary", float3_array{ 0.0f });
-                material_param.ior.real_ior = getOptional(ior_property, "real", float3_array{ 0.0f });
+                material_param.ior.imaginary_ior = getOptional(ior_property, "imaginary", float3_array{ 0.0f, 0.0f, 0.0f });
+                material_param.ior.real_ior = getOptional(ior_property, "real", float3_array{ 0.0f, 0.0f, 0.0f });
 
-            }
-            else if (ior_property.type() == nlohmann::json::value_t::string)
-            {
-                material_param.ior.is_simple_ior = false;
-                material_param.ior.is_complex_ior = false;
-                material_param.ior.is_refractive_index_file = true;
-                material_param.ior.complex_refractive_index_file_path = ior_path / ior_property.get<std::string>();
             }
             else
             {
                 material_param.ior.is_simple_ior = true;
                 material_param.ior.is_complex_ior = false;
-                material_param.ior.is_refractive_index_file = false;
                 ior_property.get_to(material_param.ior.simple_ior);
             }
         }
@@ -342,9 +335,9 @@ namespace material_space
         material_properties["specular_roughness"] = material_param.specular_roughness;
         material_properties["transparency"] = material_param.transparency;
         material_properties["perfect_mirror"] = material_param.is_perfect_mirror;
-        material_properties["reflectance"] = { material_param.reflectance.at(0), material_param.reflectance.at(1), material_param.reflectance.at(2) };
-        material_properties["specular_reflectance"] = { material_param.specular_reflectance.at(0), material_param.specular_reflectance.at(1), material_param.specular_reflectance.at(2) };
-        material_properties["transmittance"] = { material_param.transmittance.at(0), material_param.transmittance.at(1), material_param.transmittance.at(2) };
+        material_properties["reflectance"] = float3_array{ material_param.reflectance.at(0), material_param.reflectance.at(1), material_param.reflectance.at(2) };
+        material_properties["specular_reflectance"] =  float3_array{ material_param.specular_reflectance.at(0), material_param.specular_reflectance.at(1), material_param.specular_reflectance.at(2) };
+        material_properties["transmittance"] = float3_array{ material_param.transmittance.at(0), material_param.transmittance.at(1), material_param.transmittance.at(2) };
 
         if (material_param.emittance.is_emit)
         {
@@ -365,24 +358,7 @@ namespace material_space
             complex_ior["imaginary"] = { material_param.ior.imaginary_ior.at(0), material_param.ior.imaginary_ior.at(1), material_param.ior.imaginary_ior.at(2) };
             material_properties["ior"] = complex_ior;
         }
-        else if (material_param.ior.is_refractive_index_file)
-        {
-            material_properties["ior"] = material_param.ior.complex_refractive_index_file_path.string();
-        }
-
     }
-
-    inline void from_json(const nlohmann::json& total_properties, material_map& material_vec)
-    {
-
-        
-    }
-
-    inline void to_json(nlohmann::json& material_properties, const material_map& material_vec)
-    {
-        
-    }
-
 }
 
 namespace object_space
@@ -468,17 +444,11 @@ namespace gui_params_space
 
     inline void load_external_files(
         std::vector<std::filesystem::path>& obj_found_in_path,
-        std::vector<std::filesystem::path>& ior_found_in_path,
         std::vector<std::filesystem::path>& properties_found_in_path)
     {        
         std::cout << "Display the .obj files in path: " << model_path.string() << std::endl;
         obj_found_in_path = gui_params_space::get_files_in_folder(model_path, ".obj");
         std::cout << obj_found_in_path.size() << std::endl;
-
-        //  =======================================================================================
-        std::cout << "\nDisplay the ior files in path: " << ior_path.string() << std::endl;
-        ior_found_in_path = gui_params_space::get_files_in_folder(ior_path, ".csv");
-        std::cout << ior_found_in_path.size() << std::endl;
 
         //  =======================================================================================
         std::cout << "\nDisplay the properties files in path: " << ior_path.string() << std::endl;
