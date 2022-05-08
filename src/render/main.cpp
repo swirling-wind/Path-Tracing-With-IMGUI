@@ -240,13 +240,25 @@ void main()
 
     std::vector<material_space::material_params> material_vec;
     material_space::material_params temp_added_material;
-    bool is_added_successfully = false;
 
     //  =======================================================================================
-    const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
-    std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
+    const std::filesystem::path model_path = std::filesystem::current_path() / "objects";
+    std::cout << "Display the .obj files in path: " << model_path.string() << std::endl;
     const std::vector<std::filesystem::path> obj_found_in_path = gui_params_space::get_files_in_folder(model_path, ".obj");
     std::cout << obj_found_in_path.size() << std::endl;
+
+    //  =======================================================================================
+    const std::filesystem::path ior_path = std::filesystem::current_path() / "ior";
+    std::cout << "\nDisplay the ior files in path: " << ior_path.string() << std::endl;
+    const std::vector<std::filesystem::path> ior_found_in_path = gui_params_space::get_files_in_folder(ior_path, ".csv");
+    std::cout << ior_found_in_path.size() << std::endl;
+
+    //  =======================================================================================
+    const std::filesystem::path properties_path = std::filesystem::current_path() / "properties";
+    std::cout << "\nDisplay the properties files in path: " << ior_path.string() << std::endl;
+    const std::vector<std::filesystem::path> properties_found_in_path = gui_params_space::get_files_in_folder(properties_path, ".json");
+    std::cout << properties_found_in_path.size() << std::endl;
+
 
     // Main loop    ============================================================================
     while (!glfwWindowShouldClose(window))
@@ -266,16 +278,6 @@ void main()
         {
             ImGui::Begin("Control panel");
 
-            //if (ImGui::BeginMenuBar())
-            //{//TODO
-            //    if (ImGui::BeginMenu("File"))
-            //    {
-            //        if (ImGui::MenuItem("Some menu item")) {}
-            //        ImGui::EndMenu();
-            //    }
-            //    ImGui::EndMenuBar();
-            //}
-
             if (current_status == gui_params_space::render_status::busy_rendering)
             {
                 ImGui::ProgressBar(render_progress, ImVec2(-0.001f, 28.0f));
@@ -288,26 +290,12 @@ void main()
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(4.0f / 7.0f, 0.7f, 0.7f));
                 ImGui::Button(status_text.c_str(), ImVec2(-0.001f, 28.0f));
                 ImGui::PopStyleColor(2);
-
-
-                //ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                //ImGui::PushTextWrapPos(550.0f);
-                //ImGui::Text(("\n  " + status_text + "  \n").c_str());
-                //draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(100, 100, 100, 255));
-                //ImGui::PopTextWrapPos();
             }
 
             /////////////////////////////////
 
-            if (ImGui::Button("Materials Management"))
-            {
-                ImGui::OpenPopup("Manage materials");
-            }
-            if (ImGui::BeginPopup("Manage materials", ImGuiWindowFlags_MenuBar))
-            {
-                gui_widgets::show_material_manager(material_vec);
-                ImGui::EndPopup();
-            }
+            gui_widgets::show_material_manager(material_vec);
+            
             ImGui::SameLine();
 
             if (ImGui::Button("Add new material..."))
@@ -317,18 +305,7 @@ void main()
             if (ImGui::BeginPopup("Add a new material", ImGuiWindowFlags_MenuBar))
             {
                 ImGui::InputText("Material name", material_name, IM_ARRAYSIZE(material_name));
-                gui_widgets::add_new_material(is_added_successfully, material_name, temp_added_material, material_vec);
-                ImGui::EndPopup();
-            }
-
-            if (is_added_successfully)
-            {
-                ImGui::OpenPopup("Material is added successfully");
-            }
-            if (ImGui::BeginPopup("Material is added successfully"))
-            {
-                ImGui::Text("The material is added successfully");
-                is_added_successfully = false;
+                gui_widgets::add_new_material(material_name, temp_added_material, material_vec);
                 ImGui::EndPopup();
             }
             
@@ -363,8 +340,13 @@ void main()
                 std::cout << "\n - STATUS - " << static_cast<std::underlying_type_t<gui_params_space::render_status>>(current_status.load()) << std::endl;
             }
 
+            if (ImGui::Button("Test importing properties"))
+            {
+                //TODO
+            }
+
             // Prepare integrator and scene
-            if (ImGui::Button("Set scene and preview"))
+            if (ImGui::Button("Set scene and preview", ImVec2(-0.001f, 28.0f)))
             {
                 if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
                 {
@@ -423,7 +405,6 @@ void main()
             //        status_text = "Offline Render ...";
             //        std::string save_name{ file_save_name };
             //        nlohmann::json offline_total_render_properties = generate_total_render_properties(shot_params, save_name, integrator_params, objects_vector);
-
             //        std::unique_ptr<Camera> camera;
             //        try
             //        {

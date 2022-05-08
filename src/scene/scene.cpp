@@ -354,4 +354,4 @@ void Scene::generateVertexNormals(std::vector<glm::dvec3> &normals,
     }
 }
 
-std::filesystem::path Scene::path = std::filesystem::current_path() / "scenes";
+std::filesystem::path Scene::path = std::filesystem::current_path() / "objects";
