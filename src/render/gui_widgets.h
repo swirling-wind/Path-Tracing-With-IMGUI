@@ -28,6 +28,7 @@ namespace gui_widgets
 
                     shot_params = total_properties.get<camera_space::camera_params>();
                     integrator_params = total_properties.get<integrator_space::bvh_and_photon_params>();
+
                 }
             }   
             ImGui::EndPopup();
@@ -54,7 +55,7 @@ namespace gui_widgets
         return true;
     }
 
-    inline void show_material_manager(std::vector<material_space::material_params>& material_vec)
+    inline void show_material_manager(material_space::material_map& material_map)
     {
         if (ImGui::Button("Materials Management"))
         {
@@ -62,65 +63,65 @@ namespace gui_widgets
         }
         if (ImGui::BeginPopup("Manage materials", ImGuiWindowFlags_MenuBar))
         {
-            if (material_vec.empty())
+            if (material_map.empty())
             {
                 ImGui::Text("No material ...");
             }
 
-            int delete_material_index = -1;
-            for (auto iter = material_vec.begin(); iter != material_vec.end(); ++iter)
+            material_space::material_map::iterator to_delete_material = material_map.end();
+            for (auto iter = material_map.begin(); iter != material_map.end(); ++iter)
             {
-                const auto index = std::to_string(iter - material_vec.begin());
-                ImGui::Text(("[" + index + "] " + iter->material_name).c_str());
-                if (ImGui::TreeNode(("Properties##" + index).c_str()))
+                const auto m_name = iter->first;
+                ImGui::Text(m_name.c_str());
+                if (ImGui::TreeNode(("Properties##" + m_name).c_str()))
                 {
-                    ImGui::SliderFloat(("Roughness##" + index).c_str(), &iter->roughness, 0.0f, 1.0f);
-                    ImGui::SliderFloat(("Specular Roughness##" + index).c_str(), &iter->specular_roughness, 0.0f, 1.0f);
-                    ImGui::SliderFloat(("Transparency##" + index).c_str(), &iter->transparency, 0.0f, 1.0f);
-                    ImGui::ColorEdit3(("Reflectance##" + index).c_str(), iter->reflectance.data());
-                    ImGui::ColorEdit3(("Specular Reflectance##" + index).c_str(), iter->specular_reflectance.data());
-                    ImGui::ColorEdit3(("Transmittance##" + index).c_str(), iter->transmittance.data());
+                    ImGui::SliderFloat(("Roughness##" + m_name).c_str(), &iter->second.roughness, 0.0f, 1.0f);
+                    ImGui::SliderFloat(("Specular Roughness##" + m_name).c_str(), &iter->second.specular_roughness, 0.0f, 1.0f);
+                    ImGui::SliderFloat(("Transparency##" + m_name).c_str(), &iter->second.transparency, 0.0f, 1.0f);
+                    ImGui::ColorEdit3(("Reflectance##" + m_name).c_str(), iter->second.reflectance.data());
+                    ImGui::ColorEdit3(("Specular Reflectance##" + m_name).c_str(), iter->second.specular_reflectance.data());
+                    ImGui::ColorEdit3(("Transmittance##" + m_name).c_str(), iter->second.transmittance.data());
 
-                    ImGui::Checkbox(("Is Perfect mirror##" + index).c_str(), &iter->is_perfect_mirror);
+                    ImGui::Checkbox(("Is Perfect mirror##" + m_name).c_str(), &iter->second.is_perfect_mirror);
                     ImGui::SameLine();
-                    ImGui::Checkbox(("Is Emitting##" + index).c_str(), &iter->emittance.is_emit);
+                    ImGui::Checkbox(("Is Emitting##" + m_name).c_str(), &iter->second.emittance.is_emit);
 
-                    if (iter->emittance.is_emit)
+                    if (iter->second.emittance.is_emit)
                     {
-                        ImGui::ColorEdit3(("Emittance Color##" + index).c_str(), iter->emittance.emittance_color.data());
-                        ImGui::SliderFloat(("Emittance Scale##" + index).c_str(), &iter->emittance.emittance_scale, 1.0f, 500.0f);
+                        ImGui::ColorEdit3(("Emittance Color##" + m_name).c_str(), iter->second.emittance.emittance_color.data());
+                        ImGui::SliderFloat(("Emittance Scale##" + m_name).c_str(), &iter->second.emittance.emittance_scale, 1.0f, 200.0f);
                     }
 
-                    if (ImGui::RadioButton(("Simple IOR##" + index).c_str(), iter->ior.is_simple_ior))
+                    if (ImGui::RadioButton(("Simple IOR##" + m_name).c_str(), iter->second.ior.is_simple_ior))
                     {
-                        iter->ior.is_simple_ior = true;
-                        iter->ior.is_complex_ior = false;
-                        iter->ior.is_refractive_index_file = false;
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::RadioButton(("Complex IOR##" + index).c_str(), iter->ior.is_complex_ior))
-                    {
-                        iter->ior.is_simple_ior = false;
-                        iter->ior.is_complex_ior = true;
-                        iter->ior.is_refractive_index_file = false;
+                        iter->second.ior.is_simple_ior = true;
+                        iter->second.ior.is_complex_ior = false;
+                        iter->second.ior.is_refractive_index_file = false;
                     }
                     ImGui::SameLine();
-                    if (ImGui::RadioButton(("Refractive File##" + index).c_str(), iter->ior.is_refractive_index_file))
+                    if (ImGui::RadioButton(("Complex IOR##" + m_name).c_str(), iter->second.ior.is_complex_ior))
                     {
-                        iter->ior.is_simple_ior = false;
-                        iter->ior.is_complex_ior = false;
-                        iter->ior.is_refractive_index_file = true;
+                        iter->second.ior.is_simple_ior = false;
+                        iter->second.ior.is_complex_ior = true;
+                        iter->second.ior.is_refractive_index_file = false;
                     }
-                    if (iter->ior.is_simple_ior)
+                    ImGui::SameLine();
+                    if (ImGui::RadioButton(("Refractive File##" + m_name).c_str(), iter->second.ior.is_refractive_index_file))
                     {
-                        ImGui::SliderFloat(("Simple IOR##" + index).c_str(), &iter->ior.simple_ior, 0.0f, 3.0f);
+                        iter->second.ior.is_simple_ior = false;
+                        iter->second.ior.is_complex_ior = false;
+                        iter->second.ior.is_refractive_index_file = true;
                     }
-                    if (iter->ior.is_complex_ior)
+                    if (iter->second.ior.is_simple_ior)
                     {
-                        ImGui::InputFloat3((" Real IOR ##" + index).c_str(), iter->ior.real_ior.data());
-                        ImGui::InputFloat3(("Imaginary IOR##" + index).c_str(), iter->ior.imaginary_ior.data());
+                        ImGui::InputFloat(("Simple IOR##" + m_name).c_str(), &iter->second.ior.simple_ior, 0.1f, 0.2f);
                     }
-                    if (iter->ior.is_refractive_index_file)
+                    if (iter->second.ior.is_complex_ior)
+                    {
+                        ImGui::InputFloat3((" Real IOR ##" + m_name).c_str(), iter->second.ior.real_ior.data());
+                        ImGui::InputFloat3(("Imaginary IOR##" + m_name).c_str(), iter->second.ior.imaginary_ior.data());
+                    }
+                    if (iter->second.ior.is_refractive_index_file)
                     {
                         //TODO
 
@@ -128,22 +129,22 @@ namespace gui_widgets
                     ImGui::TreePop();
                 }
 
-                if (ImGui::Button(("Remove##" + index).c_str()))
+                if (ImGui::Button(("Remove##" + m_name).c_str()))
                 {
-                    delete_material_index = iter - material_vec.begin();
+                    to_delete_material = iter;
                 }
                 ImGui::NewLine();
             }
 
-            if (delete_material_index >= 0)
+            if (to_delete_material != material_map.end())
             {
-                material_vec.erase(material_vec.begin() + delete_material_index);
+                material_map.erase(to_delete_material);
             }
             ImGui::EndPopup();
         }
     }
 
-    inline void add_new_material(const char material_name[], material_space::material_params& new_material, std::vector<material_space::material_params>& material_vec)
+    inline void add_new_material(const char material_name[], material_space::material_params& new_material, material_space::material_map& materials_map)
     {
         new_material.material_name = std::string{ material_name };
         ImGui::SliderFloat("Roughness", &new_material.roughness, 0.0f, 1.0f);
@@ -152,7 +153,7 @@ namespace gui_widgets
 
         if (ImGui::Button(" Add "))
         {
-            material_vec.emplace_back(new_material);
+            materials_map.emplace(new_material.material_name, new_material);
             new_material = material_space::material_params{};
             ImGui::CloseCurrentPopup();
         }

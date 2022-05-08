@@ -219,27 +219,24 @@ void main()
 
     // Render parameters =====================================================================
     const std::array<int, 2> preview_image_size = { 1280, 720 };
+    constexpr int NAME_MAX_LENGTH = 51;
 
     std::string status_text {"Awaiting order"};
-    nlohmann::json previous_integrator_and_scene_properties;
+    double render_progress = 0.0;
 
     camera_space::camera_params shot_params;
     integrator_space::bvh_and_photon_params integrator_params;
     std::vector<gui_params_space::object_imported> objects_vector;
 
-    constexpr int filename_max_length = 51;
-    char file_save_name[filename_max_length] = "new image";
-
     std::atomic current_status {gui_params_space::render_status::awaiting};
+    nlohmann::json previous_integrator_and_scene_properties;
     std::vector<glm::dvec3> preview_image;
     std::unique_ptr<Camera> camera_for_preview;
 
-    double render_progress = 0.0;
+    char file_save_name[NAME_MAX_LENGTH] = "new image";
+    char material_name[NAME_MAX_LENGTH] = "new material";
 
-    constexpr int material_name_max_length = 51;
-    char material_name[material_name_max_length] = "new material";
-
-    std::vector<material_space::material_params> material_vec;
+    material_space::material_map materials_map;
     material_space::material_params temp_added_material;
     //  =======================================================================================
 
@@ -279,7 +276,7 @@ void main()
             }
 
             // Manage Materials
-            gui_widgets::show_material_manager(material_vec);
+            gui_widgets::show_material_manager(materials_map);
             ImGui::SameLine();
             if (ImGui::Button("Add new material..."))
             {
@@ -288,7 +285,7 @@ void main()
             if (ImGui::BeginPopup("Add a new material", ImGuiWindowFlags_MenuBar))
             {
                 ImGui::InputText("Material name", material_name, IM_ARRAYSIZE(material_name));
-                gui_widgets::add_new_material(material_name, temp_added_material, material_vec);
+                gui_widgets::add_new_material(material_name, temp_added_material, materials_map);
                 ImGui::EndPopup();
             }
             

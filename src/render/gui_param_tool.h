@@ -33,15 +33,15 @@ namespace camera_space
     inline void from_json(const nlohmann::json& total_properties, camera_params& imported_camera_params)
     {
         const nlohmann::json& camera_properties = total_properties.at("cameras").at(0);
-        imported_camera_params.focal_length = camera_properties.at("focal_length").get<double>() / 1000.0;
-        imported_camera_params.sensor_width = camera_properties.at("sensor_width").get<double>() / 1000.0;
+        imported_camera_params.focal_length = camera_properties.at("focal_length");
+        imported_camera_params.sensor_width = camera_properties.at("sensor_width");
         imported_camera_params.camera_eye_pos = camera_properties.at("eye");
         imported_camera_params.camera_look_at = camera_properties.at("look_at");
         imported_camera_params.side_spp = camera_properties.at("sqrtspp");
 
         const nlohmann::json& image_properties = camera_properties.at("image");
-        imported_camera_params.output_image_size.at(0) = image_properties.at("width");
-        imported_camera_params.output_image_size.at(1) = image_properties.at("height");
+    /*    imported_camera_params.output_image_size.at(0) = image_properties.at("width");
+        imported_camera_params.output_image_size.at(1) = image_properties.at("height");*/
         imported_camera_params.exposure_compensation = getOptional(image_properties, "exposure_compensation", -1.0);
         imported_camera_params.gain_compensation = getOptional(image_properties, "gain_compensation", 0.0);
 
@@ -220,7 +220,7 @@ namespace material_space
         struct ior_param
         {
             bool is_simple_ior = true;
-            float simple_ior = 1.0;
+            float simple_ior = 1.0f;
 
             bool is_complex_ior = false;
             float3_array real_ior = { 0.0f,0.0f,0.0f };
@@ -239,9 +239,9 @@ namespace material_space
 
         std::string material_name;
         
-        float roughness = 0.0;
-        float specular_roughness = 0.0;
-        float transparency = 0.0;
+        float roughness = 0.0f;
+        float specular_roughness = 0.0f;
+        float transparency = 0.0f;
         float3_array reflectance = {1.0f,1.0f,1.0f};
         float3_array specular_reflectance = { 1.0f,1.0f,1.0f };
         float3_array transmittance = { 1.0f,1.0f,1.0f };
@@ -251,6 +251,8 @@ namespace material_space
 
         ior_param ior;
     };
+
+    using material_map = std::unordered_map<std::string, material_params>;
 
     inline void from_json(const nlohmann::json& material_properties, material_params& material_param)
     {//TODO: hasn't been tested
@@ -369,6 +371,18 @@ namespace material_space
         }
 
     }
+
+    inline void from_json(const nlohmann::json& total_properties, material_map& material_vec)
+    {
+
+        
+    }
+
+    inline void to_json(nlohmann::json& material_properties, const material_map& material_vec)
+    {
+        
+    }
+
 }
 
 namespace object_space
