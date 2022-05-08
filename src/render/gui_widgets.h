@@ -4,10 +4,9 @@
 
 namespace gui_widgets
 {
-    inline void choose_property_file(const std::vector<std::filesystem::path>& property_vec
-
-
-
+    inline void choose_property_file(const std::vector<std::filesystem::path>& property_vec,
+        camera_space::camera_params& shot_params,
+        integrator_space::bvh_and_photon_params& integrator_params
     )
     {
         if (ImGui::Button("Import property file"))
@@ -22,11 +21,15 @@ namespace gui_widgets
                 const auto index = iter - property_vec.begin();
                 if (ImGui::Button(iter->filename().string().data()))
                 {
+                    std::ifstream scene_file(gui_params_space::properties_path / iter->filename());
+                    nlohmann::json total_properties;
+                    scene_file >> total_properties;
+                    scene_file.close();
 
-
-
+                    shot_params = total_properties.get<camera_space::camera_params>();
+                    integrator_params = total_properties.get<integrator_space::bvh_and_photon_params>();
                 }
-            }
+            }   
             ImGui::EndPopup();
         }
     }

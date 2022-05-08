@@ -218,6 +218,7 @@ void main()
     
 
     // Render parameters =====================================================================
+    const std::array<int, 2> preview_image_size = { 1280, 720 };
 
     std::string status_text {"Awaiting order"};
     nlohmann::json previous_integrator_and_scene_properties;
@@ -312,7 +313,7 @@ void main()
             ImGui::SameLine();
 
             // Import property file
-            gui_widgets::choose_property_file(properties_found_in_path);
+            gui_widgets::choose_property_file(properties_found_in_path, shot_params, integrator_params);
 
             // Prepare integrator and scene
             if (ImGui::Button("Set scene and preview", ImVec2(-0.001f, 28.0f)))
@@ -375,7 +376,7 @@ void main()
                     texture_vec.emplace_back(i);
                 }
 
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, shot_params.preview_image_size.at(0), shot_params.preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, preview_image_size.at(0), preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
                 glUseProgram(shader_program);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, texture);

@@ -28,8 +28,6 @@ namespace camera_space
         float gain_compensation = 0.0;
         bool is_aces_tone_mapper = true;
         bool is_hable_tone_mapper = false;
-
-        const std::array<int, 2> preview_image_size = { 1280, 720 };
     };
 
     inline void from_json(const nlohmann::json& total_properties, camera_params& imported_camera_params)
@@ -402,6 +400,9 @@ namespace object_space
 
 namespace gui_params_space
 {
+    const std::filesystem::path model_path = std::filesystem::current_path() / "objects";
+    const std::filesystem::path ior_path = std::filesystem::current_path() / "ior";
+    const std::filesystem::path properties_path = std::filesystem::current_path() / "properties";
 
     enum class render_status : int {
         awaiting,
@@ -455,20 +456,17 @@ namespace gui_params_space
         std::vector<std::filesystem::path>& obj_found_in_path,
         std::vector<std::filesystem::path>& ior_found_in_path,
         std::vector<std::filesystem::path>& properties_found_in_path)
-    {
-        const std::filesystem::path model_path = std::filesystem::current_path() / "objects";
+    {        
         std::cout << "Display the .obj files in path: " << model_path.string() << std::endl;
         obj_found_in_path = gui_params_space::get_files_in_folder(model_path, ".obj");
         std::cout << obj_found_in_path.size() << std::endl;
 
         //  =======================================================================================
-        const std::filesystem::path ior_path = std::filesystem::current_path() / "ior";
         std::cout << "\nDisplay the ior files in path: " << ior_path.string() << std::endl;
         ior_found_in_path = gui_params_space::get_files_in_folder(ior_path, ".csv");
         std::cout << ior_found_in_path.size() << std::endl;
 
         //  =======================================================================================
-        const std::filesystem::path properties_path = std::filesystem::current_path() / "properties";
         std::cout << "\nDisplay the properties files in path: " << ior_path.string() << std::endl;
         properties_found_in_path = gui_params_space::get_files_in_folder(properties_path, ".json");
         std::cout << properties_found_in_path.size() << std::endl;
