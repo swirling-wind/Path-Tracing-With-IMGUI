@@ -4,6 +4,34 @@
 
 namespace gui_widgets
 {
+    inline void choose_property_file(const std::vector<std::filesystem::path>& property_vec
+
+
+
+    )
+    {
+        if (ImGui::Button("Import property file"))
+        {
+            ImGui::OpenPopup("Import property");
+        }
+        if (ImGui::BeginPopup("Import property", ImGuiWindowFlags_MenuBar))
+        {
+            ImGui::Text("Properties can be imported:");
+            for (auto iter = property_vec.begin(); iter != property_vec.end(); ++iter)
+            {
+                const auto index = iter - property_vec.begin();
+                if (ImGui::Button(iter->filename().string().data()))
+                {
+
+
+
+                }
+            }
+            ImGui::EndPopup();
+        }
+    }
+
+
     inline bool whether_able_to_render(
         const std::atomic<gui_params_space::render_status>& current_status,
         std::string& status_text,
@@ -131,8 +159,7 @@ namespace gui_widgets
             ImGui::CloseCurrentPopup();
         }
     }
-
-
+    
     inline void show_integrator_params(integrator_space::bvh_and_photon_params& integrator_params)
     {
         // BVH and Photon

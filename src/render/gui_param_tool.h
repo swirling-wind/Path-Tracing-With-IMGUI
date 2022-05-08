@@ -379,16 +379,21 @@ namespace object_space
     {
         bool is_smooth = true;
         std::filesystem::path model_file_location;
-        material_space::material_params material_type;
+        std::string material_type;
         std::array<float, 3> position{ 0.0,0.0,0.0 };
         std::array<float, 3> rotation{ 0.0,0.0,0.0 };
         std::array<float, 1> scale{ 1.0 };
     };
 
 
-    inline void from_json(const nlohmann::json& total_properties, object_with_material object)
+    inline void from_json(const nlohmann::json& total_properties, object_with_material& object)
     {
 
+    }
+
+    inline void to_json(nlohmann::json& object_properties, const object_with_material& object)
+    {
+        
     }
     
 }
@@ -396,7 +401,8 @@ namespace object_space
 
 
 namespace gui_params_space
-{    
+{
+
     enum class render_status : int {
         awaiting,
 
@@ -445,7 +451,10 @@ namespace gui_params_space
         return file_path_vector;
     }
 
-    inline void load_external_files(std::vector<std::filesystem::path>& obj_found_in_path, std::vector<std::filesystem::path>& ior_found_in_path, std::vector<std::filesystem::path>& properties_found_in_path)
+    inline void load_external_files(
+        std::vector<std::filesystem::path>& obj_found_in_path,
+        std::vector<std::filesystem::path>& ior_found_in_path,
+        std::vector<std::filesystem::path>& properties_found_in_path)
     {
         const std::filesystem::path model_path = std::filesystem::current_path() / "objects";
         std::cout << "Display the .obj files in path: " << model_path.string() << std::endl;

@@ -240,8 +240,8 @@ void main()
 
     std::vector<material_space::material_params> material_vec;
     material_space::material_params temp_added_material;
-
     //  =======================================================================================
+
     std::vector<std::filesystem::path> obj_found_in_path;
     std::vector<std::filesystem::path> ior_found_in_path;
     std::vector<std::filesystem::path> properties_found_in_path;
@@ -260,11 +260,9 @@ void main()
         // 1. Show the big demo
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
-
-        // 2. Show render control window
+        
         {
             ImGui::Begin("Control panel");
-
             if (current_status == gui_params_space::render_status::busy_rendering)
             {
                 ImGui::ProgressBar(render_progress, ImVec2(-0.001f, 28.0f));
@@ -279,12 +277,9 @@ void main()
                 ImGui::PopStyleColor(2);
             }
 
-            /////////////////////////////////
-
+            // Manage Materials
             gui_widgets::show_material_manager(material_vec);
-            
             ImGui::SameLine();
-
             if (ImGui::Button("Add new material..."))
             {
                 ImGui::OpenPopup("Add a new material");
@@ -296,21 +291,15 @@ void main()
                 ImGui::EndPopup();
             }
             
-            /////////////////////////////////
-
-            // Render params
+            // Camera params
             gui_widgets::show_integrator_params(integrator_params);
             gui_widgets::show_camera_params(shot_params);
-
             // Display all imported objects
             gui_widgets::show_imported_objects(objects_vector);
-
             // Press button to add a new object 
             gui_widgets::show_available_objects(obj_found_in_path, objects_vector);
             
             ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
-            
-
             // Output gui_params as json
             if (ImGui::Button("\nOutput json"))
             {
@@ -322,15 +311,8 @@ void main()
 
             ImGui::SameLine();
 
-            if (ImGui::Button("Test status"))
-            {
-                std::cout << "\n - STATUS - " << static_cast<std::underlying_type_t<gui_params_space::render_status>>(current_status.load()) << std::endl;
-            }
-
-            if (ImGui::Button("Test importing properties"))
-            {
-                //TODO
-            }
+            // Import property file
+            gui_widgets::choose_property_file(properties_found_in_path);
 
             // Prepare integrator and scene
             if (ImGui::Button("Set scene and preview", ImVec2(-0.001f, 28.0f)))
@@ -383,28 +365,6 @@ void main()
                 std::cout << "Start render preview scene, ready to display\n";
                 status_text = "Start render preview scene, ready to display";
             }
-
-            //To be deleted. Turn to use preview to save offline render result
-            //if (ImGui::Button("\nStart offline Render"))
-            //{
-            //    if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
-            //    {
-            //        status_text = "Offline Render ...";
-            //        std::string save_name{ file_save_name };
-            //        nlohmann::json offline_total_render_properties = generate_total_render_properties(shot_params, save_name, integrator_params, objects_vector);
-            //        std::unique_ptr<Camera> camera;
-            //        try
-            //        {
-            //            camera = std::make_unique<Camera>(offline_total_render_properties, integrator_params.is_photon_map);
-            //        }
-            //        catch (const std::exception& ex)
-            //        {
-            //            std::cout << ex.what() << std::endl;
-            //            return -1;
-            //        }
-            //        camera->capture();
-            //    }
-            //}
 
             if (current_status == gui_params_space::render_status::finished_preview)
             {
