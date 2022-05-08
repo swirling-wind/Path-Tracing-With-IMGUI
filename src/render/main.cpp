@@ -245,7 +245,7 @@ void main()
     //  =======================================================================================
     const std::filesystem::path model_path = std::filesystem::current_path() / "scenes";
     std::cout << "Display the obj files in path: " << model_path.string() << std::endl;
-    const std::vector<std::filesystem::path> obj_found_in_path = gui_params_space::get_models_in_folder(model_path);
+    const std::vector<std::filesystem::path> obj_found_in_path = gui_params_space::get_files_in_folder(model_path, ".obj");
     std::cout << obj_found_in_path.size() << std::endl;
 
     // Main loop    ============================================================================

@@ -205,6 +205,17 @@ namespace material_space
             }
         }
     };
+    inline float get_scale_from_total_emittance(const glm::dvec3 total_emittance)
+    {
+        double scale = 1.0;
+        glm::dvec3 temp_emittance{ total_emittance };
+        while (temp_emittance.r / scale > 254.9f || temp_emittance.g / scale > 254.9f || temp_emittance.b / scale > 254.9f)
+        {
+            scale *= 5;
+        }
+        std::cerr << "Scale: " << scale << std::endl;
+        return static_cast<float>(scale);
+    }
 
     struct material_params
     {
@@ -214,11 +225,18 @@ namespace material_space
             float simple_ior = 1.0;
 
             bool is_complex_ior = false;
-            float3_array real_ior = {0.0f,0.0f,0.0f};
-            float3_array imaginary_ior = {0.0f,0.0f,0.0f};
+            float3_array real_ior = { 0.0f,0.0f,0.0f };
+            float3_array imaginary_ior = { 0.0f,0.0f,0.0f };
 
             bool is_refractive_index_file = false;
             std::filesystem::path complex_refractive_index_file_path;
+        };
+
+        struct emit_param
+        {
+            bool is_emit = false;
+            float3_array emittance_color = { 1.0f,1.0f,1.0f };
+            float emittance_scale = { 10.0f };
         };
 
         std::string material_name;
@@ -226,12 +244,13 @@ namespace material_space
         float roughness = 0.0;
         float specular_roughness = 0.0;
         float transparency = 0.0;
-        bool is_perfect_mirror = false;
         float3_array reflectance = {1.0f,1.0f,1.0f};
         float3_array specular_reflectance = { 1.0f,1.0f,1.0f };
         float3_array transmittance = { 1.0f,1.0f,1.0f };
 
-        float3_array emittance = { 0.0f,0.0f,0.0f };
+        bool is_perfect_mirror = false;
+        emit_param emittance;
+
         ior_param ior;
     };
 
@@ -247,28 +266,45 @@ namespace material_space
         material_param.reflectance = sRGB::gammaExpand(material_param.reflectance);
 
         if (material_properties.find("emittance") != material_properties.end())
-        {
+        {//TODO: Temp for Transition
+            material_param.emittance.is_emit = true;
+            glm::dvec3 temp_total_emittance{ 1.0 };
+
             const auto emittance_property = material_properties.at("emittance");
             if (emittance_property.type() == nlohmann::json::value_t::object)
             {
                 const double scale = getOptional(emittance_property, "scale", 1.0);
                 const double temperature = getOptional<double>(emittance_property, "temperature", -1.0);
-
                 if (temperature > 0.0)
                 {
-                    material_param.emittance = sRGB::RGB_float(CIE::Illuminant::blackbody(temperature) * scale);
+                    temp_total_emittance = sRGB::RGB(CIE::Illuminant::blackbody(temperature) * scale);
                 }
                 else
                 {
                     std::string illuminant = getOptional<std::string>(emittance_property, "illuminant", "D65");
                     std::transform(illuminant.begin(), illuminant.end(), illuminant.begin(), toupper);
-                    material_param.emittance = sRGB::RGB_float(CIE::Illuminant::whitePoint(illuminant.c_str()) * scale);
+                    temp_total_emittance = sRGB::RGB(CIE::Illuminant::whitePoint(illuminant.c_str()) * scale);
                 }
             }
             else
             {
-                material_param.emittance = emittance_property.get<float3_array>();
+                temp_total_emittance = emittance_property.get<glm::dvec3>();
             }
+            std::cerr << "\nEmittance: " << temp_total_emittance << std::endl;
+
+            material_param.emittance.emittance_scale = get_scale_from_total_emittance(temp_total_emittance);
+            material_param.emittance.emittance_color = float3_array{
+                static_cast<float>(temp_total_emittance.r) / material_param.emittance.emittance_scale,
+                static_cast<float>(temp_total_emittance.g) / material_param.emittance.emittance_scale,
+                static_cast<float>(temp_total_emittance.b) / material_param.emittance.emittance_scale
+            };
+        }
+        else if (material_properties.find("light_emittance") != material_properties.end())
+        {
+            material_param.emittance.is_emit = true;
+            const auto emittance_property = material_properties.at("light_emittance");
+            material_param.emittance.emittance_scale = getOptional(emittance_property, "emittance_scale", 10.0f);
+            material_param.emittance.emittance_color = getOptional(emittance_property, "emittance_color", float3_array{ 200,200,200 });
         }
 
         if (material_properties.find("ior") != material_properties.end())
@@ -309,7 +345,14 @@ namespace material_space
         material_properties["reflectance"] = { material_param.reflectance.at(0), material_param.reflectance.at(1), material_param.reflectance.at(2) };
         material_properties["specular_reflectance"] = { material_param.specular_reflectance.at(0), material_param.specular_reflectance.at(1), material_param.specular_reflectance.at(2) };
         material_properties["transmittance"] = { material_param.transmittance.at(0), material_param.transmittance.at(1), material_param.transmittance.at(2) };
-        material_properties["emittance"] = { material_param.emittance.at(0), material_param.emittance.at(1), material_param.emittance.at(2) };
+
+        if (material_param.emittance.is_emit)
+        {
+            nlohmann::json light_emittance;
+            light_emittance["emittance_scale"] = material_param.emittance.emittance_scale;
+            light_emittance["emittance_color"] = material_param.emittance.emittance_color;
+            material_properties["light_emittance"] = light_emittance;
+        }
         
         if (material_param.ior.is_simple_ior)
         {
@@ -388,19 +431,19 @@ namespace gui_params_space
         std::array<float, 1> scale{ 1.0 };
     };
 
-    inline std::vector<std::filesystem::path> get_models_in_folder(const std::filesystem::path& folder_path)
+    inline std::vector<std::filesystem::path> get_files_in_folder(const std::filesystem::path& folder_path, std::string postfix)
     {
-        std::vector<std::filesystem::path> obj_path_vector;
+        std::vector<std::filesystem::path> file_path_vector;
         for (const std::filesystem::directory_entry& file : std::filesystem::directory_iterator(folder_path))
         {
-            if (!file.path().has_extension() || file.path().extension() != ".obj")
+            if (!file.path().has_extension() || file.path().extension() != postfix)
                 continue;
-            obj_path_vector.push_back(file.path());
+            file_path_vector.push_back(file.path());
             std::string obj_file_name = file.path().filename().string();
             std::cout << obj_file_name << std::endl;
 
         }
-        return obj_path_vector;
+        return file_path_vector;
     }
       
     inline nlohmann::json generate_material_and_object_properties(const std::vector<object_imported>& objects_vector)

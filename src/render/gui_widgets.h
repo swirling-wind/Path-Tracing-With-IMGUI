@@ -38,6 +38,57 @@ namespace gui_widgets
             ImGui::Text(("[" + index + "] " + iter->material_name).c_str());
             ImGui::SliderFloat(("Roughness##" + index).c_str(), &iter->roughness, 0.0f, 1.0f);
             ImGui::SliderFloat(("Specular Roughness##" + index).c_str(), &iter->specular_roughness, 0.0f, 1.0f);
+            ImGui::SliderFloat(("Transparency##" + index).c_str(), &iter->transparency, 0.0f, 1.0f);
+            ImGui::ColorEdit3(("Reflectance##" + index).c_str(), iter->reflectance.data());
+            ImGui::ColorEdit3(("Specular Reflectance##" + index).c_str(), iter->specular_reflectance.data());
+            ImGui::ColorEdit3(("Transmittance##" + index).c_str(), iter->transmittance.data());
+
+            ImGui::Checkbox(("Is Perfect mirror##" + index).c_str(), &iter->is_perfect_mirror);
+            ImGui::SameLine();
+            ImGui::Checkbox("Is Emitting", &iter->emittance.is_emit);
+         
+            if (iter->emittance.is_emit)
+            {
+                ImGui::ColorEdit3(("Emittance Color##" + index).c_str(), iter->emittance.emittance_color.data());
+                ImGui::SliderFloat(("Emittance Scale##" + index).c_str(), &iter->emittance.emittance_scale, 1.0f, 500.0f);
+            }
+            
+            if (ImGui::RadioButton("Simple IOR", iter->ior.is_simple_ior))
+            {
+                iter->ior.is_simple_ior = true;
+                iter->ior.is_complex_ior = false;
+                iter->ior.is_refractive_index_file = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Complex IOR", iter->ior.is_complex_ior))
+            {
+                iter->ior.is_simple_ior = false;
+                iter->ior.is_complex_ior = true;
+                iter->ior.is_refractive_index_file = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Refractive File", iter->ior.is_refractive_index_file))
+            {
+                iter->ior.is_simple_ior = false;
+                iter->ior.is_complex_ior = false;
+                iter->ior.is_refractive_index_file = true;
+            }
+            if (iter->ior.is_simple_ior)
+            {
+                ImGui::SliderFloat(("Simple IOR##" + index).c_str(), &iter->ior.simple_ior, 0.0f, 3.0f);
+            }
+            if (iter->ior.is_complex_ior)
+            {
+                ImGui::InputFloat3((" Real IOR ##" + index).c_str(), iter->ior.real_ior.data());
+                ImGui::InputFloat3(("Imaginary IOR##" + index).c_str(), iter->ior.imaginary_ior.data());
+            }
+            if (iter->ior.is_refractive_index_file)
+            {
+                
+            }
+
+
+
             //TODO
 
 
@@ -45,6 +96,8 @@ namespace gui_widgets
             {
                 delete_material_index = iter - material_vec.begin();
             }
+
+            ImGui::NewLine();
         }
 
         if (delete_material_index >= 0)
@@ -167,14 +220,17 @@ namespace gui_widgets
         {
             const auto index = std::to_string(iter - objects_vector.begin());
 
-            ImGui::Text(("\n" + iter->file_location.string() + " " + index).c_str());
+            ImGui::Text(("[" + index + "] " + iter->file_location.string()).c_str());            
             ImGui::InputFloat3(("position##" + index).c_str(), iter->position.data());
             ImGui::InputFloat3(("rotation##" + index).c_str(), iter->rotation.data());
-            ImGui::SameLine();
+            ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.3f);
             ImGui::InputFloat(("scale##" + index).c_str(), iter->scale.data(), 0.1f);
-
-            if (ImGui::Button(("Select " + index + "'s material ..").c_str()))
+            ImGui::PopItemWidth();
+            ImGui::SameLine();
+            if (ImGui::Button(("Select [" + index + "]'s material").c_str()))
+            {
                 ImGui::OpenPopup(("select_popup" + index).c_str());
+            }
             ImGui::SameLine();
             ImGui::TextUnformatted(gui_params_space::material_list.at(iter->material_type));
             if (ImGui::BeginPopup(("select_popup" + index).c_str()))
@@ -186,12 +242,11 @@ namespace gui_widgets
                         iter->material_type = i;
                 ImGui::EndPopup();
             }
-
-            ImGui::SameLine();
             if (ImGui::Button(("Remove##" + index).c_str()))
             {
                 delete_object_index = iter - objects_vector.begin();
             }
+            ImGui::NewLine();
         }
 
         if (delete_object_index >= 0)
