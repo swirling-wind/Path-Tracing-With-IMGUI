@@ -305,7 +305,7 @@ void main()
             gui_widgets::show_integrator_params(integrator_params);
             gui_widgets::show_camera_params(shot_params);
             // Display all imported objects
-            gui_widgets::show_imported_objects(objects_vector);
+            gui_widgets::show_imported_objects(objects_vector_with_material);
             // Press button to add a new object 
             gui_widgets::show_available_objects(obj_found_in_path, objects_vector);
             

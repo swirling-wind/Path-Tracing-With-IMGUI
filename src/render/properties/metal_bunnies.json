@@ -83,51 +83,51 @@
       "type": "object",
       "material": "brass",
       "smooth":  true,
-      "file": "data/bunny.obj"
+      "file": "bunny.obj"
     },
     {
       "type": "object",
       "smooth":  true,
       "material": "gold",
       "position": [1.75, 0, 0],
-      "file": "data/bunny.obj"
+      "file": "bunny.obj"
     },
     {
       "type": "object",
       "smooth":  true,
       "material": "palladium",
       "position": [-1.75, 0, 0],
-      "file": "data/bunny.obj"
+      "file": "bunny.obj"
     },
     {
       "type": "object",
       "smooth":  true,
       "material": "nickel",
       "position": [0, 1.77, 0],
-      "file": "data/bunny.obj"
+      "file": "bunny.obj"
     },
     {
       "type": "object",
       "smooth":  true,
       "material": "iron",
       "position": [1.75, 1.77, 0],
-      "file": "data/bunny.obj"
+      "file": "bunny.obj"
     },
     {
       "type": "object",
       "smooth":  true,
       "material": "copper",
       "position": [-1.75, 1.77, 0],
-      "file": "data/bunny.obj"
+      "file": "bunny.obj"
     },
     {
       "type": "object",
-      "file": "data/backwall.obj"
+      "file": "backwall.obj"
     },
     {
       "type": "object",
       "material": "shelf",
-      "file": "data/shelf.obj"
+      "file": "shelf.obj"
     },
     {
       "type": "sphere",

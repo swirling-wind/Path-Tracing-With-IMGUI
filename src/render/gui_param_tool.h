@@ -376,8 +376,8 @@ namespace object_space
         bool is_smooth = true;
         std::string obj_file_name;
         std::string material_type;
-        std::array<float, 3> position{ 0.0,0.0,0.0 };
-        std::array<float, 3> rotation{ 0.0,0.0,0.0 };
+        float3_array position{ 0.0,0.0,0.0 };
+        float3_array rotation{ 0.0,0.0,0.0 };
         std::array<float, 1> scale{ 1.0 };
     };
 
@@ -395,40 +395,36 @@ namespace object_space
             }
 
             object_with_material added_object;
-            added_object.material_type = getOptional(each_object, "material", "default");
+            added_object.material_type = getOptional(each_object, "material", std::string{ "default" });
             added_object.position = getOptional(each_object, "position", float3_array{0.0f,0.0f,0.0f});
             added_object.rotation = getOptional(each_object, "rotation", float3_array{0.0f,0.0f,0.0f});
             added_object.scale = getOptional(each_object, "scale", std::array<float, 1>{ 1.0f });
             added_object.is_smooth = getOptional(each_object, "smooth", true);
-            if (each_object.find("file") != each_object.end())
-            {
-                std::filesystem::path obj_path = each_object.at("file");
-                added_object.obj_file_name = obj_path.filename().string();
-            }
+            added_object.obj_file_name = getOptional(each_object, "file", std::string{});
             objects_vector.emplace_back(added_object);
         }
     }
 
-    inline void to_json(nlohmann::json& object_properties, const object_list& objects_vector)
-    {
-        nlohmann::json surfaces_params(nlohmann::json::value_t::array);
+    //inline void to_json(nlohmann::json& object_properties, const object_list& objects_vector)
+    //{
+    //    nlohmann::json surfaces_params(nlohmann::json::value_t::array);
 
-        for (const auto& object : objects_vector)
-        {
-            nlohmann::json obj_json;
+    //    for (const auto& object : objects_vector)
+    //    {
+    //        nlohmann::json obj_json;
 
-            obj_json["type"] = "object";
-            obj_json["material"] = object.material_type;
-            obj_json["smooth"] = object.is_smooth;
-            obj_json["position"] = object.position;
-            obj_json["file"] = object.obj_file_name;
-            obj_json["rotation"] = object.rotation;
-            obj_json["scale"] = object.scale.at(0);
+    //        obj_json["type"] = "object";
+    //        obj_json["material"] = object.material_type;
+    //        obj_json["smooth"] = object.is_smooth;
+    //        obj_json["position"] = object.position;
+    //        obj_json["file"] = object.obj_file_name;
+    //        obj_json["rotation"] = object.rotation;
+    //        obj_json["scale"] = object.scale.at(0);
 
-            surfaces_params.insert(surfaces_params.end(), obj_json);
-        }
-        object_properties["surfaces"] = surfaces_params;
-    }
+    //        surfaces_params.insert(surfaces_params.end(), obj_json);
+    //    }
+    //    object_properties["surfaces"] = surfaces_params;
+    //}
 }
     
 

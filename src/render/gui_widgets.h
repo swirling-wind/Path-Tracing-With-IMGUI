@@ -237,15 +237,20 @@ namespace gui_widgets
         
     }
 
-    inline void show_imported_objects(std::vector<gui_params_space::object_imported>& objects_vector)
+    inline void show_imported_objects(object_space::object_list& objects_vector)
     {
+        if (objects_vector.empty())
+        {
+            ImGui::Text("No objects now");
+        }
+
         ImGui::Text("\nObjects");
         int delete_object_index = -1;
         for (auto iter = objects_vector.begin(); iter != objects_vector.end(); ++iter)
         {
             const auto index = std::to_string(iter - objects_vector.begin());
 
-            ImGui::Text(("[" + index + "] " + iter->file_location.string()).c_str());            
+            ImGui::Text(("[" + index + "] " + iter->obj_file_name).c_str());            
             ImGui::InputFloat3(("position##" + index).c_str(), iter->position.data());
             ImGui::InputFloat3(("rotation##" + index).c_str(), iter->rotation.data());
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.3f);
@@ -257,16 +262,19 @@ namespace gui_widgets
                 ImGui::OpenPopup(("select_popup" + index).c_str());
             }
             ImGui::SameLine();
-            ImGui::TextUnformatted(gui_params_space::material_list.at(iter->material_type));
-            if (ImGui::BeginPopup(("select_popup" + index).c_str()))
-            {
-                ImGui::Text("Material");
-                ImGui::Separator();
-                for (int i = 0; i < gui_params_space::num_of_material_list; i++)
-                    if (ImGui::Selectable(gui_params_space::material_list.at(i)))
-                        iter->material_type = i;
-                ImGui::EndPopup();
-            }
+
+            //ImGui::TextUnformatted(gui_params_space::material_list.at(iter->material_type));
+            //if (ImGui::BeginPopup(("select_popup" + index).c_str()))
+            //{
+            //    ImGui::Text("Material");
+            //    ImGui::Separator();
+            //    for (int i = 0; i < gui_params_space::num_of_material_list; i++)
+            //        if (ImGui::Selectable(gui_params_space::material_list.at(i)))
+            //            iter->material_type = i;
+            //    ImGui::EndPopup();
+            //}
+
+
             if (ImGui::Button(("Remove##" + index).c_str()))
             {
                 delete_object_index = iter - objects_vector.begin();
