@@ -441,9 +441,28 @@ namespace gui_params_space
             file_path_vector.push_back(file.path());
             std::string obj_file_name = file.path().filename().string();
             std::cout << obj_file_name << std::endl;
-
         }
         return file_path_vector;
+    }
+
+    inline void load_external_files(std::vector<std::filesystem::path>& obj_found_in_path, std::vector<std::filesystem::path>& ior_found_in_path, std::vector<std::filesystem::path>& properties_found_in_path)
+    {
+        const std::filesystem::path model_path = std::filesystem::current_path() / "objects";
+        std::cout << "Display the .obj files in path: " << model_path.string() << std::endl;
+        obj_found_in_path = gui_params_space::get_files_in_folder(model_path, ".obj");
+        std::cout << obj_found_in_path.size() << std::endl;
+
+        //  =======================================================================================
+        const std::filesystem::path ior_path = std::filesystem::current_path() / "ior";
+        std::cout << "\nDisplay the ior files in path: " << ior_path.string() << std::endl;
+        ior_found_in_path = gui_params_space::get_files_in_folder(ior_path, ".csv");
+        std::cout << ior_found_in_path.size() << std::endl;
+
+        //  =======================================================================================
+        const std::filesystem::path properties_path = std::filesystem::current_path() / "properties";
+        std::cout << "\nDisplay the properties files in path: " << ior_path.string() << std::endl;
+        properties_found_in_path = gui_params_space::get_files_in_folder(properties_path, ".json");
+        std::cout << properties_found_in_path.size() << std::endl;
     }
       
     inline nlohmann::json generate_material_and_object_properties(const std::vector<object_imported>& objects_vector)
