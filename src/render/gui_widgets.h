@@ -144,7 +144,6 @@ namespace gui_widgets
         ImGui::SliderFloat("Roughness", &new_material.roughness, 0.0f, 1.0f);
         ImGui::ColorEdit3("Reflectance", new_material.reflectance.data());
 
-
         if (ImGui::Button(" Add "))
         {
             materials_map.emplace(new_material_name, new_material);
@@ -282,8 +281,6 @@ namespace gui_widgets
                 }
                 ImGui::EndPopup();
             }
-            
-
 
             if (ImGui::Button(("Remove##" + index).c_str()))
             {
@@ -298,17 +295,25 @@ namespace gui_widgets
         }
     }
 
-    inline void show_available_objects(const std::vector<std::filesystem::path>& obj_found_in_path, std::vector<gui_params_space::object_imported>& objects_vector)
+    inline void show_available_objects(const std::vector<std::filesystem::path>& obj_name_found_in_path, object_space::object_list& obj_vec)
     {
-        for (auto iter = obj_found_in_path.begin(); iter != obj_found_in_path.end(); ++iter)
+        if (ImGui::Button("Add new object.."))
         {
-            const auto index = iter - obj_found_in_path.begin();
-            if (ImGui::Button(iter->filename().string().data()))
+            ImGui::OpenPopup("add_object");
+        }
+        if (ImGui::BeginPopup("add_object"))
+        {
+            for (const auto& obj : obj_name_found_in_path)
             {
-                gui_params_space::object_imported temp_object;
-                temp_object.file_location = iter->filename();
-                objects_vector.push_back(temp_object);
+                const std::string obj_file_name = obj.filename().string();
+                if (ImGui::Button(obj_file_name.c_str()))
+                {
+                    object_space::object_with_material to_add_object;
+                    to_add_object.obj_file_name = obj_file_name;
+                    obj_vec.emplace_back(to_add_object);
+                }
             }
+            ImGui::EndPopup();
         }
     }
 
