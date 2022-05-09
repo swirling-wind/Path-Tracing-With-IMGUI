@@ -306,27 +306,8 @@ void main()
             // Camera params
             gui_widgets::show_integrator_params(integrator_params);
             gui_widgets::show_camera_params(shot_params);
-            // Display all imported objects
-            gui_widgets::show_imported_objects(objects_vector);
-            // Press button to add a new object TODO
-            //gui_widgets::show_available_objects(obj_found_in_path, objects_vector);
-            
-            ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
-            // Output gui_params as json
-            if (ImGui::Button("\nOutput json"))
-            {
-                std::string save_name{ file_save_name };
-                nlohmann::json test_json = gui_params_space::generate_all_properties(shot_params, integrator_params, materials_map, objects_vector);
-                std::ofstream out(save_name + ".json");
-                out << test_json;
-            }
 
-            ImGui::SameLine();
-
-            // Import property file
-            gui_widgets::choose_property_file(properties_found_in_path, shot_params, integrator_params, materials_map, objects_vector);
-
-             //Prepare integrator and scene
+            //Prepare integrator and scene
             if (ImGui::Button("Set scene and preview", ImVec2(-0.001f, 28.0f)))
             {
                 if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
@@ -362,6 +343,29 @@ void main()
                 }
             }
 
+
+            // Display all imported objects
+            gui_widgets::show_imported_objects(objects_vector, materials_map);
+
+            // Press button to add a new object TODO
+            //gui_widgets::show_available_objects(obj_found_in_path, objects_vector);
+            
+            ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
+            // Output gui_params as json
+            if (ImGui::Button("\nOutput json"))
+            {
+                std::string save_name{ file_save_name };
+                nlohmann::json test_json = gui_params_space::generate_all_properties(shot_params, integrator_params, materials_map, objects_vector);
+                std::ofstream out(save_name + ".json");
+                out << test_json;
+            }
+
+            ImGui::SameLine();
+
+            // Import property file
+            gui_widgets::choose_property_file(properties_found_in_path, shot_params, integrator_params, materials_map, objects_vector);
+
+            
             // After preparation, Finish render
             if (current_status == gui_params_space::render_status::scene_prepared_ready_to_preview)
             {

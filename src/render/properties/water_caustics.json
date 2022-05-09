@@ -4,11 +4,11 @@
 
   "cameras": [
     {
-      "focal_length": 102.25,
+      "focal_length": 60.0,
       "sensor_width": 35,
       "eye": [ 0, 1, -6.83879 ],
       "look_at": [ 0, 1, 0 ],
-      "image":  { "width": 1000, "height": 1000, "exposure_compensation": -1.0, "gain_compensation": -0.5, "tonemapper": "Hable" },
+      "image":  { "width": 1280, "height": 720, "exposure_compensation": -1.0, "gain_compensation": -0.5, "tonemapper": "Hable" },
       "sqrtspp": 4,
       "savename": "water_caustics"
     }
@@ -28,7 +28,7 @@
 
   "materials": {
     "default": {
-      "reflectance": 0.8
+      "reflectance": [0.8,0.8,0.8]
     },
     "leftwall": {
       "reflectance": "#a2bf82"
@@ -41,7 +41,7 @@
       "ior": 1.8
     },
     "light": {
-      "reflectance": 1,
+      "reflectance": [1.0,1.0,1.0],
       "emittance": { "illuminant": "F9", "scale": 25 }
     }
   },
@@ -51,52 +51,52 @@
       "type": "object",
       "material": "water",
       "smooth": true,
-      "file": "data/water_caustics/water.obj"
+      "file": "water.obj"
     },
     {
       "type": "object",
       "material": "water",
-      "file": "data/water_caustics/water-front.obj"
+      "file": "water-front.obj"
     },
     {
       "type": "object",
       "material": "leftwall",
-      "file": "data/water_caustics/leftwall.obj"
+      "file": "leftwall.obj"
     },
     {
       "type": "object",
       "material": "rightwall",
-      "file": "data/water_caustics/rightwall.obj"
+      "file": "rightwall.obj"
     },
     {
       "type": "object",
-      "file": "data/water_caustics/backwall.obj"
+      "file": "backwall.obj"
     },
     {
       "type": "object",
-      "file": "data/water_caustics/ceiling.obj"
+      "file": "ceiling.obj"
     },
     {
       "type": "object",
-      "file": "data/water_caustics/floor.obj"
+      "file": "floor.obj"
     },
     {
       "type": "object",
       "material": "light",
-      "file": "data/water_caustics/light.obj"
+      "file": "light.obj"
     },
     {
       "type": "object",
-      "file": "data/bunny.obj",
+      "file": "bunny.obj",
       "smooth": true,
       "material": "rightwall",
-      "scale": [-0.4, 0.4, 0.4],
+      "scale": 0.4,
       "rotation": [0.0, 180.0, 0.0],
       "position": [0.6,0.0,0.4]
     },
     {
       "type": "object",
-      "file": "data/bunny.obj",
+      "file": "bunny.obj",
       "smooth": true,
       "material": "leftwall",
       "position": [-0.55,0.0,-0.1],

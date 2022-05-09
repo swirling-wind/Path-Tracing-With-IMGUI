@@ -122,10 +122,6 @@
     },
     {
       "type": "object",
-      "file": "backwall.obj"
-    },
-    {
-      "type": "object",
       "material": "shelf",
       "file": "shelf.obj"
     },

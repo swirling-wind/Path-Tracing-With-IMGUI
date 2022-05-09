@@ -91,15 +91,23 @@ namespace gui_widgets
                         ImGui::ColorEdit3(("Emittance Color##" + m_name).c_str(), iter->second.emittance.emittance_color.data());
                         ImGui::SliderFloat(("Emittance Scale##" + m_name).c_str(), &iter->second.emittance.emittance_scale, 100.0f, 900.0f);
                     }
-
+                    if (ImGui::RadioButton(("No refract##" + m_name).c_str(), iter->second.ior.no_need_ior))
+                    {
+                        iter->second.ior.no_need_ior = true;
+                        iter->second.ior.is_simple_ior = false;
+                        iter->second.ior.is_complex_ior = false;
+                    }
+                    ImGui::SameLine();
                     if (ImGui::RadioButton(("Simple IOR##" + m_name).c_str(), iter->second.ior.is_simple_ior))
                     {
+                        iter->second.ior.no_need_ior = false;
                         iter->second.ior.is_simple_ior = true;
                         iter->second.ior.is_complex_ior = false;
                     }
                     ImGui::SameLine();
                     if (ImGui::RadioButton(("Complex IOR##" + m_name).c_str(), iter->second.ior.is_complex_ior))
                     {
+                        iter->second.ior.no_need_ior = false;
                         iter->second.ior.is_simple_ior = false;
                         iter->second.ior.is_complex_ior = true;
                     }
@@ -132,14 +140,14 @@ namespace gui_widgets
 
     inline void add_new_material(const char material_name[], material_space::material_params& new_material, material_space::material_map& materials_map)
     {
-        new_material.material_name = std::string{ material_name };
+        std::string new_material_name = std::string{ material_name };
         ImGui::SliderFloat("Roughness", &new_material.roughness, 0.0f, 1.0f);
         ImGui::ColorEdit3("Reflectance", new_material.reflectance.data());
 
 
         if (ImGui::Button(" Add "))
         {
-            materials_map.emplace(new_material.material_name, new_material);
+            materials_map.emplace(new_material_name, new_material);
             new_material = material_space::material_params{};
             ImGui::CloseCurrentPopup();
         }
@@ -235,7 +243,7 @@ namespace gui_widgets
         
     }
 
-    inline void show_imported_objects(object_space::object_list& objects_vector)
+    inline void show_imported_objects(object_space::object_list& objects_vector, const material_space::material_map& materials_map)
     {
         if (objects_vector.empty())
         {
@@ -255,22 +263,26 @@ namespace gui_widgets
             ImGui::InputFloat(("scale##" + index).c_str(), iter->scale.data(), 0.1f);
             ImGui::PopItemWidth();
             ImGui::SameLine();
-            if (ImGui::Button(("Select [" + index + "]'s material").c_str()))
+            if (ImGui::Button(("Choose material...##" + index).c_str()))
             {
-                ImGui::OpenPopup(("select_popup" + index).c_str());
+                ImGui::OpenPopup(("choose_material##" + index).c_str());
             }
             ImGui::SameLine();
+            ImGui::Text((iter->material_type).c_str());
 
-            //ImGui::TextUnformatted(gui_params_space::material_list.at(iter->material_type));
-            //if (ImGui::BeginPopup(("select_popup" + index).c_str()))
-            //{
-            //    ImGui::Text("Material");
-            //    ImGui::Separator();
-            //    for (int i = 0; i < gui_params_space::num_of_material_list; i++)
-            //        if (ImGui::Selectable(gui_params_space::material_list.at(i)))
-            //            iter->material_type = i;
-            //    ImGui::EndPopup();
-            //}
+
+            if (ImGui::BeginPopup(("choose_material##" + index).c_str(), ImGuiWindowFlags_MenuBar))
+            {
+                for (const auto& material : materials_map)
+                {
+                    if (ImGui::Button(material.first.c_str()))
+                    {
+                        iter->material_type = material.first;
+                    }
+                }
+                ImGui::EndPopup();
+            }
+            
 
 
             if (ImGui::Button(("Remove##" + index).c_str()))

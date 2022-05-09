@@ -227,7 +227,9 @@ namespace material_space
     {
         struct ior_param
         {
-            bool is_simple_ior = true;
+            bool no_need_ior = true;
+
+            bool is_simple_ior = false;
             float simple_ior = 1.0f;
 
             bool is_complex_ior = false;
@@ -241,8 +243,6 @@ namespace material_space
             float3_array emittance_color = { 1.0f,1.0f,1.0f };  //[0,1]
             float emittance_scale = { 100.0f };
         };
-
-        std::string material_name;
         
         float roughness = 0.0f;
         float specular_roughness = 0.0f;
@@ -317,6 +317,7 @@ namespace material_space
 
         if (material_properties.find("ior") != material_properties.end())
         {
+            material_param.ior.no_need_ior = false;
             const auto ior_property = material_properties.at("ior");
             if (ior_property.type() == nlohmann::json::value_t::object)
             {
@@ -332,6 +333,10 @@ namespace material_space
                 material_param.ior.is_complex_ior = false;
                 ior_property.get_to(material_param.ior.simple_ior);
             }
+        }
+        else
+        {
+            material_param.ior.no_need_ior = true;
         }
     }
 
@@ -355,18 +360,21 @@ namespace material_space
                 material_param.emittance.emittance_color.at(2) * scale,
             };
         }
-        
-        if (material_param.ior.is_simple_ior)
+        if (!material_param.ior.no_need_ior)
         {
-            material_properties["ior"] = material_param.ior.simple_ior;
+            if (material_param.ior.is_simple_ior)
+            {
+                material_properties["ior"] = material_param.ior.simple_ior;
+            }
+            else if (material_param.ior.is_complex_ior)
+            {
+                nlohmann::json complex_ior;
+                complex_ior["real"] = { material_param.ior.real_ior.at(0), material_param.ior.real_ior.at(1), material_param.ior.real_ior.at(2) };
+                complex_ior["imaginary"] = { material_param.ior.imaginary_ior.at(0), material_param.ior.imaginary_ior.at(1), material_param.ior.imaginary_ior.at(2) };
+                material_properties["ior"] = complex_ior;
+            }
         }
-        else if (material_param.ior.is_complex_ior)
-        {
-            nlohmann::json complex_ior;
-            complex_ior["real"] = { material_param.ior.real_ior.at(0), material_param.ior.real_ior.at(1), material_param.ior.real_ior.at(2) };
-            complex_ior["imaginary"] = { material_param.ior.imaginary_ior.at(0), material_param.ior.imaginary_ior.at(1), material_param.ior.imaginary_ior.at(2) };
-            material_properties["ior"] = complex_ior;
-        }
+       
     }
 
     inline void to_json(nlohmann::json& total_properties, const material_map& materials_map)
@@ -412,7 +420,7 @@ namespace object_space
             added_object.material_type = getOptional(each_object, "material", std::string{ "default" });
             added_object.position = getOptional(each_object, "position", float3_array{0.0f,0.0f,0.0f});
             added_object.rotation = getOptional(each_object, "rotation", float3_array{0.0f,0.0f,0.0f});
-            added_object.scale = getOptional(each_object, "scale", std::array<float, 1>{ 1.0f });
+            added_object.scale = std::array<float, 1>{getOptional(each_object, "scale", 1.0f)};
             added_object.is_smooth = getOptional(each_object, "smooth", true);
             added_object.obj_file_name = getOptional(each_object, "file", std::string{});
             objects_vector.emplace_back(added_object);
