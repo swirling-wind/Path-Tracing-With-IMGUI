@@ -11,7 +11,7 @@ namespace gui_widgets
         object_space::object_list& objects_vector
     )
     {
-        if (ImGui::Button("Import property file", ImVec2(200.0f, 28.0f)))
+        if (ImGui::Button("Import property file", ImVec2(230.0f, 28.0f)))
         {
             ImGui::OpenPopup("Import property");
         }
@@ -249,12 +249,12 @@ namespace gui_widgets
 
     inline void show_imported_objects(object_space::object_list& objects_vector, const material_space::material_map& materials_map)
     {
+        ImGui::Text("\nObjects\n");
+
         if (objects_vector.empty())
         {
             ImGui::Text("No objects now");
         }
-
-        ImGui::Text("\nObjects");
         int delete_object_index = -1;
         for (auto iter = objects_vector.begin(); iter != objects_vector.end(); ++iter)
         {

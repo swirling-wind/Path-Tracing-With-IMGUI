@@ -232,6 +232,7 @@ void main()
     constexpr int NAME_MAX_LENGTH = 51;
 
     std::string status_text {"Awaiting order"};
+    const std::string preview_done_text = "Preview Displayed !";
     double render_progress = 0.0;
 
     camera_space::camera_params shot_params;
@@ -258,9 +259,10 @@ void main()
         
     //  =======================================================================================
 
+    const std::string property_suffix = ".json";
     std::vector<std::filesystem::path> obj_filename_found_in_path;
     std::vector<std::filesystem::path> properties_filename_found_in_path;
-    gui_params_space::load_external_files(obj_filename_found_in_path, properties_filename_found_in_path);
+    gui_params_space::load_external_files(obj_filename_found_in_path, properties_filename_found_in_path, property_suffix);
 
     // Main loop    ============================================================================
     while (!glfwWindowShouldClose(window))
@@ -311,13 +313,16 @@ void main()
             gui_widgets::show_integrator_params(integrator_params);
             gui_widgets::show_camera_params(shot_params);
 
+            ImGui::InputText("File name", file_save_name, IM_ARRAYSIZE(file_save_name));
+
             // Output gui_params as json
-            if (ImGui::Button("Output properties", ImVec2(200.0f, 28.0f)))
+            if (ImGui::Button("Output properties", ImVec2(230.0f, 28.0f)))
             {
                 std::string save_name{ file_save_name };
-                nlohmann::json test_json = gui_params_space::generate_all_properties(shot_params, integrator_params, materials_map, objects_vector);
-                std::ofstream out(save_name + ".json");
-                out << test_json;
+                nlohmann::json output_property = gui_params_space::generate_all_properties(shot_params, integrator_params, materials_map, objects_vector);
+                std::ofstream out(gui_constant_params::property_file_path / (save_name + property_suffix));
+                out << output_property;
+                gui_params_space::load_external_files(obj_filename_found_in_path, properties_filename_found_in_path, property_suffix);
             }
 
             ImGui::SameLine();
@@ -360,13 +365,21 @@ void main()
                 }
             }
 
+            //Save Image
+            if (ImGui::Button("Save image", ImVec2(-0.001f, 21.0f)))
+            {
+                if (status_text == preview_done_text)
+                {
+                    std::string save_name{ file_save_name };
+                    camera_for_preview->image.save(save_name);
+                }
+            }
+
             // Display all imported objects
             gui_widgets::show_imported_objects(objects_vector, materials_map);
 
             // Press button to add a new object
             gui_widgets::add_available_object(obj_filename_found_in_path, objects_vector);
-            
-            ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
            
             // After preparation, Finish render
             if (current_status == gui_params_space::render_status::scene_prepared_ready_to_preview)
@@ -402,7 +415,7 @@ void main()
 
                 current_status = gui_params_space::render_status::awaiting;
                 std::cout << "Preview Displayed !\n";
-                status_text = "Preview Displayed !";
+                status_text = preview_done_text;
             }
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

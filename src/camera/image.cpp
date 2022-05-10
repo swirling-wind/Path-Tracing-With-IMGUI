@@ -6,6 +6,7 @@
 #include "../common/util.h"
 #include "../color/srgb.h"
 #include "../common/histogram.h"
+#include "../render/gui_param_tool.h"
 #include <glm/gtx/component_wise.hpp>
 Image::Image(const nlohmann::json &j)
 {
@@ -61,7 +62,7 @@ void Image::save(const std::string& filename) const
     double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
 
     // Save in .ppm
-    std::ofstream output_image(filename + ".ppm");
+    std::ofstream output_image( gui_constant_params::image_file_path / (filename + ".ppm"));
     output_image << "P3\n" << width << " " << height << "\n255\n";
     for (const auto& pixel : blob)
     {
@@ -74,7 +75,7 @@ void Image::save(const std::string& filename) const
 
     // Save in TGA
     HeaderTGA header((uint16_t)width, (uint16_t)height);
-    std::ofstream out_tonemapped(filename + ".tga", std::ios::binary);
+    std::ofstream out_tonemapped(gui_constant_params::image_file_path / (filename + ".tga"), std::ios::binary);
     out_tonemapped.write(reinterpret_cast<char*>(&header), sizeof(header));
     for (const auto& p : blob) //Image::Blob <vec3>
     {
