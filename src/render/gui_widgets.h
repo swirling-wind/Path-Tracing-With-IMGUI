@@ -11,7 +11,7 @@ namespace gui_widgets
         object_space::object_list& objects_vector
     )
     {
-        if (ImGui::Button("Import property file"))
+        if (ImGui::Button("Import property file", ImVec2(200.0f, 28.0f)))
         {
             ImGui::OpenPopup("Import property");
         }
@@ -301,7 +301,7 @@ namespace gui_widgets
         }
     }
 
-    inline void show_available_objects(const std::vector<std::filesystem::path>& obj_name_found_in_path, object_space::object_list& obj_vec)
+    inline void add_available_object(const std::vector<std::filesystem::path>& obj_name_found_in_path, object_space::object_list& obj_vec)
     {
         if (ImGui::Button("Add new object.."))
         {

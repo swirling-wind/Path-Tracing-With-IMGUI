@@ -92,7 +92,6 @@ int main(int, char**)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
@@ -313,19 +312,20 @@ void main()
             gui_widgets::show_camera_params(shot_params);
 
             // Output gui_params as json
-            if (ImGui::Button("Output json"))
+            if (ImGui::Button("Output properties", ImVec2(200.0f, 28.0f)))
             {
                 std::string save_name{ file_save_name };
                 nlohmann::json test_json = gui_params_space::generate_all_properties(shot_params, integrator_params, materials_map, objects_vector);
                 std::ofstream out(save_name + ".json");
                 out << test_json;
             }
+
             ImGui::SameLine();
             // Import property file
             gui_widgets::choose_property_file(properties_filename_found_in_path, shot_params, integrator_params, materials_map, objects_vector);
 
             //Prepare integrator and scene
-            if (ImGui::Button("Start to Preview", ImVec2(-0.001f, 28.0f)))
+            if (ImGui::Button("Start to Preview", ImVec2(-0.001f, 30.0f)))
             {
                 if (gui_widgets::whether_able_to_render(current_status, status_text, objects_vector))
                 {
@@ -364,7 +364,7 @@ void main()
             gui_widgets::show_imported_objects(objects_vector, materials_map);
 
             // Press button to add a new object
-            gui_widgets::show_available_objects(obj_filename_found_in_path, objects_vector);
+            gui_widgets::add_available_object(obj_filename_found_in_path, objects_vector);
             
             ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
            
