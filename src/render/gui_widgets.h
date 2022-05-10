@@ -71,6 +71,11 @@ namespace gui_widgets
             material_space::material_map::iterator to_delete_material = material_map.end();
             for (auto iter = material_map.begin(); iter != material_map.end(); ++iter)
             {
+                if (iter->first == "default")
+                {
+                    continue;
+                }
+
                 const auto m_name = iter->first;
                 ImGui::Text(m_name.c_str());
                 if (ImGui::TreeNode(("Properties##" + m_name).c_str()))

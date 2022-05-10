@@ -397,7 +397,7 @@ namespace object_space
     {
         bool is_smooth = true;
         std::string obj_file_name;
-        std::string material_type;
+        std::string material_type {"default"};
         float3_array position{ 0.0,0.0,0.0 };
         float3_array rotation{ 0.0,0.0,0.0 };
         std::array<float, 1> scale{ 1.0 };

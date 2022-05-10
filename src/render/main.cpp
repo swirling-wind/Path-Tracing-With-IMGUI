@@ -251,6 +251,11 @@ void main()
 
     char file_save_name[NAME_MAX_LENGTH] = "new image";
     char material_name[NAME_MAX_LENGTH] = "new material";
+
+    //  ============================ Init mterial Map =========================================
+    material_space::material_params default_material;
+    default_material.reflectance = material_space::float3_array{0.9f, 0.9f, 0.9f};
+    materials_map.emplace("default", default_material);
         
     //  =======================================================================================
 
@@ -358,7 +363,7 @@ void main()
             // Display all imported objects
             gui_widgets::show_imported_objects(objects_vector, materials_map);
 
-            // Press button to add a new object TODO
+            // Press button to add a new object
             gui_widgets::show_available_objects(obj_filename_found_in_path, objects_vector);
             
             ImGui::InputText("file name", file_save_name, IM_ARRAYSIZE(file_save_name));
