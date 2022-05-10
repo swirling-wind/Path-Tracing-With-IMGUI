@@ -267,13 +267,14 @@ namespace gui_widgets
             ImGui::InputFloat(("scale##" + index).c_str(), iter->scale.data(), 0.1f);
             ImGui::PopItemWidth();
             ImGui::SameLine();
-            if (ImGui::Button(("Choose material...##" + index).c_str()))
+
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.6f, 0.6f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.6f, 0.7f, 0.7f));
+            if (ImGui::Button(("Material: " + iter->material_type + "##" + index).c_str()))
             {
                 ImGui::OpenPopup(("choose_material##" + index).c_str());
             }
-            ImGui::SameLine();
-            ImGui::Text((iter->material_type).c_str());
-
+            ImGui::PopStyleColor(2);
 
             if (ImGui::BeginPopup(("choose_material##" + index).c_str(), ImGuiWindowFlags_MenuBar))
             {

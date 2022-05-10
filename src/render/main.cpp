@@ -287,8 +287,8 @@ void main()
             }
             else
             {
-                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(4.0f / 7.0f, 0.6f, 0.6f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(4.0f / 7.0f, 0.7f, 0.7f));
+                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.6f, 0.6f, 0.6f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.6f, 0.7f, 0.7f));
                 ImGui::Button(status_text.c_str(), ImVec2(-0.001f, 28.0f));
                 ImGui::PopStyleColor(2);
             }
