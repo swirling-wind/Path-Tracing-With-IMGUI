@@ -108,7 +108,7 @@ int main(int, char**)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    bool show_demo_window = true;
+    //bool show_demo_window = true;
 
     // Preview Essentials ========================================================================
     
@@ -275,8 +275,8 @@ void main()
         ImGui::NewFrame();
 
         // 1. Show the big demo
-        if (show_demo_window)
-            ImGui::ShowDemoWindow(&show_demo_window);
+    /*    if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);*/
         
         {
             ImGui::Begin("Control panel");

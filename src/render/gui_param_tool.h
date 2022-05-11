@@ -214,13 +214,12 @@ namespace material_space
     
     inline float get_scale_from_total_emittance(const glm::dvec3 total_emittance)
     {
-        double scale = 100.0;
+        double scale = 10.0;
         const glm::dvec3 temp_emittance{ total_emittance };
         while (temp_emittance.r / scale >= 1.0 || temp_emittance.g / scale >= 1.0  || temp_emittance.b / scale >= 1.0)
         {
-            scale += 100.0;
+            scale += 10.0;
         }
-        std::cerr << "Scale: " << scale << std::endl;
         return static_cast<float>(scale);
     }
 
@@ -343,39 +342,46 @@ namespace material_space
 
     inline void to_json(nlohmann::json& material_properties, const material_params& material_param)
     {
-        material_properties["roughness"] = material_param.roughness;
-        material_properties["specular_roughness"] = material_param.specular_roughness;
-        material_properties["transparency"] = material_param.transparency;
-        material_properties["perfect_mirror"] = material_param.is_perfect_mirror;
-        material_properties["reflectance"] = float3_array{ material_param.reflectance.at(0), material_param.reflectance.at(1), material_param.reflectance.at(2) };
-        material_properties["specular_reflectance"] =  float3_array{ material_param.specular_reflectance.at(0), material_param.specular_reflectance.at(1), material_param.specular_reflectance.at(2) };
-        material_properties["transmittance"] = float3_array{ material_param.transmittance.at(0), material_param.transmittance.at(1), material_param.transmittance.at(2) };
+        if (material_properties["perfect_mirror"] = material_param.is_perfect_mirror)
+        {
+            material_properties["perfect_mirror"] = material_param.is_perfect_mirror;
+        }
+        else
+        {
+            material_properties["roughness"] = material_param.roughness;
+            material_properties["specular_roughness"] = material_param.specular_roughness;
+            material_properties["transparency"] = material_param.transparency;
 
-        if (material_param.emittance.is_emit)
-        {
-            nlohmann::json light_emittance;
-            const float scale = material_param.emittance.emittance_scale;
-            material_properties["emittance"] = {
-                material_param.emittance.emittance_color.at(0) * scale,
-                material_param.emittance.emittance_color.at(1) * scale,
-                material_param.emittance.emittance_color.at(2) * scale,
-            };
-        }
-        if (!material_param.ior.no_need_ior)
-        {
-            if (material_param.ior.is_simple_ior)
+            material_properties["reflectance"] = float3_array{ material_param.reflectance.at(0), material_param.reflectance.at(1), material_param.reflectance.at(2) };
+            material_properties["specular_reflectance"] = float3_array{ material_param.specular_reflectance.at(0), material_param.specular_reflectance.at(1), material_param.specular_reflectance.at(2) };
+            material_properties["transmittance"] = float3_array{ material_param.transmittance.at(0), material_param.transmittance.at(1), material_param.transmittance.at(2) };
+
+            if (material_param.emittance.is_emit)
             {
-                material_properties["ior"] = material_param.ior.simple_ior;
+                nlohmann::json light_emittance;
+                const float scale = material_param.emittance.emittance_scale;
+                material_properties["emittance"] = {
+                    material_param.emittance.emittance_color.at(0) * scale,
+                    material_param.emittance.emittance_color.at(1) * scale,
+                    material_param.emittance.emittance_color.at(2) * scale,
+                };
             }
-            else if (material_param.ior.is_complex_ior)
+            if (!material_param.ior.no_need_ior)
             {
-                nlohmann::json complex_ior;
-                complex_ior["real"] = { material_param.ior.real_ior.at(0), material_param.ior.real_ior.at(1), material_param.ior.real_ior.at(2) };
-                complex_ior["imaginary"] = { material_param.ior.imaginary_ior.at(0), material_param.ior.imaginary_ior.at(1), material_param.ior.imaginary_ior.at(2) };
-                material_properties["ior"] = complex_ior;
+                if (material_param.ior.is_simple_ior)
+                {
+                    material_properties["ior"] = material_param.ior.simple_ior;
+                }
+                else if (material_param.ior.is_complex_ior)
+                {
+                    nlohmann::json complex_ior;
+                    complex_ior["real"] = { material_param.ior.real_ior.at(0), material_param.ior.real_ior.at(1), material_param.ior.real_ior.at(2) };
+                    complex_ior["imaginary"] = { material_param.ior.imaginary_ior.at(0), material_param.ior.imaginary_ior.at(1), material_param.ior.imaginary_ior.at(2) };
+                    material_properties["ior"] = complex_ior;
+                }
             }
-        }
-       
+
+        }     
     }
 
     inline void to_json(nlohmann::json& total_properties, const material_map& materials_map)
@@ -449,8 +455,6 @@ namespace object_space
         object_properties["surfaces"] = surfaces_params;
     }
 }
-    
-
 
 namespace gui_params_space
 {

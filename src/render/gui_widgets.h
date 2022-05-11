@@ -21,6 +21,8 @@ namespace gui_widgets
             for (auto iter = property_vec.begin(); iter != property_vec.end(); ++iter)
             {
                 const auto index = iter - property_vec.begin();
+                const std::string property_name = iter->filename().string();
+
                 if (ImGui::Button(iter->filename().string().data()))
                 {
                     std::ifstream scene_file(gui_constant_params::property_file_path / iter->filename());
@@ -78,55 +80,52 @@ namespace gui_widgets
 
                 const auto m_name = iter->first;
                 ImGui::Text(m_name.c_str());
-                if (ImGui::TreeNode(("Properties##" + m_name).c_str()))
+                ImGui::SliderFloat(("Roughness##" + m_name).c_str(), &iter->second.roughness, 0.0f, 1.0f);
+                ImGui::SliderFloat(("Specular Roughness##" + m_name).c_str(), &iter->second.specular_roughness, 0.0f, 1.0f);
+                ImGui::SliderFloat(("Transparency##" + m_name).c_str(), &iter->second.transparency, 0.0f, 1.0f);
+                ImGui::ColorEdit3(("Reflectance##" + m_name).c_str(), iter->second.reflectance.data());
+                ImGui::ColorEdit3(("Specular Reflectance##" + m_name).c_str(), iter->second.specular_reflectance.data());
+                ImGui::ColorEdit3(("Transmittance##" + m_name).c_str(), iter->second.transmittance.data());
+
+                ImGui::Checkbox(("Is Perfect mirror##" + m_name).c_str(), &iter->second.is_perfect_mirror);
+                ImGui::SameLine();
+                ImGui::Checkbox(("Is Emitting##" + m_name).c_str(), &iter->second.emittance.is_emit);
+
+                if (iter->second.emittance.is_emit)
                 {
-                    ImGui::SliderFloat(("Roughness##" + m_name).c_str(), &iter->second.roughness, 0.0f, 1.0f);
-                    ImGui::SliderFloat(("Specular Roughness##" + m_name).c_str(), &iter->second.specular_roughness, 0.0f, 1.0f);
-                    ImGui::SliderFloat(("Transparency##" + m_name).c_str(), &iter->second.transparency, 0.0f, 1.0f);
-                    ImGui::ColorEdit3(("Reflectance##" + m_name).c_str(), iter->second.reflectance.data());
-                    ImGui::ColorEdit3(("Specular Reflectance##" + m_name).c_str(), iter->second.specular_reflectance.data());
-                    ImGui::ColorEdit3(("Transmittance##" + m_name).c_str(), iter->second.transmittance.data());
-
-                    ImGui::Checkbox(("Is Perfect mirror##" + m_name).c_str(), &iter->second.is_perfect_mirror);
-                    ImGui::SameLine();
-                    ImGui::Checkbox(("Is Emitting##" + m_name).c_str(), &iter->second.emittance.is_emit);
-
-                    if (iter->second.emittance.is_emit)
-                    {
-                        ImGui::ColorEdit3(("Emittance Color##" + m_name).c_str(), iter->second.emittance.emittance_color.data());
-                        ImGui::SliderFloat(("Emittance Scale##" + m_name).c_str(), &iter->second.emittance.emittance_scale, 100.0f, 900.0f);
-                    }
-                    if (ImGui::RadioButton(("No refract##" + m_name).c_str(), iter->second.ior.no_need_ior))
-                    {
-                        iter->second.ior.no_need_ior = true;
-                        iter->second.ior.is_simple_ior = false;
-                        iter->second.ior.is_complex_ior = false;
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::RadioButton(("Simple IOR##" + m_name).c_str(), iter->second.ior.is_simple_ior))
-                    {
-                        iter->second.ior.no_need_ior = false;
-                        iter->second.ior.is_simple_ior = true;
-                        iter->second.ior.is_complex_ior = false;
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::RadioButton(("Complex IOR##" + m_name).c_str(), iter->second.ior.is_complex_ior))
-                    {
-                        iter->second.ior.no_need_ior = false;
-                        iter->second.ior.is_simple_ior = false;
-                        iter->second.ior.is_complex_ior = true;
-                    }
-                    if (iter->second.ior.is_simple_ior)
-                    {
-                        ImGui::InputFloat(("Simple IOR##" + m_name).c_str(), &iter->second.ior.simple_ior, 0.1f, 0.2f);
-                    }
-                    if (iter->second.ior.is_complex_ior)
-                    {
-                        ImGui::InputFloat3((" Real IOR ##" + m_name).c_str(), iter->second.ior.real_ior.data());
-                        ImGui::InputFloat3(("Imaginary IOR##" + m_name).c_str(), iter->second.ior.imaginary_ior.data());
-                    }
-                    ImGui::TreePop();
+                    ImGui::ColorEdit3(("Emittance Color##" + m_name).c_str(), iter->second.emittance.emittance_color.data());
+                    ImGui::SliderFloat(("Emittance Scale##" + m_name).c_str(), &iter->second.emittance.emittance_scale, 10.0f, 500.0f);
                 }
+                if (ImGui::RadioButton(("No refract##" + m_name).c_str(), iter->second.ior.no_need_ior))
+                {
+                    iter->second.ior.no_need_ior = true;
+                    iter->second.ior.is_simple_ior = false;
+                    iter->second.ior.is_complex_ior = false;
+                }
+                ImGui::SameLine();
+                if (ImGui::RadioButton(("Simple IOR##" + m_name).c_str(), iter->second.ior.is_simple_ior))
+                {
+                    iter->second.ior.no_need_ior = false;
+                    iter->second.ior.is_simple_ior = true;
+                    iter->second.ior.is_complex_ior = false;
+                }
+                ImGui::SameLine();
+                if (ImGui::RadioButton(("Complex IOR##" + m_name).c_str(), iter->second.ior.is_complex_ior))
+                {
+                    iter->second.ior.no_need_ior = false;
+                    iter->second.ior.is_simple_ior = false;
+                    iter->second.ior.is_complex_ior = true;
+                }
+                if (iter->second.ior.is_simple_ior)
+                {
+                    ImGui::InputFloat(("Simple IOR##" + m_name).c_str(), &iter->second.ior.simple_ior, 0.1f, 3.0f);
+                }
+                if (iter->second.ior.is_complex_ior)
+                {
+                    ImGui::InputFloat3((" Real IOR ##" + m_name).c_str(), iter->second.ior.real_ior.data());
+                    ImGui::InputFloat3(("Imaginary IOR##" + m_name).c_str(), iter->second.ior.imaginary_ior.data());
+                }
+
 
                 if (ImGui::Button(("Remove##" + m_name).c_str()))
                 {
@@ -161,7 +160,7 @@ namespace gui_widgets
             ImGui::CloseCurrentPopup();
         }
     }
-    
+
     inline void show_integrator_params(integrator_space::bvh_and_photon_params& integrator_params)
     {
         // BVH and Photon
@@ -240,13 +239,13 @@ namespace gui_widgets
         ImGui::InputFloat("Gain Compensation", &shot_params.gain_compensation, 0.1f, 1.0f, "%.2f");
         ImGui::InputInt("Side samples per pixel", &shot_params.side_spp, 1, 5);
         shot_params.side_spp = std::clamp(shot_params.side_spp, 1, 100);
-                
-        ImGui::Text("Camera");
+
+        ImGui::Text("\nCamera");
         ImGui::InputFloat3("Eye Position", shot_params.camera_eye_pos.data());
         ImGui::InputFloat3("Look At", shot_params.camera_look_at.data());
-        
-    }
 
+    }
+      
     inline void show_imported_objects(object_space::object_list& objects_vector, const material_space::material_map& materials_map)
     {
         ImGui::Text("\nObjects\n");
@@ -266,6 +265,12 @@ namespace gui_widgets
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.3f);
             ImGui::InputFloat(("scale##" + index).c_str(), iter->scale.data(), 0.1f);
             ImGui::PopItemWidth();
+
+            if (iter->scale.at(0) <= 0.1f)
+            {
+                iter->scale.at(0) = 0.1f;
+            }
+
             ImGui::SameLine();
 
             ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.6f, 0.6f, 0.6f));
