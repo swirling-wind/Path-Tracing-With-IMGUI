@@ -164,6 +164,10 @@ namespace gui_widgets
     inline void show_integrator_params(integrator_space::bvh_and_photon_params& integrator_params)
     {
         // BVH and Photon
+        ImGui::Text("Thread Number: ");
+        ImGui::SameLine();
+        ImGui::SliderInt("##Thread Num", &integrator_params.thread_num, 1, gui_constant_params::MAX_THREAD_NUM);
+
         ImGui::Text("Integrator: ");
         ImGui::SameLine();
         if (ImGui::RadioButton("Path Tracing", integrator_params.is_path_tracing))

@@ -240,19 +240,16 @@ void main()
     object_space::object_list objects_vector;
     material_space::material_map materials_map;
     material_space::material_params temp_added_material;
-
-
-    //std::vector<gui_params_space::object_imported> objects_vector;
-
+    
     std::atomic current_status {gui_params_space::render_status::awaiting};
     nlohmann::json previous_integrator_and_scene_properties;
-    std::vector<glm::dvec3> preview_image;
+    std::vector<glm::vec3> preview_image;
     std::unique_ptr<Camera> camera_for_preview;
 
     char file_save_name[NAME_MAX_LENGTH] = "new image";
     char material_name[NAME_MAX_LENGTH] = "new material";
 
-    //  ============================ Init mterial Map =========================================
+    //  ============================ Init material Map =========================================
     material_space::material_params default_material;
     default_material.reflectance = material_space::float3_array{0.9f, 0.9f, 0.9f};
     materials_map.emplace("default", default_material);
@@ -399,14 +396,7 @@ void main()
             
             if (current_status == gui_params_space::render_status::finished_preview)
             {
-                std::vector<glm::vec3> texture_vec;
-                texture_vec.reserve(preview_image.size());
-                for (const auto& i : preview_image)
-                {
-                    texture_vec.emplace_back(i);
-                }
-
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, preview_image_size.at(0), preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, texture_vec.data());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, preview_image_size.at(0), preview_image_size.at(1), 0, GL_RGB, GL_FLOAT, preview_image.data());
                 glUseProgram(shader_program);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, texture);

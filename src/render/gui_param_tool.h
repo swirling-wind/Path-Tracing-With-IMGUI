@@ -1,5 +1,6 @@
 #pragma once
 
+#include <thread>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@
 
 namespace gui_constant_params
 {
+    const int MAX_THREAD_NUM = static_cast<int>(std::thread::hardware_concurrency());
     const std::filesystem::path obj_file_path = std::filesystem::current_path() / "objects";
     const std::filesystem::path property_file_path = std::filesystem::current_path() / "properties";
     const std::filesystem::path image_file_path = std::filesystem::current_path() / "images";
@@ -47,10 +49,9 @@ namespace camera_space
         imported_camera_params.side_spp = camera_properties.at("sqrtspp");
 
         const nlohmann::json& image_properties = camera_properties.at("image");
-    /*    imported_camera_params.output_image_size.at(0) = image_properties.at("width");
-        imported_camera_params.output_image_size.at(1) = image_properties.at("height");*/
-        imported_camera_params.exposure_compensation = getOptional(image_properties, "exposure_compensation", -1.0);
-        imported_camera_params.gain_compensation = getOptional(image_properties, "gain_compensation", 0.0);
+        //TODO import image_height & image_width
+        imported_camera_params.exposure_compensation = getOptional(image_properties, "exposure_compensation", -1.0f);
+        imported_camera_params.gain_compensation = getOptional(image_properties, "gain_compensation", 0.0f);
 
         const std::string tone_mapper = getOptional<std::string>(image_properties, "tonemapper", "ACES");
         if (tone_mapper == "ACES")
@@ -96,6 +97,8 @@ namespace integrator_space
 {
     struct bvh_and_photon_params
     {
+        int thread_num{gui_constant_params::MAX_THREAD_NUM};
+
         bool is_path_tracing = true;
         bool is_photon_map = false;
         float photon_num = 1e6;
@@ -109,6 +112,11 @@ namespace integrator_space
 
     inline void from_json(const nlohmann::json& total_properties, bvh_and_photon_params& imported_integrator_params)
     {
+        imported_integrator_params.thread_num = getOptional(total_properties, "num_render_threads", gui_constant_params::MAX_THREAD_NUM);
+        if (imported_integrator_params.thread_num == -1)
+        {
+            imported_integrator_params.thread_num = gui_constant_params::MAX_THREAD_NUM;
+        }
         imported_integrator_params.is_photon_map = (total_properties.find("photon_map") != total_properties.end());
         imported_integrator_params.is_path_tracing = !(imported_integrator_params.is_photon_map);
         if (imported_integrator_params.is_photon_map)
@@ -145,8 +153,6 @@ namespace integrator_space
 
     inline void to_json(nlohmann::json& render_properties_for_bvh_and_photon, const bvh_and_photon_params& integrator_params)
     {
-        render_properties_for_bvh_and_photon["num_render_threads"] = -1; // All
-
         nlohmann::json bvh_type;
         if (integrator_params.is_octree)
         {

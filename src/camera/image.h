@@ -19,6 +19,7 @@ struct Image
     }
 
     std::vector<glm::dvec3> get_adjusted_blob();
+    std::vector<glm::vec3> get_adjusted_float_blob() const;
 
     void save(const std::string& filename) const;
 

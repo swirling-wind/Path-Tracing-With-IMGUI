@@ -30,8 +30,7 @@ public:
 
     void import_camera_and_image_properties(const nlohmann::json& j);
 
-    //std::vector<glm::dvec3> preview();
-    void previewImage(std::vector<glm::dvec3>& gui_image, std::atomic<gui_params_space::render_status>& status, double& render_progress);
+    void previewImage(std::vector<glm::vec3>& gui_image, std::atomic<gui_params_space::render_status>& status, double& render_progress);
 
     void capture();
 

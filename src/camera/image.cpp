@@ -42,18 +42,18 @@ inline double clamp(double x, double min, double max)
     return x;
 }
 
-std::vector<glm::dvec3> Image::get_adjusted_blob()
+std::vector<glm::vec3> Image::get_adjusted_float_blob() const
 {
-    //TODO to retuurn float vec3
+    const double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
+    const double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
 
-    double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
-    double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
-    
+    std::vector<glm::vec3> float_blob;
+    float_blob.reserve(blob.size());
     for (auto& pixel : blob)
     {
-        pixel = sRGB::gammaCompress(tonemap(pixel * exposure_factor) * gain_factor);
+        float_blob.emplace_back(sRGB::gammaCompress(tonemap(pixel * exposure_factor) * gain_factor));
     }
-    return blob;
+    return float_blob;
 }
 
 void Image::save(const std::string& filename) const
@@ -103,7 +103,7 @@ double Image::getExposure() const
     {
         brightness[i] = glm::compAdd(blob[i]) / 3.0;
     }
-    Histogram histogram(brightness, 65536);
+    const Histogram histogram(brightness, 65536);
     double L = histogram.level(0.5);
     return L > 0.0 ? 0.5 / L : 1.0;
 }
