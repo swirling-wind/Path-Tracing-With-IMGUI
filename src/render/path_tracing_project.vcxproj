@@ -227,7 +227,6 @@
     <ClInclude Include="..\camera\scene manage\octree.h" />
     <ClInclude Include="..\camera\scene.h" />
     <ClInclude Include="..\camera\surface\surface.h" />
-    <ClInclude Include="..\libs\stb\stb_image.h" />
     <ClInclude Include="..\tools\constexpr-math.h" />
     <ClInclude Include="..\tools\coordinate-system.h" />
     <ClInclude Include="..\tools\format.h" />
@@ -236,8 +235,8 @@
     <ClInclude Include="..\tools\unrolled-loop.h" />
     <ClInclude Include="..\tools\util.h" />
     <ClInclude Include="..\tools\work-queue.h" />
-    <ClInclude Include="gui_param_tool.h" />
-    <ClInclude Include="gui_widgets.h" />
+    <ClInclude Include="..\user interface\gui_param_tool.h" />
+    <ClInclude Include="..\user interface\gui_widgets.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\.editorconfig" />

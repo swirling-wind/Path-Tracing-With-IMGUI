@@ -9,7 +9,7 @@
 
 #include "image process/film.h"
 #include "image process/image.h"
-#include "render/gui_param_tool.h"
+#include "user interface/gui_param_tool.h"
 #include "tools/work-queue.h"
 
 class Integrator;

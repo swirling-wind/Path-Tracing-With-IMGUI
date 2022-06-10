@@ -9,7 +9,7 @@
 #include "pixel-operators.h"
 #include "tools/util.h"
 #include "tools/histogram.h"
-#include "render/gui_param_tool.h"
+#include "user interface/gui_param_tool.h"
 
 Image::Image(const nlohmann::json &j)
 {

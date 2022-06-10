@@ -15,7 +15,8 @@
 #include <stb/stb_image.h>
 
 #include "camera/camera.h"
-#include "gui_param_tool.h"
+#include "user interface/gui_param_tool.h"
+#include "user interface/gui_widgets.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
@@ -25,7 +26,6 @@
 #include <thread>
 #include <GLFW/glfw3.h> 
 
-#include "gui_widgets.h"
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")

@@ -11,9 +11,6 @@
     <Filter Include="sources\glad">
       <UniqueIdentifier>{ccef4641-4c46-48f1-90d6-d597a23b14d6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sources\stb">
-      <UniqueIdentifier>{be24f636-64ec-4a9c-966e-cb77a50c42fa}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sources\camera">
       <UniqueIdentifier>{65df3e70-1270-48b3-82e8-3fc88a3d4237}</UniqueIdentifier>
     </Filter>
@@ -43,6 +40,9 @@
     </Filter>
     <Filter Include="sources\tools">
       <UniqueIdentifier>{594baae4-ce3d-4171-a945-af350af02e1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\user interface">
+      <UniqueIdentifier>{108debea-4bdd-495b-9a8a-741b184252c6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -162,15 +162,6 @@
     <ClInclude Include="..\..\backend\imgui_impl_opengl3_loader.h">
       <Filter>sources\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="gui_param_tool.h">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libs\stb\stb_image.h">
-      <Filter>sources\stb</Filter>
-    </ClInclude>
-    <ClInclude Include="gui_widgets.h">
-      <Filter>sources</Filter>
-    </ClInclude>
     <ClInclude Include="..\camera\camera.h">
       <Filter>sources\camera</Filter>
     </ClInclude>
@@ -266,6 +257,12 @@
     </ClInclude>
     <ClInclude Include="..\camera\integrators\photon-mapper\photon.h">
       <Filter>sources\camera\integrators\photon mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="..\user interface\gui_widgets.h">
+      <Filter>sources\user interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\user interface\gui_param_tool.h">
+      <Filter>sources\user interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

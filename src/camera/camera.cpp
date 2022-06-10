@@ -9,7 +9,7 @@
 #include "ray.h"
 #include "integrators/path-tracer/path-tracer.h"
 #include "integrators/photon-mapper/photon-mapper.h"
-#include "render/gui_param_tool.h"
+#include "user interface/gui_param_tool.h"
 #include "sampler/sampler.h"
 #include "sampler/sampling.h"
 #include "tools/constexpr-math.h"
@@ -172,7 +172,7 @@ void Camera::look_at(const glm::dvec3& p)
 
 void Camera::preview_image(std::vector<glm::vec3>& gui_image, std::atomic<gui_params_space::render_status>& status, double& render_progress)
 {
-    std::cout << std::endl << std::string(28, '-') << "| CHILD THREAD PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
+    std::cout << std::endl << std::string(28, '/') << "| CHILD THREAD PREVIEW RENDERING PASS |" << std::string(28, '\\') << std::endl;
     std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
 
     const auto before = std::chrono::system_clock::now();
