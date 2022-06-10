@@ -5,9 +5,6 @@
       <UniqueIdentifier>{f18ab499-84e1-499f-8eff-9754361e0e52}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="sources\render">
-      <UniqueIdentifier>{65df3e70-1270-48b3-82e8-3fc88a3d4237}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sources\imgui">
       <UniqueIdentifier>{20b90ce4-7fcb-4731-b9a0-075f875de82d}</UniqueIdentifier>
     </Filter>
@@ -16,6 +13,36 @@
     </Filter>
     <Filter Include="sources\stb">
       <UniqueIdentifier>{be24f636-64ec-4a9c-966e-cb77a50c42fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\camera">
+      <UniqueIdentifier>{65df3e70-1270-48b3-82e8-3fc88a3d4237}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\camera\image process">
+      <UniqueIdentifier>{043769d4-a500-4ca2-a3e9-4da4423697dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\camera\integrators">
+      <UniqueIdentifier>{974352f5-995f-4a60-b40f-300ccbbd560f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\camera\physical materials">
+      <UniqueIdentifier>{1f6588ea-1d80-4fd9-b502-0f5f6e596d48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\camera\samplers">
+      <UniqueIdentifier>{fe6496f2-a2f4-44d6-a15b-15a0b0a4f94c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\camera\scene manage">
+      <UniqueIdentifier>{ce438ee3-c1b5-44e1-a293-2faa09368a61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\camera\surface">
+      <UniqueIdentifier>{09bb1da3-7bde-40b7-bf71-34c919da6805}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\camera\integrators\path tracing">
+      <UniqueIdentifier>{3c490694-6b87-437e-bd94-977015de3f8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\camera\integrators\photon mapping">
+      <UniqueIdentifier>{d79c264f-daaf-4a44-90a6-317c50750af9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\tools">
+      <UniqueIdentifier>{594baae4-ce3d-4171-a945-af350af02e1a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -37,81 +64,6 @@
     <ClCompile Include="..\..\imgui_widgets.cpp">
       <Filter>sources\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\bounding-box.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\common\coordinate-system.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\common\format.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\common\histogram.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\common\option.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\common\util.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\integrator\integrator.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\integrator\path-tracer\path-tracer.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\integrator\photon-mapper\photon-mapper.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\material\fresnel.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\material\ggx.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\material\material.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\octree\linear-octree.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\octree\octree.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ray\interaction.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ray\ray.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scene\scene.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\surface\quadric.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\surface\sphere.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\surface\triangle.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\bvh\bvh.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\camera\camera.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\camera\film.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\camera\image.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\camera\pixel-operators.cpp">
-      <Filter>sources\render</Filter>
-    </ClCompile>
     <ClCompile Include="..\libs\glad\src\glad.c">
       <Filter>sources\glad</Filter>
     </ClCompile>
@@ -120,6 +72,75 @@
     </ClCompile>
     <ClCompile Include="..\..\backend\imgui_impl_opengl3.cpp">
       <Filter>sources\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\camera.cpp">
+      <Filter>sources\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\interaction.cpp">
+      <Filter>sources\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\ray.cpp">
+      <Filter>sources\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\scene.cpp">
+      <Filter>sources\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\image process\film.cpp">
+      <Filter>sources\camera\image process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\image process\image.cpp">
+      <Filter>sources\camera\image process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\image process\pixel-operators.cpp">
+      <Filter>sources\camera\image process</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\integrators\photon-mapper\photon-mapper.cpp">
+      <Filter>sources\camera\integrators\photon mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\integrators\path-tracer\path-tracer.cpp">
+      <Filter>sources\camera\integrators\path tracing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\integrators\integrator.cpp">
+      <Filter>sources\camera\integrators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\physical materials\fresnel.cpp">
+      <Filter>sources\camera\physical materials</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\physical materials\ggx.cpp">
+      <Filter>sources\camera\physical materials</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\physical materials\material.cpp">
+      <Filter>sources\camera\physical materials</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\surface\quadric.cpp">
+      <Filter>sources\camera\surface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\surface\sphere.cpp">
+      <Filter>sources\camera\surface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\surface\triangle.cpp">
+      <Filter>sources\camera\surface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\scene manage\bounding-box.cpp">
+      <Filter>sources\camera\scene manage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\scene manage\bvh.cpp">
+      <Filter>sources\camera\scene manage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\scene manage\linear-octree.cpp">
+      <Filter>sources\camera\scene manage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\camera\scene manage\octree.cpp">
+      <Filter>sources\camera\scene manage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\coordinate-system.cpp">
+      <Filter>sources\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\format.cpp">
+      <Filter>sources\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\histogram.cpp">
+      <Filter>sources\tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,108 +152,6 @@
     </ClInclude>
     <ClInclude Include="..\..\imgui_internal.h">
       <Filter>sources\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\bounding-box.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\constexpr-math.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\coordinate-system.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\format.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\histogram.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\option.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\priority-queue.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\unrolled-loop.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\util.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\work-queue.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\integrator\integrator.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\integrator\path-tracer\path-tracer.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\integrator\photon-mapper\photon-mapper.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\integrator\photon-mapper\photon.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\material\fresnel.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\material\ggx.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\material\material.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\octree\linear-octree.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\octree\octree.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ray\interaction.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ray\intersection.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ray\ray.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\sampling\sampler.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\sampling\sampling.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\sampling\sobol.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\scene\scene.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\surface\surface.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\bvh\bvh.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\camera\camera.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\camera\film.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\camera\image.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\camera\pixel-operators.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\color\spectral.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\color\srgb.h">
-      <Filter>sources\render</Filter>
     </ClInclude>
     <ClInclude Include="..\..\backend\imgui_impl_glfw.h">
       <Filter>sources\imgui</Filter>
@@ -251,6 +170,102 @@
     </ClInclude>
     <ClInclude Include="gui_widgets.h">
       <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\camera.h">
+      <Filter>sources\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\interaction.h">
+      <Filter>sources\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\intersection.h">
+      <Filter>sources\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\ray.h">
+      <Filter>sources\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\scene.h">
+      <Filter>sources\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\image process\film.h">
+      <Filter>sources\camera\image process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\image process\image.h">
+      <Filter>sources\camera\image process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\image process\pixel-operators.h">
+      <Filter>sources\camera\image process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\image process\srgb.h">
+      <Filter>sources\camera\image process</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\integrators\photon-mapper\photon-mapper.h">
+      <Filter>sources\camera\integrators\photon mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\integrators\path-tracer\path-tracer.h">
+      <Filter>sources\camera\integrators\path tracing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\integrators\integrator.h">
+      <Filter>sources\camera\integrators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\physical materials\fresnel.h">
+      <Filter>sources\camera\physical materials</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\physical materials\ggx.h">
+      <Filter>sources\camera\physical materials</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\physical materials\material.h">
+      <Filter>sources\camera\physical materials</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\surface\surface.h">
+      <Filter>sources\camera\surface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\scene manage\bounding-box.h">
+      <Filter>sources\camera\scene manage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\scene manage\bvh.h">
+      <Filter>sources\camera\scene manage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\scene manage\linear-octree.h">
+      <Filter>sources\camera\scene manage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\scene manage\octree.h">
+      <Filter>sources\camera\scene manage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\sampler\sampling.h">
+      <Filter>sources\camera\samplers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\sampler\sampler.h">
+      <Filter>sources\camera\samplers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\sampler\sobol.h">
+      <Filter>sources\camera\samplers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\constexpr-math.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\coordinate-system.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\format.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\priority-queue.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\unrolled-loop.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\util.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\work-queue.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tools\histogram.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\camera\integrators\photon-mapper\photon.h">
+      <Filter>sources\camera\integrators\photon mapping</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,17 +3,14 @@
 #include <chrono>
 #include <deque>
 #include <atomic>
-
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
-
 #include <nlohmann/json.hpp>
 
-#include "../camera/image.h"
-#include "../camera/film.h"
-
-#include "../common/work-queue.h"
+#include "image process/film.h"
+#include "image process/image.h"
 #include "render/gui_param_tool.h"
+#include "tools/work-queue.h"
 
 class Integrator;
 

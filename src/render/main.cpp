@@ -15,7 +15,6 @@
 #include <stb/stb_image.h>
 
 #include "camera/camera.h"
-#include "common/option.h"
 #include "gui_param_tool.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)

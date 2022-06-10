@@ -1,4 +1,4 @@
-#include "../camera/camera.h"
+#include "camera.h"
 
 #include <thread>
 #include <algorithm>
@@ -6,16 +6,15 @@
 #include <iostream>
 #include <sstream>
 
-#include "../ray/ray.h"
-#include "../integrator/path-tracer/path-tracer.h"
-#include "../integrator/photon-mapper/photon-mapper.h"
-#include "../sampling/sampling.h"
-#include "../sampling/sampler.h"
-#include "../common/util.h"
-#include "../common/constexpr-math.h"
-#include "../common/format.h"
-#include "../common/constexpr-math.h"
+#include "ray.h"
+#include "integrators/path-tracer/path-tracer.h"
+#include "integrators/photon-mapper/photon-mapper.h"
 #include "render/gui_param_tool.h"
+#include "sampler/sampler.h"
+#include "sampler/sampling.h"
+#include "tools/constexpr-math.h"
+#include "tools/format.h"
+#include "tools/util.h"
 
 void Camera::init_integrator_and_scene(const nlohmann::json& j, const bool is_photon_map, std::atomic<gui_params_space::render_status>& status)
 {
