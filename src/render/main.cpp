@@ -2,7 +2,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <cstdio>
-#include <map>
 #include <string>
 #include <vector>
 
@@ -17,7 +16,6 @@
 
 #include "camera/camera.h"
 #include "common/option.h"
-#include "common/util.h"
 #include "gui_param_tool.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -33,19 +31,6 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
-
-static void HelpMarker(const char* desc)
-{
-    ImGui::TextDisabled("(?)");
-    if (ImGui::IsItemHovered())
-    {
-        ImGui::BeginTooltip();
-        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextUnformatted(desc);
-        ImGui::PopTextWrapPos();
-        ImGui::EndTooltip();
-    }
-}
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -458,50 +443,6 @@ void main()
 
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    return 0;
-}
-
-int test_render_main()
-{
-    std::cout << "Scene directory:" << std::endl << Scene::path.string() << std::endl << std::endl;
-
-    std::vector<Option> options;
-    try
-    {
-        options = availible(Scene::path);
-    }
-    catch (const std::exception& ex)
-    {
-        std::cout << ex.what() << std::endl;
-        return -1;
-    }
-
-    if (options.empty())
-    {
-        std::cout << "No scenes found." << std::endl;
-        return -1;
-    }
-
-    Option scene_option = getOption(options);
-
-    std::ifstream scene_file(scene_option.path);
-    nlohmann::json j;
-    scene_file >> j;
-    scene_file.close();
-
-    std::unique_ptr<Camera> camera;
-    try
-    {
-        camera = std::make_unique<Camera>(j, scene_option);
-    }
-    catch (const std::exception& ex)
-    {
-        std::cout << ex.what() << std::endl;
-        return -1;
-    }
-
-    camera->capture();
 
     return 0;
 }

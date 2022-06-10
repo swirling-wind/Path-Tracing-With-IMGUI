@@ -8,8 +8,6 @@
 #include "../common/util.h"
 #include "../common/constexpr-math.h"
 #include "../common/constants.h"
-#include "../common/coordinate-system.h"
-#include "../color/illuminant.h"
 #include "../color/srgb.h"
 #include "../material/fresnel.h"
 #include "../material/ggx.h"

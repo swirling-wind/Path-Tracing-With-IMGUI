@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
-#include <iomanip>
 #include <sstream>
 
 #include "../ray/ray.h"
@@ -17,30 +16,6 @@
 #include "../common/format.h"
 #include "../common/constants.h"
 #include "render/gui_param_tool.h"
-
-Camera::Camera(const nlohmann::json& j, bool is_photon_map)
-{
-    if (is_photon_map)
-    {
-        integrator = std::make_shared<PhotonMapper>(j);
-    }
-    else
-    {
-        integrator = std::make_shared<PathTracer>(j);
-    }
-}
-
-Camera::Camera(const nlohmann::json& j, const Option& option)
-{
-    if (option.photon_map)
-    {
-        integrator = std::make_shared<PhotonMapper>(j);
-    }
-    else
-    {
-        integrator = std::make_shared<PathTracer>(j);
-    }
-}
 
 void Camera::init_integrator_and_scene(nlohmann::json j, const bool is_photon_map, std::atomic<gui_params_space::render_status>& status)
 {
@@ -59,35 +34,32 @@ void Camera::init_integrator_and_scene(nlohmann::json j, const bool is_photon_ma
 
 void Camera::import_camera_and_image_properties(const nlohmann::json& j)
 {
-    const nlohmann::json& c = j.at("cameras").at(0);
-    image = Image(c.at("image"));
-    if (c.find("film") != c.end())
-        film = Film(image.width, image.height, c.at("film"));
-    else
-        film = Film(image.width, image.height);
+    const nlohmann::json& cam_json = j.at("cameras").at(0);
+    image = Image(cam_json.at("image"));
+    film = Film(image.width, image.height);
 
-    eye = c.at("eye");
-    focal_length = c.at("focal_length").get<double>() / 1000.0;
-    sensor_width = c.at("sensor_width").get<double>() / 1000.0;
-    sqrtspp = c.at("sqrtspp");
-    savename = c.at("savename");
-    aperture_radius = (focal_length / getOptional(c, "f_stop", -1.0)) / 2.0;
-    focus_distance = getOptional(c, "focus_distance", -1.0);
+    eye = cam_json.at("eye");
+    focal_length = cam_json.at("focal_length").get<double>() / 1000.0;
+    sensor_width = cam_json.at("sensor_width").get<double>() / 1000.0;
+    sqrtspp = cam_json.at("sqrtspp");
+    savename = cam_json.at("savename");
+    aperture_radius = (focal_length / getOptional(cam_json, "f_stop", -1.0)) / 2.0;
+    focus_distance = getOptional(cam_json, "focus_distance", -1.0);
 
-    if (c.find("look_at") != c.end())
+    if (cam_json.find("look_at") != cam_json.end())
     {
-        glm::dvec3 look_at = c.at("look_at");
+        const glm::dvec3 look_at = cam_json.at("look_at");
         lookAt(look_at);
         if (focus_distance < 0.0)
         {
-            focus_distance = glm::distance(eye, look_at);
+            focus_distance = distance(eye, look_at);
         }
     }
     else
     {
-        forward = glm::normalize(c.at("forward").get<glm::dvec3>());
-        up = glm::normalize(c.at("up").get<glm::dvec3>());
-        left = glm::normalize(glm::cross(up, forward));
+        forward = normalize(cam_json.at("forward").get<glm::dvec3>());
+        up = normalize(cam_json.at("up").get<glm::dvec3>());
+        left = normalize(cross(up, forward));
     }
 
     thin_lens = aperture_radius > 0.0 && focus_distance > 0.0;
@@ -126,7 +98,7 @@ void Camera::samplePixel(size_t x, size_t y)
         }
         film.deposit(px, integrator->sampleRay(ray));
     }
-    num_sampled_pixels++;
+    ++num_sampled_pixels;
 }
 
 
@@ -238,10 +210,10 @@ void Camera::sampleImageThread(WorkQueue<Bucket>& buckets)
 
 void Camera::lookAt(const glm::dvec3& p)
 {
-    forward = glm::normalize(p - eye);
-    left = glm::cross({ 0.0, 1.0, 0.0 }, forward);
-    left = glm::length(left) < C::EPSILON ? glm::dvec3(-1.0, 0.0, 0.0) : glm::normalize(left);
-    up = glm::normalize(glm::cross(forward, left));
+    forward = normalize(p - eye);
+    left = cross({ 0.0, 1.0, 0.0 }, forward);
+    left = length(left) < C::EPSILON ? glm::dvec3(-1.0, 0.0, 0.0) : glm::normalize(left);
+    up = normalize(glm::cross(forward, left));
 }
 
 void Camera::previewImage(std::vector<glm::vec3>& gui_image, std::atomic<gui_params_space::render_status>& status, double& render_progress)

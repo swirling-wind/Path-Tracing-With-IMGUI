@@ -234,15 +234,6 @@
     <ClInclude Include="..\camera\pixel-operators.h">
       <Filter>sources\render</Filter>
     </ClInclude>
-    <ClInclude Include="..\color\cie.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\color\cmf.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\color\illuminant.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
     <ClInclude Include="..\color\spectral.h">
       <Filter>sources\render</Filter>
     </ClInclude>

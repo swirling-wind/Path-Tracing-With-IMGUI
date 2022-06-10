@@ -12,13 +12,7 @@ struct Image
 {
     Image() { }
     Image(const nlohmann::json &j);
-
-    std::vector<glm::dvec3> get_blob()
-    {
-        return blob;
-    }
-
-    std::vector<glm::dvec3> get_adjusted_blob();
+    
     std::vector<glm::vec3> get_adjusted_float_blob() const;
 
     void save(const std::string& filename) const;
@@ -29,21 +23,16 @@ struct Image
     size_t num_pixels;
 
 private:
-    double getExposure() const;
-    double getGain(double exposure_factor) const;
+    [[nodiscard]] double get_exposure_in_50_percentage() const;
+    [[nodiscard]] double get_gain_to_position_histogram_to_right(double exposure_factor) const;
 
     std::vector<glm::dvec3> blob;
     double exposure_scale, gain_scale;
 
     std::function<glm::dvec3(const glm::dvec3&)> tonemap;
 
-    bool plain; // No tonemapping or autoexposure/-gain
+    bool without_tonemapping_nor_auto_exposure;
 
-    /**************************************************************************
-    Hard coded (except for dimensions) uncompressed 24bpp true-color TGA header.
-    After writing this to file, the RGB bytes can be dumped in sequence
-    (left to right, top to bottom) to create a TGA image.
-    ***************************************************************************/
     struct HeaderTGA
     {
         HeaderTGA(uint16_t width, uint16_t height)

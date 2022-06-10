@@ -8,6 +8,7 @@
 #include "../common/histogram.h"
 #include "../render/gui_param_tool.h"
 #include <glm/gtx/component_wise.hpp>
+
 Image::Image(const nlohmann::json &j)
 {
     width = j.at("width");
@@ -15,18 +16,18 @@ Image::Image(const nlohmann::json &j)
     num_pixels = width * height;
     blob = std::vector<glm::dvec3>(num_pixels, glm::dvec3());
 
-    plain = getOptional(j, "plain", false);
+    without_tonemapping_nor_auto_exposure = getOptional(j, "plain", false);
 
-    double exposure_EV = getOptional(j, "exposure_compensation", 0.0);
-    double gain_EV = getOptional(j, "gain_compensation", 0.0);
+    const double exposure_compensation = getOptional(j, "exposure_compensation", 0.0);
+    const double gain_compensation = getOptional(j, "gain_compensation", 0.0);
 
-    exposure_scale = std::pow(2, exposure_EV);
-    gain_scale = std::pow(2, gain_EV);
+    exposure_scale = std::pow(2, exposure_compensation);
+    gain_scale = std::pow(2, gain_compensation);
 
     std::string tonemapper = getOptional<std::string>(j, "tonemapper", "HABLE");
     std::transform(tonemapper.begin(), tonemapper.end(), tonemapper.begin(), toupper);
 
-    if (plain)
+    if (without_tonemapping_nor_auto_exposure)
         tonemap = linear;
     else
         if (tonemapper == "ACES")
@@ -44,8 +45,8 @@ inline double clamp(double x, double min, double max)
 
 std::vector<glm::vec3> Image::get_adjusted_float_blob() const
 {
-    const double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
-    const double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
+    const double exposure_factor = without_tonemapping_nor_auto_exposure ? 1.0 : get_exposure_in_50_percentage() * exposure_scale;
+    const double gain_factor = without_tonemapping_nor_auto_exposure ? 1.0 : get_gain_to_position_histogram_to_right(exposure_factor) * gain_scale;
 
     std::vector<glm::vec3> float_blob;
     float_blob.reserve(blob.size());
@@ -58,8 +59,8 @@ std::vector<glm::vec3> Image::get_adjusted_float_blob() const
 
 void Image::save(const std::string& filename) const
 {
-    double exposure_factor = plain ? 1.0 : getExposure() * exposure_scale;
-    double gain_factor = plain ? 1.0 : getGain(exposure_factor) * gain_scale;
+    double exposure_factor = without_tonemapping_nor_auto_exposure ? 1.0 : get_exposure_in_50_percentage() * exposure_scale;
+    double gain_factor = without_tonemapping_nor_auto_exposure ? 1.0 : get_gain_to_position_histogram_to_right(exposure_factor) * gain_scale;
 
     // Save in .ppm
     std::ofstream output_image( gui_constant_params::image_file_path / (filename + ".ppm"));
@@ -73,7 +74,7 @@ void Image::save(const std::string& filename) const
     }
     std::cerr << "\nPPM save Done.\n";
 
-    // Save in TGA
+    // Save in .tga
     HeaderTGA header((uint16_t)width, (uint16_t)height);
     std::ofstream out_tonemapped(gui_constant_params::image_file_path / (filename + ".tga"), std::ios::binary);
     out_tonemapped.write(reinterpret_cast<char*>(&header), sizeof(header));
@@ -83,7 +84,7 @@ void Image::save(const std::string& filename) const
         out_tonemapped.write(reinterpret_cast<char*>(fp.data()), fp.size() * sizeof(uint8_t));
     }
     out_tonemapped.close();
-    std::cerr << "\TGA save Done.\n";
+    std::cerr << "\nTGA save Done.\n";
 }
 
 glm::dvec3& Image::operator()(size_t col, size_t row)
@@ -96,29 +97,29 @@ Histogram method to find the intensity level L that 50% of the pixels has higher
 The returned exposure factor is then 0.5/L, which if multiplied by each pixel in the image will make 
 50% of the pixels be < 0.5 and 50% of the pixels be > 0.5.
 ********************************************************************************************/
-double Image::getExposure() const
+double Image::get_exposure_in_50_percentage() const
 {
     std::vector<double> brightness(blob.size());
     for (size_t i = 0; i < blob.size(); i++)
     {
-        brightness[i] = glm::compAdd(blob[i]) / 3.0;
+        brightness[i] = compAdd(blob[i]) / 3.0;
     }
     const Histogram histogram(brightness, 65536);
-    double L = histogram.level(0.5);
-    return L > 0.0 ? 0.5 / L : 1.0;
+    const double intensity_level = histogram.level(0.5);
+    return intensity_level > 0.0 ? 0.5 / intensity_level : 1.0;
 }
 
 /**************************************************************************
 Histogram method to find the gain that positions the histogram to the right
 ***************************************************************************/
-double Image::getGain(double exposure_factor) const
+double Image::get_gain_to_position_histogram_to_right(double exposure_factor) const
 {
     std::vector<double> brightness(blob.size());
     for (size_t i = 0; i < blob.size(); i++)
     {
         brightness[i] = glm::compAdd(tonemap(blob[i] * exposure_factor)) / 3.0;
     }
-    Histogram histogram(brightness, 65536);
-    double L = histogram.level(0.99);
-    return L > 0.0 ? 0.99 / L : 1.0;
+    const Histogram histogram(brightness, 65536);
+    const double intensity_level = histogram.level(0.99);
+    return intensity_level > 0.0 ? 0.99 / intensity_level : 1.0;
 }

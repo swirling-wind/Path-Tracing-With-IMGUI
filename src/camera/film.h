@@ -3,10 +3,7 @@
 #include <atomic>
 #include <vector>
 #include <functional>
-
 #include <glm/glm.hpp>
-
-#include <nlohmann/json.hpp>
 
 class Film
 {
@@ -16,15 +13,14 @@ public:
     Film();
 
     Film(size_t width, size_t height);
-
-    Film(size_t width, size_t height, const nlohmann::json& j);
+    
 
     void deposit(const glm::dvec2& p, const glm::dvec3& v);
 
-    glm::dvec3 scan(size_t col, size_t row) const;
+    [[nodiscard]] glm::dvec3 scan(size_t col, size_t row) const;
 
 private:
-    double filter(double x) const;
+    [[nodiscard]] double filter(double x) const;
 
     struct Splat
     {

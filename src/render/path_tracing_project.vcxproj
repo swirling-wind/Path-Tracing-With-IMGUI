@@ -211,9 +211,6 @@
     <ClInclude Include="..\camera\filter.h" />
     <ClInclude Include="..\camera\image.h" />
     <ClInclude Include="..\camera\pixel-operators.h" />
-    <ClInclude Include="..\color\cie.h" />
-    <ClInclude Include="..\color\cmf.h" />
-    <ClInclude Include="..\color\illuminant.h" />
     <ClInclude Include="..\color\spectral.h" />
     <ClInclude Include="..\color\srgb.h" />
     <ClInclude Include="..\common\bounding-box.h" />

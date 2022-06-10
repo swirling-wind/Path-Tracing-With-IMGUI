@@ -1,64 +1,17 @@
-#pragma once
-
-#include <algorithm>
-#include <string>
-
 #include "../camera/film.h"
 
 #include "../camera/filter.h"
 #include "../common/util.h"
 
-Film::Film() { }
+Film::Film() = default;
 
 Film::Film(size_t width, size_t height)
-    : width(width), height(height), blob(width* height), 
-      filter_function(Filter::box), radius(0.5), 
-      two_inv_radius(2.0 / radius), inv_dx(0.0)
+    : blob(width * height), radius(0.5), two_inv_radius(2.0 / radius),
+    inv_dx(0.0), width(width),
+    height(height), filter_function(Filter::box)
 { }
 
-Film::Film(size_t width, size_t height, const nlohmann::json& j)
-    : width(width), height(height), blob(width* height)
-{
-    std::string filter_type = j.at("filter");
-    std::transform(filter_type.begin(), filter_type.end(), filter_type.begin(), tolower);
-
-    auto set = [&](auto f, auto r)
-    {
-        filter_function = f;
-        radius = r;
-    };
-
-    if (filter_type == "mitchell-netravali")
-        set(Filter::MitchellNetravali<>, 2.0);
-    else if (filter_type == "catmull-rom")
-        set(Filter::CatmullRom, 2.0);
-    else if (filter_type == "b-spline")
-        set(Filter::BSpline, 1.39);
-    else if (filter_type == "hermite")
-        set(Filter::Hermite, 1.0);
-    else if (filter_type == "gaussian")
-        set(Filter::Gaussian, 1.71);
-    else if (filter_type == "lanczos")
-        set(Filter::Lanczos, 2.0);
-    else
-        set(Filter::box, 0.5);
-
-    radius = getOptional(j, "radius", radius);
-    two_inv_radius = 2.0 / radius;
-
-    if (j.find("cache_size") != j.end())
-    {
-        size_t cache_size = j.at("cache_size");
-        filter_cache.resize(cache_size);
-        for (int i = 0; i < cache_size; i++)
-        {
-            filter_cache[i] = filter_function((2.0 * i) / (cache_size - 1));
-        }
-        inv_dx = (cache_size - 1) / radius;
-    }
-}
-
-void Film::deposit(const glm::dvec2& p, const glm::dvec3& v)
+void Film::deposit(const glm::dvec2 & p, const glm::dvec3 & v)
 {   // To save the pixel
     // p: glm::dvec2 px(x + sobol->u[0], y + sobol->u[1]);
     // v:  integrator->sampleRay(ray) {return radiance;}
@@ -100,12 +53,12 @@ double Film::filter(double x) const
     }
 }
 
-void Film::Splat::update(const glm::dvec3& v, double weight)
+void Film::Splat::update(const glm::dvec3 & v, double weight)
 {
-    rgb_sum[0] += v[0] * weight;
-    rgb_sum[1] += v[1] * weight;
-    rgb_sum[2] += v[2] * weight;
-    weight_sum += weight;
+    rgb_sum[0] = rgb_sum[0] + v[0] * weight;
+    rgb_sum[1] = rgb_sum[1] + v[1] * weight;
+    rgb_sum[2] = rgb_sum[2] + v[2] * weight;
+    weight_sum = weight_sum + weight;
 }
 
 glm::dvec3 Film::Splat::get() const

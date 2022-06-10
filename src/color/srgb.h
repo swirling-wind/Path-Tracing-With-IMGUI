@@ -1,9 +1,6 @@
 #pragma once
 
 #include <glm/vec2.hpp>
-
-#include "../color/cie.h"
-
 #include "../common/constexpr-math.h"
 
 namespace sRGB

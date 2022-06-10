@@ -12,9 +12,7 @@
 #include "../camera/image.h"
 #include "../camera/film.h"
 
-#include "../scene/scene.h"
 #include "../common/work-queue.h"
-#include "../common/option.h"
 #include "render/gui_param_tool.h"
 
 class Integrator;
@@ -23,8 +21,6 @@ class Camera
 {
 public:
     Camera() = default;
-    Camera(const nlohmann::json& j, bool is_photon_map);
-    Camera(const nlohmann::json& j, const Option& option);
 
     void init_integrator_and_scene(nlohmann::json j, bool is_photon_map, std::atomic<gui_params_space::render_status>& status);
 
@@ -36,11 +32,7 @@ public:
 
     void sampleImage();
     void sampleImageForPreview(double& render_progress);
-
-    std::vector<glm::dvec3> getImage()
-    {
-        return image.get_blob();
-    }
+    
 
     void saveImage() const
     {
