@@ -14,17 +14,12 @@
 
 Integrator::Integrator(const nlohmann::json &j) : scene(j)
 {
-    int threads = getOptional(j, "num_render_threads", -1);
-
-    size_t max_threads = std::thread::hardware_concurrency();
-    num_threads = (threads < 1 || threads > max_threads) ? max_threads : threads;
+    const int required_threads = getOptional(j, "num_render_threads", -1);
+    const size_t max_threads = std::thread::hardware_concurrency();
+    num_threads = (required_threads < 1 || required_threads > max_threads) ? max_threads : required_threads;
     std::cout << "\nThreads used for rendering: " << num_threads << std::endl;
 }
 
-/**************************************************************************
-Samples a light source using MIS. The BSDF is sampled using MIS later 
-in the next interaction in sampleEmissive, if the ray hits the same light.
-**************************************************************************/
 glm::dvec3 Integrator::sampleDirect(const Interaction& interaction, LightSample& ls) const
 {
     if (scene.emissives.empty() || interaction.material->dirac_delta)

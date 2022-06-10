@@ -69,7 +69,7 @@ BVH::BVH(const BoundingBox &bounding_box,
     auto end = std::chrono::high_resolution_clock::now();
     size_t millisecond_duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 
-    std::cout << "BVH constructed in " + Format::timeDuration(millisecond_duration)
+    std::cout << "BVH constructed in " + Format::time_duration(millisecond_duration)
               << ". Node num: " << num_nodes
               << ". Branching num: " << num_branching
               << ". Branching factor of tree: " << (num_nodes - 1) / num_branching << std::endl;

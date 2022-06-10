@@ -119,7 +119,7 @@ PhotonMapper::PhotonMapper(const nlohmann::json& j) : Integrator(j)
     {
         std::cout << std::endl << std::string(28, '-') << "| PHOTON MAPPING PASS |" << std::string(28, '-') 
                   << std::endl << std::endl << "Total number of photon emissions from light sources: " 
-                  << Format::largeNumber(photon_emissions) << std::endl << std::endl;
+                  << Format::large_number(photon_emissions) << std::endl << std::endl;
 
         print_thread = std::make_unique<std::thread>([&work_queue]()
         {
@@ -140,7 +140,7 @@ PhotonMapper::PhotonMapper(const nlohmann::json& j) : Integrator(j)
 
     std::atomic<bool> done_constructing_octrees = false;
     auto end = std::chrono::high_resolution_clock::now();
-    std::string duration = Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
+    std::string duration = Format::time_duration(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     if constexpr(print)
     {
         std::string info = "\rPhotons emitted in " + duration + ". Constructing octrees";
@@ -211,13 +211,13 @@ PhotonMapper::PhotonMapper(const nlohmann::json& j) : Integrator(j)
     {
         print_thread->join();
         end = std::chrono::high_resolution_clock::now();
-        std::string duration2 = Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
+        std::string duration2 = Format::time_duration(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
         std::cout << "\rPhotons emitted in " + duration + ". Octrees constructed in " + duration2 + "." << std::endl << std::endl
                   << "Photon maps and numbers of stored photons: " << std::endl << std::endl;
 
         std::cout << std::right
-                  << std::setw(19) << "Global photons: "  << Format::largeNumber(num_global_photons)  << std::endl
-                  << std::setw(19) << "Caustic photons: " << Format::largeNumber(num_caustic_photons) << std::endl;
+                  << std::setw(19) << "Global photons: "  << Format::large_number(num_global_photons)  << std::endl
+                  << std::setw(19) << "Caustic photons: " << Format::large_number(num_caustic_photons) << std::endl;
     }
 }
 

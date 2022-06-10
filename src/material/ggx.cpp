@@ -1,21 +1,8 @@
 #include "../material/ggx.h"
 
 #include <algorithm>
-
 #include "../common/constexpr-math.h"
 
-/*
-
-- Sampling the GGX Distribution of Visible Normals
-  http://jcgt.org/published/0007/04/01/
-
-- Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs
-  http://jcgt.org/published/0003/02/03/
-
-- Microfacet Models for Refraction through Rough Surfaces
-  https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.html
-
-*/
 
 double GGX::D(const glm::dvec3& m, const glm::dvec2& a)
 {
@@ -63,7 +50,7 @@ double GGX::transmission(const glm::dvec3& wi, const glm::dvec3& wo, double n1, 
     return std::abs(SmithG2(wi, wo, a) * D(m, a) * glm::dot(wo, m) * dm_dwi / (wo.z * wi.z));
 }
 
-glm::dvec3 GGX::visibleMicrofacet(double u, double v, const glm::dvec3& wo, const glm::dvec2& a)
+glm::dvec3 GGX::visible_microfacet(double u, double v, const glm::dvec3& wo, const glm::dvec2& a)
 {
     glm::dvec3 Vh = glm::normalize(glm::dvec3(a.x * wo.x, a.y * wo.y, wo.z));
 

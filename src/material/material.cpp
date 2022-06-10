@@ -67,7 +67,7 @@ glm::dvec3 Material::specularTransmission(const glm::dvec3& wi, const glm::dvec3
 
 glm::dvec3 Material::visibleMicrofacet(double u, double v, const glm::dvec3& wo) const
 {
-    return GGX::visibleMicrofacet(u, v, wo, a);
+    return GGX::visible_microfacet(u, v, wo, a);
 }
 
 glm::dvec3 Material::lambertian() const

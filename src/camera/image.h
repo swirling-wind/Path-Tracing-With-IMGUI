@@ -34,9 +34,7 @@ private:
             : width_(width), height_(height) {}
 
     private:
-        uint8_t begin_[12] = { 0, 0, 2 };
         uint16_t width_;
         uint16_t height_;
-        uint8_t end_[2] = { 24, 32 };
     };
 };

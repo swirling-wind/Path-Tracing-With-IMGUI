@@ -137,7 +137,7 @@ Scene::Scene(const nlohmann::json& j)
 
     computeBoundingBox();
 
-    std::cout << "\nNumber of primitives: " << Format::largeNumber(surfaces.size()) << std::endl;
+    std::cout << "\nNumber of primitives: " << Format::large_number(surfaces.size()) << std::endl;
 
     if (j.find("bvh") != j.end())
     {

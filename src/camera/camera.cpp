@@ -181,7 +181,7 @@ void Camera::preview_image(std::vector<glm::vec3>& gui_image, std::atomic<gui_pa
     const auto now = std::chrono::system_clock::now();
     std::cout << "\r" + std::string(100, ' ') + "\r";
     std::cout << "Preview Completed: " << Format::date(now);
-    std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
+    std::cout << ", Elapsed Time: " << Format::time_duration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
 
     gui_image = image.get_adjusted_float_blob();
     status = gui_params_space::render_status::finished_preview;
@@ -196,7 +196,7 @@ void Camera::print_preview_info_thread(WorkQueue<Bucket>& buckets, double& rende
         render_progress = progress;
 
         std::stringstream string_stream;
-        string_stream << "\rTime remaining: " << Format::timeDuration(milliseconds_duration)
+        string_stream << "\rTime remaining: " << Format::time_duration(milliseconds_duration)
             << " || " << Format::progress(progress * 100.0)
             << " || ETA: " << Format::date(estimated_time) + "    ";
 
