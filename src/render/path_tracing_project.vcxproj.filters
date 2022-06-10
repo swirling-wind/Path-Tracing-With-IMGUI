@@ -240,9 +240,6 @@
     <ClInclude Include="..\color\cmf.h">
       <Filter>sources\render</Filter>
     </ClInclude>
-    <ClInclude Include="..\color\d65.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
     <ClInclude Include="..\color\illuminant.h">
       <Filter>sources\render</Filter>
     </ClInclude>

@@ -55,48 +55,4 @@ void from_json(const nlohmann::json &j, ComplexIOR &c)
         c.real = getOptional(j, "real", glm::dvec3(1.0));
         c.imaginary = getOptional(j, "imaginary", glm::dvec3(0.0));
     }
-    else if (j.type() == nlohmann::json::value_t::string)
-    {
-        auto ior_path = Scene::path / j.get<std::string>();
-
-        if (std::filesystem::exists(ior_path))
-        {
-            Spectral::Distribution<double> real, imaginary;
-            char type = 'n';
-
-            std::ifstream file(ior_path);
-            std::string line;
-            while (std::getline(file, line))
-            {
-                auto p = line.find(',');
-                if (p != std::string::npos)
-                {
-                    auto wl = line.substr(0, p);
-                    auto v = line.substr(p + 1);
-                    wl.erase(std::remove(wl.begin(), wl.end(), ' '), wl.end());
-                    v.erase(std::remove(v.begin(), v.end(), ' '), v.end());
-
-                    if (wl == "wl")
-                    {
-                        if (v == "n") type = 'n';
-                        if (v == "k") type = 'k';
-                    }
-                    else
-                    {
-                        double wavelength = std::stod(wl) * 1e3; // micro- to nanometers
-                        double value = std::stod(v);
-                        if (type == 'n') real.insert({ wavelength, value });
-                        if (type == 'k') imaginary.insert({ wavelength, value });
-                    }
-                }
-            }
-            // Integrate spectral distributions to sRGB
-            c.real = sRGB::RGB(real, Spectral::REFLECTANCE);
-            c.imaginary = sRGB::RGB(imaginary, Spectral::REFLECTANCE);
-        }
-        else
-        {
-            std::cout << std::endl << ior_path.string() << " not found.\n";
-        }
-    }
 }

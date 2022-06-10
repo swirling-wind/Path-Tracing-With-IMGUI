@@ -41,11 +41,11 @@ glm::dvec3 Material::specularReflection(const glm::dvec3& wi, const glm::dvec3& 
     {
         PDF = 1.0;
         return specular_reflectance / std::abs(wi.z);
-    }        
+    }
 }
 
-glm::dvec3 Material::specularTransmission(const glm::dvec3& wi, const glm::dvec3& wo, double n1, 
-                                          double n2, double& PDF, bool inside, bool flux) const
+glm::dvec3 Material::specularTransmission(const glm::dvec3& wi, const glm::dvec3& wo, double n1,
+    double n2, double& PDF, bool inside, bool flux) const
 {
     if (wi.z > 0.0)
     {
@@ -83,9 +83,9 @@ glm::dvec3 Material::OrenNayar(const glm::dvec3& wi, const glm::dvec3& wo) const
 {
     // equivalent to dot(normalize(i.x, i.y, 0), normalize(o.x, o.y, 0)).
     // i.e. remove z-component (normal) and get the cos angle between vectors with dot
-    double cos_delta_phi = glm::clamp((wi.x*wo.x + wi.y*wo.y) / 
-                           std::sqrt((pow2(wi.x) + pow2(wi.y)) * 
-                           (pow2(wo.x) + pow2(wo.y))), 0.0, 1.0);
+    double cos_delta_phi = glm::clamp((wi.x * wo.x + wi.y * wo.y) /
+        std::sqrt((pow2(wi.x) + pow2(wi.y)) *
+            (pow2(wo.x) + pow2(wo.y))), 0.0, 1.0);
 
     // D = sin(alpha) * tan(beta), i.z = dot(i, (0,0,1))
     double D = std::sqrt((1.0 - pow2(wi.z)) * (1.0 - pow2(wo.z))) / std::max(wi.z, wo.z);
@@ -110,13 +110,13 @@ void Material::computeProperties()
     a = glm::dvec2(specular_roughness);
 }
 
-void from_json(const nlohmann::json &j, Material &m)
+void from_json(const nlohmann::json& j, Material& m)
 {
-    auto getReflectance = [&](const std::string &field, glm::dvec3 &reflectance)
+    auto getReflectance = [&](const std::string& field, glm::dvec3& reflectance)
     {
         if (j.find(field) != j.end())
         {
-            const nlohmann::json &r = j.at(field);
+            const nlohmann::json& r = j.at(field);
             if (r.type() == nlohmann::json::value_t::string)
             {
                 std::string hex_string = r.get<std::string>();
@@ -152,26 +152,8 @@ void from_json(const nlohmann::json &j, Material &m)
     if (j.find("emittance") != j.end())
     {
         auto e = j.at("emittance");
-        if (e.type() == nlohmann::json::value_t::object)
-        {
-            double scale = getOptional(e, "scale", 1.0);
-            double temperature = getOptional<double>(e, "temperature", -1.0);
 
-            if (temperature > 0.0)
-            {
-                m.emittance = sRGB::RGB(CIE::Illuminant::blackbody(temperature) * scale);
-            }
-            else
-            {
-                std::string illuminant = getOptional<std::string>(e, "illuminant", "D65");
-                std::transform(illuminant.begin(), illuminant.end(), illuminant.begin(), toupper);
-                m.emittance = sRGB::RGB(CIE::Illuminant::whitePoint(illuminant.c_str()) * scale);
-            }
-        }
-        else
-        {
-            m.emittance = e.get<glm::dvec3>();
-        }
+        m.emittance = e.get<glm::dvec3>();
     }
 
     if (j.find("ior") != j.end())
@@ -190,7 +172,7 @@ void from_json(const nlohmann::json &j, Material &m)
     m.computeProperties();
 }
 
-void std::from_json(const nlohmann::json &j, std::shared_ptr<Material> &m)
+void std::from_json(const nlohmann::json& j, std::shared_ptr<Material>& m)
 {
     m = std::make_shared<Material>(j.get<Material>());
 }

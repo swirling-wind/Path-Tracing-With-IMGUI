@@ -18,14 +18,13 @@ namespace gui_widgets
         if (ImGui::BeginPopup("Import property", ImGuiWindowFlags_MenuBar))
         {
             ImGui::Text("Properties can be imported:");
-            for (auto iter = property_vec.begin(); iter != property_vec.end(); ++iter)
+            for (const auto& iter : property_vec)
             {
-                const auto index = iter - property_vec.begin();
-                const std::string property_name = iter->filename().string();
+                const std::string property_name = iter.filename().string();
 
-                if (ImGui::Button(iter->filename().string().data()))
+                if (ImGui::Button(iter.filename().string().data()))
                 {
-                    std::ifstream scene_file(gui_constant_params::property_file_path / iter->filename());
+                    std::ifstream scene_file(gui_constant_params::property_file_path / iter.filename());
                     nlohmann::json total_properties;
                     scene_file >> total_properties;
                     scene_file.close();

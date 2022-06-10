@@ -8,49 +8,6 @@
 
 namespace sRGB
 {
-    constexpr glm::dmat3 generateRGB2XYZ()
-    {
-        constexpr glm::dmat3 primaries
-        {
-            CIE::XYZ({ 0.64, 0.33 }), // Red
-            CIE::XYZ({ 0.30, 0.60 }), // Green
-            CIE::XYZ({ 0.15, 0.06 })  // Blue
-        };
-
-        constexpr glm::dvec3 white_point = CIE::D65_XYZ / CIE::D65_XYZ[1];
-
-        constexpr glm::dvec3 S = mult(inverse(primaries), white_point);
-
-        return
-        {
-            S[0] * primaries[0],
-            S[1] * primaries[1],
-            S[2] * primaries[2]
-        };
-    }
-
-    // Generated compile-time
-    inline constexpr glm::dmat3 RGB2XYZ = generateRGB2XYZ();
-    inline constexpr glm::dmat3 XYZ2RGB = inverse(RGB2XYZ);
-
-    // sRGB to XYZ_D65
-    constexpr glm::dvec3 XYZ(const glm::dvec3& RGB)
-    {
-        return mult(RGB2XYZ, RGB);
-    }
-
-    // XYZ_D65 to sRGB
-    constexpr glm::dvec3 RGB(const glm::dvec3& XYZ)
-    {
-        return mult(XYZ2RGB, XYZ);
-    }
-
-    // Spectral distribution to sRGB
-    inline glm::dvec3 RGB(const Spectral::Distribution<double>& distribution, Spectral::Type type)
-    {
-        return RGB(CIE::XYZ(distribution, type));
-    }
-
     inline glm::dvec3 gammaCompress(const glm::dvec3& in)
     {
         glm::dvec3 out;
@@ -82,9 +39,4 @@ namespace sRGB
         return out;
     }
 
-    constexpr float3_array RGB_float(const glm::dvec3& XYZ)
-    {
-        glm::dvec3 result = mult(XYZ2RGB, XYZ);
-        return float3_array{ static_cast<float>(result.r),static_cast<float>(result.g),static_cast<float>(result.b) };
-    }
 }

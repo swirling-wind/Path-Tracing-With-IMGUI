@@ -10,8 +10,6 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-#include "color/illuminant.h"
-#include "color/srgb.h"
 #include "common/util.h"
 
 namespace gui_constant_params
@@ -49,7 +47,7 @@ namespace camera_space
         imported_camera_params.side_spp = camera_properties.at("sqrtspp");
 
         const nlohmann::json& image_properties = camera_properties.at("image");
-        //TODO import image_height & image_width
+        
         imported_camera_params.exposure_compensation = getOptional(image_properties, "exposure_compensation", -1.0f);
         imported_camera_params.gain_compensation = getOptional(image_properties, "gain_compensation", 0.0f);
 
@@ -195,28 +193,10 @@ namespace material_space
         {
             float3_array reflectance;
             const nlohmann::json& r = j.at(field);
-            if (r.type() == nlohmann::json::value_t::string)
+            if (r.type() == nlohmann::json::value_t::array)
             {
-                std::string hex_string = r.get<std::string>();
-                if (hex_string.size() == 7 && hex_string[0] == '#')
-                {
-                    hex_string.erase(0, 1);
-                    std::stringstream ss;
-                    ss << std::hex << hex_string;
-
-                    uint32_t color_int;
-                    ss >> color_int;
-
-                    //[0,1]
-                    reflectance = float3_array{ static_cast<float>((color_int >> 16) & 0xFF) / 255.0f, static_cast<float>((color_int >> 8) & 0xFF) / 255.0f, static_cast<float>(color_int & 0xFF) / 255.0f };
-                }
+                return r.get<float3_array>();
             }
-            else if (r.type() == nlohmann::json::value_t::array)
-            {
-                //[0,1]
-                reflectance = r.get<float3_array>();
-            }
-            return reflectance;
         }
         return { 1.0f,1.0f,1.0f };
     }
@@ -281,34 +261,11 @@ namespace material_space
         material_param.reflectance = get_reflectance_between_0_1(material_properties, "reflectance");
         material_param.specular_reflectance = get_reflectance_between_0_1(material_properties, "specular_reflectance");
         material_param.transmittance = get_reflectance_between_0_1(material_properties, "transmittance");
-
-        //material_param.reflectance = sRGB::gammaExpand(material_param.reflectance);
-
+        
         if (material_properties.find("emittance") != material_properties.end())
-        {//TODO: Temp for Transition
+        {
             material_param.emittance.is_emit = true;
-            glm::dvec3 temp_total_emittance{ 1.0 };
-
-            const auto emittance_property = material_properties.at("emittance");
-            if (emittance_property.type() == nlohmann::json::value_t::object)
-            {
-                const double scale = getOptional(emittance_property, "scale", 1.0);
-                const double temperature = getOptional<double>(emittance_property, "temperature", -1.0);
-                if (temperature > 0.0)
-                {
-                    temp_total_emittance = sRGB::RGB(CIE::Illuminant::blackbody(temperature) * scale);
-                }
-                else
-                {
-                    std::string illuminant = getOptional<std::string>(emittance_property, "illuminant", "D65");
-                    std::transform(illuminant.begin(), illuminant.end(), illuminant.begin(), toupper);
-                    temp_total_emittance = sRGB::RGB(CIE::Illuminant::whitePoint(illuminant.c_str()) * scale);
-                }
-            }
-            else
-            {
-                temp_total_emittance = emittance_property.get<glm::dvec3>();
-            }
+            const glm::dvec3 temp_total_emittance = material_properties.at("emittance").get<glm::dvec3>();
             material_param.emittance.emittance_scale = get_scale_from_total_emittance(temp_total_emittance);
             material_param.emittance.emittance_color = float3_array{
                 static_cast<float>(temp_total_emittance.r) / material_param.emittance.emittance_scale,
