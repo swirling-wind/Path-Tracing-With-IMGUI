@@ -5,25 +5,22 @@
 
 std::string Format::date(const std::chrono::time_point<std::chrono::system_clock>& date)
 {
-    std::time_t now = std::chrono::system_clock::to_time_t(date);
-
-    // localtime_r is not available on windows and localtime_s is not available on linux
-    struct tm* timeinfo = localtime(&now);
+    const std::time_t now = std::chrono::system_clock::to_time_t(date);
+    const tm* time_info = localtime(&now);
 
     std::string s(26, ' ');
-    std::strftime(s.data(), s.size(), "%Y-%m-%d %H:%M", timeinfo);
-
-    auto p = s.find_last_not_of(' ');
-    s.erase(p, s.size() - p);
+    std::strftime(s.data(), s.size(), "%Y-%m-%d %H:%M", time_info);
+    const auto pos = s.find_last_not_of(' ');
+    s.erase(pos, s.size() - pos);
 
     return s;
 }
 
-std::string Format::timeDuration(size_t msec_duration)
+std::string Format::timeDuration(const size_t millisecond_duration)
 {
-    size_t hours = msec_duration / 3600000;
-    size_t minutes = (msec_duration % 3600000) / 60000;
-    size_t seconds = (msec_duration % 60000) / 1000;
+    const size_t hours = millisecond_duration / 3600000;
+    const size_t minutes = (millisecond_duration % 3600000) / 60000;
+    const size_t seconds = (millisecond_duration % 60000) / 1000;
 
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(2) << hours << ":"
@@ -36,21 +33,22 @@ std::string Format::timeDuration(size_t msec_duration)
 std::string Format::progress(double progress)
 {
     std::string d_str = std::to_string(progress);
-    size_t dot_pos = d_str.find('.');
-    std::string l(""), r("");
+    const size_t dot_pos = d_str.find('.');
+    std::string left, right;
     if (dot_pos != std::string::npos)
     {
-        l = d_str.substr(0, dot_pos);
-        r = d_str.substr(dot_pos + 1);
+        left = d_str.substr(0, dot_pos);
+        right = d_str.substr(dot_pos + 1);
     }
     else
     {
-        l = d_str;
+        left = d_str;
     }
-    size_t r_len = (4 - l.length());
-    std::string r_n = r.length() >= r_len ? r.substr(0, r_len) : r + std::string(' ', static_cast<int>(r_len - r.length()));
+    const size_t right_len = (4 - left.length());
+    const std::string r_n = right.length() >= right_len ? right.substr(0, right_len) : right + std::string(
+                                    static_cast<int>(right_len - right.length()), ' ');
 
-    return l + "." + r_n + "%";
+    return left + "." + r_n + "%";
 }
 
 std::string Format::largeNumber(size_t n)

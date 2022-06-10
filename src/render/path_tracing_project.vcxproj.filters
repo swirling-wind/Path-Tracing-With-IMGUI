@@ -222,9 +222,6 @@
     <ClInclude Include="..\camera\film.h">
       <Filter>sources\render</Filter>
     </ClInclude>
-    <ClInclude Include="..\camera\filter.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
     <ClInclude Include="..\camera\image.h">
       <Filter>sources\render</Filter>
     </ClInclude>

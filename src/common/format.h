@@ -6,7 +6,7 @@
 namespace Format
 {
     std::string date(const std::chrono::time_point<std::chrono::system_clock>& date);
-    std::string timeDuration(size_t msec_duration);
+    std::string timeDuration(size_t millisecond_duration);
     std::string progress(double progress);
     std::string largeNumber(size_t n);
 }

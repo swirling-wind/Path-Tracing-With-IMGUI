@@ -208,7 +208,6 @@
     <ClInclude Include="..\bvh\bvh.h" />
     <ClInclude Include="..\camera\camera.h" />
     <ClInclude Include="..\camera\film.h" />
-    <ClInclude Include="..\camera\filter.h" />
     <ClInclude Include="..\camera\image.h" />
     <ClInclude Include="..\camera\pixel-operators.h" />
     <ClInclude Include="..\color\spectral.h" />
