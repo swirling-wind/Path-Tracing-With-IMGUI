@@ -6,7 +6,7 @@
 
 namespace CIE
 {
-    // CIE 1931 2¡ã
+    // CIE 1931 2ï¿½ï¿½
     inline constexpr Spectral::LinearDistribution<glm::dvec3, 471> CMF
     (
         {

@@ -11,7 +11,7 @@
 #include "../color/d65.h"
 #include "../color/cmf.h"
 
-// Using CIE 1931 2¡ã
+// Using CIE 1931 2ï¿½ï¿½
 namespace CIE
 {
     // Chromaticity coordinates xy and luminance Y to XYZ

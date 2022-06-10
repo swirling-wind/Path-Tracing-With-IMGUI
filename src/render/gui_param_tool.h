@@ -189,10 +189,11 @@ namespace material_space
 {
     using float3_array = std::array<float, 3>;
 
-    inline void get_reflectance_between_0_1(const nlohmann::json& j, const std::string& field, float3_array& reflectance)
+    inline float3_array get_reflectance_between_0_1(const nlohmann::json& j, const std::string& field)
     {
         if (j.find(field) != j.end())
         {
+            float3_array reflectance;
             const nlohmann::json& r = j.at(field);
             if (r.type() == nlohmann::json::value_t::string)
             {
@@ -215,9 +216,11 @@ namespace material_space
                 //[0,1]
                 reflectance = r.get<float3_array>();
             }
+            return reflectance;
         }
-    };
-    
+        return { 1.0f,1.0f,1.0f };
+    }
+
     inline float get_scale_from_total_emittance(const glm::dvec3 total_emittance)
     {
         double scale = 10.0;
@@ -275,11 +278,11 @@ namespace material_space
         getToOptional(material_properties, "perfect_mirror", material_param.is_perfect_mirror);
 
         // color range [0,1]
-        get_reflectance_between_0_1(material_properties, "reflectance", material_param.reflectance);
-        get_reflectance_between_0_1(material_properties, "specular_reflectance", material_param.specular_reflectance);
-        get_reflectance_between_0_1(material_properties, "transmittance", material_param.transmittance);
+        material_param.reflectance = get_reflectance_between_0_1(material_properties, "reflectance");
+        material_param.specular_reflectance = get_reflectance_between_0_1(material_properties, "specular_reflectance");
+        material_param.transmittance = get_reflectance_between_0_1(material_properties, "transmittance");
 
-        material_param.reflectance = sRGB::gammaExpand(material_param.reflectance);
+        //material_param.reflectance = sRGB::gammaExpand(material_param.reflectance);
 
         if (material_properties.find("emittance") != material_properties.end())
         {//TODO: Temp for Transition

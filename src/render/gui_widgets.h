@@ -70,7 +70,7 @@ namespace gui_widgets
                 ImGui::Text("No material ...");
             }
 
-            material_space::material_map::iterator to_delete_material = material_map.end();
+            auto to_delete_material = material_map.end();
             for (auto iter = material_map.begin(); iter != material_map.end(); ++iter)
             {
                 if (iter->first == "default")
@@ -164,7 +164,7 @@ namespace gui_widgets
     inline void show_integrator_params(integrator_space::bvh_and_photon_params& integrator_params)
     {
         // BVH and Photon
-        ImGui::Text("Thread Number: ");
+        ImGui::Text("Thread Count: ");
         ImGui::SameLine();
         ImGui::SliderInt("##Thread Num", &integrator_params.thread_num, 1, gui_constant_params::MAX_THREAD_NUM);
 

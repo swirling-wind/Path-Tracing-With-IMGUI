@@ -1,13 +1,14 @@
 {
     "bvh": {
-        "type": "octree"
+        "bins_per_axis": 8,
+        "type": "quaternary_sah"
     },
     "cameras": [
         {
             "eye": [
-                -0.20000000298023224,
-                2.200000047683716,
-                10.0
+                0.0,
+                1.0,
+                7.0
             ],
             "focal_length": 50.0,
             "image": {
@@ -18,27 +19,22 @@
                 "width": 1280
             },
             "look_at": [
-                -0.20000000298023224,
-                1.7000000476837158,
+                0.0,
+                1.0,
                 0.0
             ],
             "savename": "preview",
             "sensor_width": 35.0,
-            "sqrtspp": 5
+            "sqrtspp": 4
         }
     ],
     "materials": {
-        "F9_light": {
-            "emittance": [
-                62.70245361328125,
-                42.41939926147461,
-                25.930112838745117
-            ],
+        "blue Shadow": {
             "perfect_mirror": false,
             "reflectance": [
-                1.0,
-                1.0,
-                1.0
+                0.3185468018054962,
+                0.4620770215988159,
+                0.6038273572921753
             ],
             "roughness": 0.0,
             "specular_reflectance": [
@@ -87,6 +83,27 @@
             ],
             "transparency": 0.0
         },
+        "brown": {
+            "perfect_mirror": false,
+            "reflectance": [
+                0.7454042434692383,
+                0.4125426411628723,
+                0.14126329123973846
+            ],
+            "roughness": 0.0,
+            "specular_reflectance": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "specular_roughness": 0.0,
+            "transmittance": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "transparency": 0.0
+        },
         "copper": {
             "ior": {
                 "imaginary": [
@@ -123,9 +140,9 @@
         "default": {
             "perfect_mirror": false,
             "reflectance": [
-                0.7677792906761169,
-                0.7677792906761169,
-                0.7677792906761169
+                0.7874122262001038,
+                0.7874122262001038,
+                0.7874122262001038
             ],
             "roughness": 0.0,
             "specular_reflectance": [
@@ -196,12 +213,12 @@
             ],
             "transparency": 0.0
         },
-        "green": {
+        "green Shadow": {
             "perfect_mirror": false,
             "reflectance": [
-                0.0,
-                1.0,
-                0.0
+                0.4507858157157898,
+                0.6038273572921753,
+                0.3185468018054962
             ],
             "roughness": 0.0,
             "specular_reflectance": [
@@ -252,9 +269,9 @@
         },
         "light": {
             "emittance": [
-                235.19129943847656,
-                195.14688110351563,
-                144.39190673828125
+                34.993621826171875,
+                35.001564025878906,
+                35.00328826904297
             ],
             "perfect_mirror": false,
             "reflectance": [
@@ -276,12 +293,17 @@
             ],
             "transparency": 0.0
         },
-        "navy": {
+        "low light": {
+            "emittance": [
+                14.99726676940918,
+                15.000669479370117,
+                15.001409530639648
+            ],
             "perfect_mirror": false,
             "reflectance": [
-                0.055919114500284195,
-                0.1342586725950241,
-                0.23399151861667633
+                1.0,
+                1.0,
+                1.0
             ],
             "roughness": 0.0,
             "specular_reflectance": [
@@ -330,27 +352,6 @@
             ],
             "transparency": 0.0
         },
-        "oak": {
-            "perfect_mirror": false,
-            "reflectance": [
-                0.5153907537460327,
-                0.1418289989233017,
-                0.017660697922110558
-            ],
-            "roughness": 0.0,
-            "specular_reflectance": [
-                1.0,
-                1.0,
-                1.0
-            ],
-            "specular_roughness": 0.0,
-            "transmittance": [
-                1.0,
-                1.0,
-                1.0
-            ],
-            "transparency": 0.0
-        },
         "palladium": {
             "ior": {
                 "imaginary": [
@@ -384,12 +385,13 @@
             ],
             "transparency": 0.0
         },
-        "red": {
+        "rough-ice": {
+            "ior": 1.3300000429153442,
             "perfect_mirror": false,
             "reflectance": [
                 1.0,
-                0.0,
-                0.0
+                1.0,
+                1.0
             ],
             "roughness": 0.0,
             "specular_reflectance": [
@@ -397,41 +399,25 @@
                 1.0,
                 1.0
             ],
-            "specular_roughness": 0.0,
+            "specular_roughness": 0.25,
             "transmittance": [
                 1.0,
                 1.0,
                 1.0
             ],
-            "transparency": 0.0
+            "transparency": 1.0
         },
-        "shadow_green": {
+        "warm light": {
+            "emittance": [
+                34.419349670410156,
+                23.28534698486328,
+                14.233856201171875
+            ],
             "perfect_mirror": false,
             "reflectance": [
-                0.10734616965055466,
-                0.23399151861667633,
-                0.04080900549888611
-            ],
-            "roughness": 0.0,
-            "specular_reflectance": [
                 1.0,
                 1.0,
                 1.0
-            ],
-            "specular_roughness": 0.0,
-            "transmittance": [
-                1.0,
-                1.0,
-                1.0
-            ],
-            "transparency": 0.0
-        },
-        "walnut": {
-            "perfect_mirror": false,
-            "reflectance": [
-                0.03826342523097992,
-                0.0040511139668524265,
-                0.0
             ],
             "roughness": 0.0,
             "specular_reflectance": [
@@ -472,9 +458,9 @@
         "wood": {
             "perfect_mirror": false,
             "reflectance": [
-                0.4925982654094696,
-                0.31529051065444946,
-                0.1623769998550415
+                0.7304607629776001,
+                0.5972018241882324,
+                0.43965721130371094
             ],
             "roughness": 0.0,
             "specular_reflectance": [
@@ -489,135 +475,29 @@
                 1.0
             ],
             "transparency": 0.0
-        }
-    },
-    "num_render_threads": -1,
-    "photon_map": {
-        "caustic_factor": 20.0,
-        "direct_visualization": false,
-        "emissions": 2000000.0,
-        "k_nearest_photons": 50,
-        "max_photons_per_octree_leaf": 200
-    },
-    "surfaces": [
-        {
-            "file": "bunny.obj",
-            "material": "default",
-            "position": [
-                -1.0,
-                0.0,
-                0.0
-            ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": 1.0,
-            "smooth": true,
-            "type": "object"
         },
-        {
-            "file": "shelf.obj",
-            "material": "wood",
-            "position": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": 1.0,
-            "smooth": true,
-            "type": "object"
-        },
-        {
-            "file": "backwall.obj",
-            "material": "default",
-            "position": [
-                -0.20000000298023224,
-                0.0,
-                -3.799999952316284
-            ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": 3.200000047683716,
-            "smooth": true,
-            "type": "object"
-        },
-        {
-            "file": "bunny.obj",
-            "material": "gold",
-            "position": [
+        "yellow jewel": {
+            "ior": 1.5,
+            "perfect_mirror": false,
+            "reflectance": [
                 1.0,
-                0.0,
-                0.30000001192092896
+                1.0,
+                1.0
             ],
-            "rotation": [
-                0.0,
-                135.0,
-                0.0
+            "roughness": 0.0,
+            "specular_reflectance": [
+                1.0,
+                1.0,
+                1.0
             ],
-            "scale": 1.0,
-            "smooth": true,
-            "type": "object"
-        },
-        {
-            "file": "stanford_dragon_fullres.obj",
-            "material": "iron",
-            "position": [
-                -1.5,
-                2.990000009536743,
-                0.30000001192092896
+            "specular_roughness": 0.20000000298023224,
+            "transmittance": [
+                1.0,
+                0.615686297416687,
+                0.27843138575553894
             ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": 0.23999999463558197,
-            "smooth": true,
-            "type": "object"
-        },
-        {
-            "file": "bunny.obj",
-            "material": "glass",
-            "position": [
-                0.0,
-                0.0,
-                0.800000011920929
-            ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": 0.49999991059303284,
-            "smooth": true,
-            "type": "object"
-        },
-        {
-            "file": "backwall.obj",
-            "material": "F9_light",
-            "position": [
-                3.0,
-                0.0,
-                3.0
-            ],
-            "rotation": [
-                0.0,
-                90.0,
-                0.0
-            ],
-            "scale": 0.49999991059303284,
-            "smooth": true,
-            "type": "object"
+            "transparency": 1.0
         }
-    ]
+    },
+    "surfaces": []
 }
