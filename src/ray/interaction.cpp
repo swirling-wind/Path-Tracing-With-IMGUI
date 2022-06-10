@@ -4,7 +4,6 @@
 #include "../material/material.h"
 #include "../sampling/sampling.h"
 #include "../sampling/sampler.h"
-#include "../common/constants.h"
 #include "../common/coordinate-system.h"
 #include "../surface/surface.h"
 #include "../common/constexpr-math.h"

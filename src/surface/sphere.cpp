@@ -1,7 +1,6 @@
 #include "../surface/surface.h"
 
 #include "../common/constexpr-math.h"
-#include "../common/constants.h"
 
 Surface::Sphere::Sphere(double radius, std::shared_ptr<Material> material)
     : Base(material), origin(0.0), radius(radius)
@@ -38,7 +37,7 @@ glm::dvec3 Surface::Sphere::operator()(double u, double v) const
 {
     double z = 1.0 - 2.0 * u;
     double r = std::sqrt(1.0 - pow2(z));
-    double phi = C::TWO_PI * v;
+    double phi = Constant::TWO_PI * v;
 
     return origin + radius * glm::dvec3(r * std::cos(phi), r * std::sin(phi), z);
 }
@@ -50,7 +49,7 @@ glm::dvec3 Surface::Sphere::normal(const glm::dvec3& pos) const
 
 void Surface::Sphere::computeArea()
 {
-    area_ = 2.0 * C::TWO_PI * pow2(radius);
+    area_ = 2.0 * Constant::TWO_PI * pow2(radius);
 }
 
 void Surface::Sphere::computeBoundingBox()

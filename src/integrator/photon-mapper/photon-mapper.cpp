@@ -12,7 +12,6 @@
 #include "../../common/util.h"
 #include "../../common/work-queue.h"
 #include "../../common/priority-queue.h"
-#include "../../common/constants.h"
 #include "../../common/format.h"
 #include "../../material/material.h"
 #include "../../surface/surface.h"
@@ -105,7 +104,7 @@ PhotonMapper::PhotonMapper(const nlohmann::json& j) : Integrator(j)
                         glm::dvec3 normal = light->normal(pos);
                         glm::dvec3 dir = CoordinateSystem::from(Sampling::cosWeightedHemi(u[2], u[3]), normal);
 
-                        pos += normal * C::EPSILON;
+                        pos += normal * Constant::EPSILON;
 
                         emitPhoton(Ray(pos, dir, scene.ior), work.photon_flux, thread);
                     }
@@ -359,7 +358,7 @@ glm::dvec3 PhotonMapper::estimateGlobalRadiance(const Interaction& interaction)
             radiance += p.data.flux() * bsdf_absIdotN / bsdf_pdf;
         }
     }
-    return radiance / (photons.top().distance2 * C::PI);
+    return radiance / (photons.top().distance2 * Constant::PI);
 }
 
 /********************************************************************
@@ -387,5 +386,5 @@ glm::dvec3 PhotonMapper::estimateCausticRadiance(const Interaction& interaction)
             radiance += (p.data.flux() * bsdf_absIdotN * wp) / bsdf_pdf;
         }
     }
-    return 3.0 * radiance * inv_max_squared_radius * C::INV_PI;
+    return 3.0 * radiance * inv_max_squared_radius * Constant::INV_PI;
 }

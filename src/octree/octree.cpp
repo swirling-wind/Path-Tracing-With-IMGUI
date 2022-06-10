@@ -4,7 +4,6 @@
 #include <glm/gtx/norm.hpp>
 
 #include "../common/constexpr-math.h"
-#include "../common/constants.h"
 #include "../common/util.h"
 
 /**************

@@ -5,16 +5,15 @@
 
 struct CoordinateSystem
 {
-    CoordinateSystem() : T() { }
-    CoordinateSystem(const glm::dvec3& N);
+    CoordinateSystem() : t_() { }
+    explicit CoordinateSystem(const glm::dvec3& n);
 
-    glm::dvec3 from(const glm::dvec3& v) const;
-    glm::dvec3 to(const glm::dvec3& v) const;
+    [[nodiscard]] glm::dvec3 from(const glm::dvec3& v) const;
+    [[nodiscard]] glm::dvec3 to(const glm::dvec3& v) const;
+    [[nodiscard]] const glm::dvec3& normal() const;
 
     static glm::dvec3 from(const glm::dvec3& v, const glm::dvec3& N);
 
-    const glm::dvec3& normal() const;
-
 private:
-    glm::dmat3 T;
+    glm::dmat3 t_;
 };

@@ -182,7 +182,7 @@ void BVH::recursive_build_binary_sah(std::shared_ptr<BuildNode> bvh_node)
                         (extent_dims.x > extent_dims.z ? 0 : 2) : 
                         (extent_dims.y > extent_dims.z ? 1 : 2);
 
-    if (extent_dims[split_axis] < C::EPSILON)
+    if (extent_dims[split_axis] < Constant::EPSILON)
     {
         if (surfaces_list.size() > max_leaf_surfaces)
         {
@@ -309,7 +309,7 @@ void BVH::recursive_build_quaternary_sah(const std::shared_ptr<BuildNode>& bvh_n
                      (extent_dims.y > extent_dims.z ? glm::ivec2(0, 1) : glm::ivec2(0, 2)) :
                      (extent_dims.x > extent_dims.z ? glm::ivec2(0, 1) : glm::ivec2(1, 2));
     
-    if (extent_dims[axes.x] < C::EPSILON || extent_dims[axes.y] < C::EPSILON)
+    if (extent_dims[axes.x] < Constant::EPSILON || extent_dims[axes.y] < Constant::EPSILON)
     {
         depth_first_index_--;
         recursive_build_binary_sah(bvh_node);

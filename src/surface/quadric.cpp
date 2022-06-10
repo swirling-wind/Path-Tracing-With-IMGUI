@@ -4,7 +4,6 @@
 
 #include "../common/util.h"
 #include "../common/constexpr-math.h"
-#include "../common/constants.h"
 
 Surface::Quadric::Quadric(const nlohmann::json &j, std::shared_ptr<Material> material)
     : Base(material)

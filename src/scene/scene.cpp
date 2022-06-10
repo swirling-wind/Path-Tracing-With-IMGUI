@@ -4,7 +4,6 @@
 
 
 #include "../common/util.h"
-#include "../common/constants.h"
 #include "../common/format.h"
 #include "../material/material.h"
 #include "../surface/surface.h"
@@ -64,7 +63,7 @@ Scene::Scene(const nlohmann::json& j)
                 triangles_vn = triangles_v;
             }
 
-            bool is_emissive = glm::compMax(material->emittance) > C::EPSILON;
+            bool is_emissive = glm::compMax(material->emittance) > Constant::EPSILON;
             double total_area = 0.0;
             if (is_emissive)
             {
@@ -81,7 +80,7 @@ Scene::Scene(const nlohmann::json& j)
                 // Entire object emits the flux of assigned material emittance in scene file.
                 // The flux of the material therefore needs to be distributed amongst all object triangles.
                 std::shared_ptr<Material> mat;
-                if (is_emissive && total_area > C::EPSILON)
+                if (is_emissive && total_area > Constant::EPSILON)
                 {
                     double area = Surface::Triangle(v.at(t.at(0)), v.at(t.at(1)), v.at(t.at(2)), nullptr).area();
                     mat = std::make_shared<Material>(*material);
@@ -125,7 +124,7 @@ Scene::Scene(const nlohmann::json& j)
                 // Emittance is not supported for general quadrics 
                 // (no parameterization -> no uniform surface sampling or surface area integral)
                 std::shared_ptr<Material> mat = material;
-                if (glm::compMax(material->emittance) > C::EPSILON)
+                if (glm::compMax(material->emittance) > Constant::EPSILON)
                 {
                     mat = std::make_shared<Material>(*material);
                     mat->emittance = glm::dvec3(0.0);
@@ -218,7 +217,7 @@ void Scene::computeBoundingBox()
 
 glm::dvec3 Scene::skyColor(const Ray& ray) const
 {
-    double fy = (1.0 + std::asin(glm::dot(glm::dvec3(0.0, 1.0, 0.0), ray.direction)) / C::PI) / 2.0;
+    double fy = (1.0 + std::asin(glm::dot(glm::dvec3(0.0, 1.0, 0.0), ray.direction)) / Constant::PI) / 2.0;
     return glm::mix(glm::dvec3(1.0, 0.5, 0.0), glm::dvec3(0.0, 0.5, 1.0), fy);
 }
 

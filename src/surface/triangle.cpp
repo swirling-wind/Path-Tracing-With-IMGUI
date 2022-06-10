@@ -1,8 +1,7 @@
 #include "../surface/surface.h"
 
 #include <glm/gtx/transform.hpp>
-
-#include "../common/constants.h"
+#include "common/constexpr-math.h"
 
 Surface::Triangle::Triangle(const glm::dvec3& v0, const glm::dvec3& v1, const glm::dvec3& v2, std::shared_ptr<Material> material)
     : Base(material), v0(v0), v1(v1), v2(v2), E1(v1 - v0), E2(v2 - v0), normal_(glm::normalize(glm::cross(E1, E2))), N(nullptr)
@@ -22,9 +21,9 @@ Surface::Triangle::Triangle(const glm::dvec3& v0, const glm::dvec3& v1, const gl
 
 bool Surface::Triangle::intersect(const Ray& ray, Intersection& intersection) const
 {
-    glm::dvec3 P = glm::cross(ray.direction, E2);
-    double determinant = glm::dot(P, E1);
-    if (determinant < C::EPSILON && determinant > -C::EPSILON) // Ray parallel to triangle. 
+    const glm::dvec3 P = cross(ray.direction, E2);
+    const double determinant = dot(P, E1);
+    if (determinant < Constant::EPSILON && determinant > -Constant::EPSILON) // Ray parallel to triangle. 
     {
         return false;
     }

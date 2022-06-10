@@ -7,7 +7,6 @@
 
 #include "../common/util.h"
 #include "../common/constexpr-math.h"
-#include "../common/constants.h"
 #include "../color/srgb.h"
 #include "../material/fresnel.h"
 #include "../material/ggx.h"
@@ -20,7 +19,7 @@ glm::dvec3 Material::diffuseReflection(const glm::dvec3& wi, const glm::dvec3& w
         return glm::dvec3(0.0);
     }
 
-    PDF = wi.z * C::INV_PI;
+    PDF = wi.z * Constant::INV_PI;
     return rough ? OrenNayar(wi, wo) : lambertian();
 }
 
@@ -73,7 +72,7 @@ glm::dvec3 Material::visibleMicrofacet(double u, double v, const glm::dvec3& wo)
 
 glm::dvec3 Material::lambertian() const
 {
-    return reflectance * C::INV_PI;
+    return reflectance * Constant::INV_PI;
 }
 
 // Avoids trigonometric functions for increased performance.
@@ -94,12 +93,12 @@ glm::dvec3 Material::OrenNayar(const glm::dvec3& wi, const glm::dvec3& wo) const
 
 void Material::computeProperties()
 {
-    rough = roughness > C::EPSILON;
-    rough_specular = specular_roughness > C::EPSILON;
-    opaque = transparency < C::EPSILON || complex_ior || perfect_mirror;
-    emissive = glm::compMax(emittance) > C::EPSILON;
+    rough = roughness > Constant::EPSILON;
+    rough_specular = specular_roughness > Constant::EPSILON;
+    opaque = transparency < Constant::EPSILON || complex_ior || perfect_mirror;
+    emissive = glm::compMax(emittance) > Constant::EPSILON;
 
-    dirac_delta = (complex_ior || perfect_mirror || (std::abs(transparency - 1.0) < C::EPSILON)) && !rough_specular;
+    dirac_delta = (complex_ior || perfect_mirror || (std::abs(transparency - 1.0) < Constant::EPSILON)) && !rough_specular;
 
     double variance = pow2(roughness);
     A = 1.0 - 0.5 * (variance / (variance + 0.33));

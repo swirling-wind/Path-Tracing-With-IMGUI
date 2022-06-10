@@ -135,9 +135,6 @@
     <ClInclude Include="..\common\bounding-box.h">
       <Filter>sources\render</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\constants.h">
-      <Filter>sources\render</Filter>
-    </ClInclude>
     <ClInclude Include="..\common\constexpr-math.h">
       <Filter>sources\render</Filter>
     </ClInclude>

@@ -6,7 +6,6 @@
 
 #include "../common/util.h"
 #include "../common/constexpr-math.h"
-#include "../common/constants.h"
 #include "../sampling/sampling.h"
 #include "../sampling/sampler.h"
 #include "../material/material.h"
@@ -40,7 +39,7 @@ glm::dvec3 Integrator::sampleDirect(const Interaction& interaction, LightSample&
     ls.light = scene.selectLight(u[2], ls.select_probability);
 
     glm::dvec3 light_pos = ls.light->operator()(u[0], u[1]);
-    Ray shadow_ray(interaction.position + interaction.normal * C::EPSILON, light_pos);
+    Ray shadow_ray(interaction.position + interaction.normal * Constant::EPSILON, light_pos);
 
     double cos_light_theta = glm::dot(-shadow_ray.direction, ls.light->normal(light_pos));
 
@@ -59,7 +58,7 @@ glm::dvec3 Integrator::sampleDirect(const Interaction& interaction, LightSample&
         else
         {
             // Try transmission
-            shadow_ray = Ray(interaction.position - interaction.normal * C::EPSILON, light_pos);
+            shadow_ray = Ray(interaction.position - interaction.normal * Constant::EPSILON, light_pos);
         }
     }
 

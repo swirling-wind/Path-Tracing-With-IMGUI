@@ -14,7 +14,7 @@
 #include "../common/util.h"
 #include "../common/constexpr-math.h"
 #include "../common/format.h"
-#include "../common/constants.h"
+#include "../common/constexpr-math.h"
 #include "render/gui_param_tool.h"
 
 void Camera::init_integrator_and_scene(const nlohmann::json& j, const bool is_photon_map, std::atomic<gui_params_space::render_status>& status)
@@ -167,7 +167,7 @@ void Camera::look_at(const glm::dvec3& p)
 {
     forward = normalize(p - eye);
     left = cross({ 0.0, 1.0, 0.0 }, forward);
-    left = length(left) < C::EPSILON ? glm::dvec3(-1.0, 0.0, 0.0) : glm::normalize(left);
+    left = length(left) < Constant::EPSILON ? glm::dvec3(-1.0, 0.0, 0.0) : glm::normalize(left);
     up = normalize(glm::cross(forward, left));
 }
 

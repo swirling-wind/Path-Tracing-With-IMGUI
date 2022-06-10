@@ -3,7 +3,6 @@
 #include "../common/constexpr-math.h"
 #include "../sampling/sampling.h"
 #include "../sampling/sampler.h"
-#include "../common/constants.h"
 #include "../material/material.h"
 #include "../ray/interaction.h"
 
@@ -25,7 +24,7 @@ Ray::Ray(const Interaction &ia) :
             glm::dvec3 specular_normal = ia.specularNormal();
             direction = glm::reflect(ia.ray.direction, specular_normal);
             medium_ior = ia.n1;
-            start += ia.normal * C::EPSILON;
+            start += ia.normal * Constant::EPSILON;
             break;
         }
         case Interaction::REFRACT:
@@ -39,7 +38,7 @@ Ray::Ray(const Interaction &ia) :
                 /* SPECULAR REFRACTION */
                 direction = inv_eta * ia.ray.direction - (inv_eta * cos_theta + std::sqrt(k)) * specular_normal;
                 medium_ior = ia.n2;
-                start -= ia.normal * C::EPSILON;
+                start -= ia.normal * Constant::EPSILON;
                 ia.inside ? refraction_level-- : refraction_level++;
                 refraction_scale *= pow2(1.0 / inv_eta);
                 refraction = true;
@@ -49,7 +48,7 @@ Ray::Ray(const Interaction &ia) :
                 /* CRITICAL ANGLE, SPECULAR REFLECTION */
                 direction = ia.ray.direction - specular_normal * cos_theta * 2.0;
                 medium_ior = ia.n1;
-                start += ia.normal * C::EPSILON;
+                start += ia.normal * Constant::EPSILON;
             }
             break;
         }
@@ -59,7 +58,7 @@ Ray::Ray(const Interaction &ia) :
             auto u = Sampler::get<Dim::BSDF, 2>();
             direction = ia.shading_cs.from(Sampling::cosWeightedHemi(u[0], u[1]));
             medium_ior = ia.n1;
-            start += ia.normal * C::EPSILON;
+            start += ia.normal * Constant::EPSILON;
             break;
         }
     }

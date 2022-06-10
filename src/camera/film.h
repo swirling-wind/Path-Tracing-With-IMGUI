@@ -7,16 +7,13 @@
 
 class Film
 {
-    typedef glm::vec<2, int64_t> ivec2;
+    using vec_with_2_int = glm::vec<2, int64_t>;
 
 public:
     Film();
-
     Film(size_t width, size_t height);
-    
 
     void deposit(const glm::dvec2& p, const glm::dvec3& v);
-
     [[nodiscard]] glm::dvec3 scan(size_t col, size_t row) const;
 
 private:
@@ -29,19 +26,19 @@ private:
         glm::dvec3 get() const;
 
     private:
-        std::atomic<double> rgb_sum[3];
-        std::atomic<double> weight_sum;
+        std::atomic<double> rgb_sum_[3];
+        std::atomic<double> weight_sum_;
     };
 
-    std::vector<Splat> blob;
+    std::vector<Splat> blob_;
 
-    std::vector<double> filter_cache;
+    std::vector<double> filter_cache_;
 
-    double radius;
-    double two_inv_radius;
-    double inv_dx;
+    double radius_;
+    double two_inv_radius_;
+    double inv_dx_;
 
-    size_t width, height;
+    size_t width_, height_;
 
-    std::function<double(double)> filter_function;
+    std::function<double(double)> filter_function_;
 };

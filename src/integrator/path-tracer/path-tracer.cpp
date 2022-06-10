@@ -2,7 +2,6 @@
 
 #include "../../common/util.h"
 #include "../../sampling/sampler.h"
-#include "../../common/constants.h"
 #include "../../material/material.h"
 #include "../../surface/surface.h"
 #include "../../ray/interaction.h"

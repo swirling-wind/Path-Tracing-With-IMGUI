@@ -214,7 +214,6 @@
     <ClInclude Include="..\color\spectral.h" />
     <ClInclude Include="..\color\srgb.h" />
     <ClInclude Include="..\common\bounding-box.h" />
-    <ClInclude Include="..\common\constants.h" />
     <ClInclude Include="..\common\constexpr-math.h" />
     <ClInclude Include="..\common\coordinate-system.h" />
     <ClInclude Include="..\common\format.h" />

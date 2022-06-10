@@ -6,7 +6,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 
-#include "../common/constants.h"
+#include "../common/constexpr-math.h"
 
 namespace Sampling
 {
@@ -28,7 +28,7 @@ namespace Sampling
 
     inline glm::dvec2 uniformDisk(double u, double v)
     {
-        double azimuth = v * C::TWO_PI;
+        double azimuth = v * Constant::TWO_PI;
         return glm::dvec2(std::cos(azimuth), std::sin(azimuth)) * std::sqrt(u);
     }
 
@@ -36,7 +36,7 @@ namespace Sampling
     {
         // Generate uniform sample on unit disk at radius r and angle azimuth
         double r = std::sqrt(u);
-        double azimuth = v * C::TWO_PI;
+        double azimuth = v * Constant::TWO_PI;
 
         // Project up to hemisphere.
         // z = sin(acos(r)) = sqrt(1-r^2) = sqrt(1-sqrt(u)^2) = sqrt(1-u) 

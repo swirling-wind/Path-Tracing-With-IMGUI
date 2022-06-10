@@ -3,7 +3,6 @@
 #include <algorithm>
 
 #include "../common/constexpr-math.h"
-#include "../common/constants.h"
 
 /*
 
@@ -20,7 +19,7 @@
 
 double GGX::D(const glm::dvec3& m, const glm::dvec2& a)
 {
-    return 1.0 / (C::PI * a.x * a.y * pow2(pow2(m.x / a.x) + pow2(m.y / a.y) + pow2(m.z)));
+    return 1.0 / (Constant::PI * a.x * a.y * pow2(pow2(m.x / a.x) + pow2(m.y / a.y) + pow2(m.z)));
 }
 
 double GGX::DV(const glm::dvec3& m, const glm::dvec3& wo, const glm::dvec2& a)
@@ -75,7 +74,7 @@ glm::dvec3 GGX::visibleMicrofacet(double u, double v, const glm::dvec3& wo, cons
 
     // Section 4.2: parameterization of the projected area
     double r = std::sqrt(u);
-    double phi = v * C::TWO_PI;
+    double phi = v * Constant::TWO_PI;
     double t1 = r * std::cos(phi);
     double t2 = r * std::sin(phi);
     double s = 0.5 * (1.0 + Vh.z);

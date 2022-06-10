@@ -10,7 +10,7 @@
 #include "../common/constexpr-math.h"
 
 template <class Data>
-struct alignas(nextPowerOfTwo(sizeof(Data) + sizeof(double))) SearchResult
+struct alignas(next_power_of_two(sizeof(Data) + sizeof(double))) SearchResult
 {
     SearchResult(const Data& data, double distance2) : data(data), distance2(distance2) { }
     bool operator< (const SearchResult& rhs) const { return distance2 < rhs.distance2; };
