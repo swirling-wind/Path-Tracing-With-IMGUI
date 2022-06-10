@@ -136,10 +136,10 @@ void from_json(const nlohmann::json& j, Material& m)
         }
     };
 
-    getToOptional(j, "roughness", m.roughness);
-    getToOptional(j, "specular_roughness", m.specular_roughness);
-    getToOptional(j, "transparency", m.transparency);
-    getToOptional(j, "perfect_mirror", m.perfect_mirror);
+    get_to_optional(j, "roughness", m.roughness);
+    get_to_optional(j, "specular_roughness", m.specular_roughness);
+    get_to_optional(j, "transparency", m.transparency);
+    get_to_optional(j, "perfect_mirror", m.perfect_mirror);
     getReflectance("reflectance", m.reflectance);
     getReflectance("specular_reflectance", m.specular_reflectance);
     getReflectance("transmittance", m.transmittance);

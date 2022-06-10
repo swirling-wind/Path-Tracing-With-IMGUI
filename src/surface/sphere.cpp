@@ -16,7 +16,7 @@ bool Surface::Sphere::intersect(const Ray& ray, Intersection& intersection) cons
     double c = glm::dot(so, so) - pow2(radius);
 
     double t_min, t_max;
-    if (solveQuadratic(1.0, b, c, t_min, t_max) && t_max >= 0.0)
+    if (solve_quadratic(1.0, b, c, t_min, t_max) && t_max >= 0.0)
     {
         intersection = Intersection(t_min < 0.0 ? t_max : t_min);
         return true;

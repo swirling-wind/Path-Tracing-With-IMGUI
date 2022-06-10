@@ -252,10 +252,10 @@ namespace material_space
     
     inline void from_json(const nlohmann::json& material_properties, material_params& material_param)
     {
-        getToOptional(material_properties, "roughness", material_param.roughness);
-        getToOptional(material_properties, "specular_roughness", material_param.specular_roughness);
-        getToOptional(material_properties, "transparency", material_param.transparency);
-        getToOptional(material_properties, "perfect_mirror", material_param.is_perfect_mirror);
+        get_to_optional(material_properties, "roughness", material_param.roughness);
+        get_to_optional(material_properties, "specular_roughness", material_param.specular_roughness);
+        get_to_optional(material_properties, "transparency", material_param.transparency);
+        get_to_optional(material_properties, "perfect_mirror", material_param.is_perfect_mirror);
 
         // color range [0,1]
         material_param.reflectance = get_reflectance_between_0_1(material_properties, "reflectance");

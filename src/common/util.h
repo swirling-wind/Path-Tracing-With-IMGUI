@@ -32,7 +32,7 @@ struct Transform
             glm::scale(glm::dmat4(1.0), s);
     }
 
-    glm::dvec3 transformNormal(const glm::dvec3& normal) const
+    glm::dvec3 transform_normal(const glm::dvec3& normal) const
     {
         return rotation_matrix * glm::dvec4(normalize(normal / scale), 1.0);
     }
@@ -65,7 +65,7 @@ T getOptional(const nlohmann::json &j, std::string field, T default_value)
 }
 
 template <class T>
-void getToOptional(const nlohmann::json &j, std::string field, T& value)
+void get_to_optional(const nlohmann::json &j, std::string field, T& value)
 {
     if (j.find(field) != j.end())
     {
@@ -73,7 +73,7 @@ void getToOptional(const nlohmann::json &j, std::string field, T& value)
     }
 }
 
-inline bool solveQuadratic(double a, double b, double c, double& t_min, double& t_max)
+inline bool solve_quadratic(double a, double b, double c, double& t_min, double& t_max)
 {
     if (a != 0.0)
     {

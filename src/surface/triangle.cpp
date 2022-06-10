@@ -80,9 +80,9 @@ void Surface::Triangle::transform(const Transform &T)
 
         if (T.negative_determinant) std::swap(vn[1], vn[2]);
 
-        vn[0] = T.transformNormal(vn[0]);
-        vn[1] = T.transformNormal(vn[1]);
-        vn[2] = T.transformNormal(vn[2]);
+        vn[0] = T.transform_normal(vn[0]);
+        vn[1] = T.transform_normal(vn[1]);
+        vn[2] = T.transform_normal(vn[2]);
     }
 
     computeArea();

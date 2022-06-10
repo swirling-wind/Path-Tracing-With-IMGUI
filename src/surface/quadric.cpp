@@ -67,7 +67,7 @@ bool Surface::Quadric::intersect(const Ray& ray, Intersection& intersection) con
     double c = glm::dot(o, Qo);
 
     double t_min, t_max;
-    if (solveQuadratic(a, b, c, t_min, t_max) && t_max >= 0.0)
+    if (solve_quadratic(a, b, c, t_min, t_max) && t_max >= 0.0)
     {
         double t = t_bb + (t_min < 0.0 ? t_max : t_min);
         if (!BB_.contains(ray(t)))
