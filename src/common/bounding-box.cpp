@@ -5,6 +5,15 @@
 #include <glm/common.hpp>
 #include <glm/gtx/component_wise.hpp>
 
+bool BoundingBox::is_valid() const
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (min[i] > max[i]) return false;
+    }
+    return true;
+}
+
 bool BoundingBox::intersect(const Ray &ray, double &t) const
 {
     const glm::dvec3 t0{ (min - ray.start) * ray.inv_direction };
@@ -15,10 +24,10 @@ bool BoundingBox::intersect(const Ray &ray, double &t) const
     return compMin(glm::max(t0, t1)) >= t;
 }
 
-bool BoundingBox::contains(const glm::dvec3 &p) const
+bool BoundingBox::contains(const glm::dvec3 &point) const
 {
-    return p.x >= min.x && p.y >= min.y && p.z >= min.z && 
-           p.x <= max.x && p.y <= max.y && p.z <= max.z;
+    return point.x >= min.x && point.y >= min.y && point.z >= min.z && 
+           point.x <= max.x && point.y <= max.y && point.z <= max.z;
 }
 
 glm::dvec3 BoundingBox::dimensions() const
@@ -33,7 +42,7 @@ glm::dvec3 BoundingBox::centroid() const
 
 double BoundingBox::area() const
 {
-    if (!valid()) return 0.0;
+    if (!is_valid()) return 0.0;
     const glm::dvec3 dim = dimensions();
     return 2.0 * (dim.x * dim.y + dim.x * dim.z + dim.y * dim.z);
 }
@@ -59,20 +68,11 @@ void BoundingBox::merge(const BoundingBox &bb)
     }
 }
 
-void BoundingBox::merge(const glm::dvec3 &p)
+void BoundingBox::merge(const glm::dvec3 &point)
 {
     for (int i = 0; i < 3; i++)
     {
-        if (min[i] > p[i]) min[i] = p[i];
-        if (max[i] < p[i]) max[i] = p[i];
+        if (min[i] > point[i]) min[i] = point[i];
+        if (max[i] < point[i]) max[i] = point[i];
     }
-}
-
-bool BoundingBox::valid() const
-{
-    for (int i = 0; i < 3; i++)
-    {
-        if (min[i] > max[i]) return false;
-    }
-    return true;
 }
