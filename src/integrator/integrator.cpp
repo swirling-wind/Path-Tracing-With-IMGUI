@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <thread>
-
 #include <glm/gtx/norm.hpp>
 
 #include "../common/util.h"
@@ -13,7 +12,6 @@
 #include "../material/material.h"
 #include "../surface/surface.h"
 #include "../ray/interaction.h"
-#include "../material/fresnel.h"
 
 Integrator::Integrator(const nlohmann::json &j) : scene(j)
 {

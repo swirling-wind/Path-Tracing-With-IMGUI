@@ -5,7 +5,7 @@
 
 struct BoundingBox
 {
-    BoundingBox() { }
+    BoundingBox() = default;
     BoundingBox(const glm::dvec3 min, const glm::dvec3 max) 
         : min(min), max(max) { }
 
@@ -14,9 +14,9 @@ struct BoundingBox
     glm::dvec3 dimensions() const;
     glm::dvec3 centroid() const;
     double area() const;
-    double distance2(const glm::dvec3 &p) const;
-    double max_distance2(const glm::dvec3& p) const;
-    void merge(const BoundingBox &BB);
+    double smallest_possible_squared_distance_to_box(const glm::dvec3 &point) const;
+    double largest_possible_squared_distance_to_box(const glm::dvec3& point) const;
+    void merge(const BoundingBox &bb);
     void merge(const glm::dvec3 &p);
     bool valid() const;
 

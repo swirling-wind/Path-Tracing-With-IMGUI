@@ -1,14 +1,9 @@
 #include "../material/fresnel.h"
 
-#include <fstream>
-#include <iostream>
-
 #include <glm/glm.hpp>
 
 #include "../common/constexpr-math.h"
-#include "../common/constants.h"
 #include "../common/util.h"
-#include "../scene/scene.h"
 #include "../color/spectral.h"
 #include "../color/srgb.h"
 

@@ -1,19 +1,18 @@
 #include <algorithm>
 
-#include <glm/common.hpp>
-
 #include "../common/bounding-box.h"
 #include "../ray/ray.h"
+#include <glm/common.hpp>
 #include <glm/gtx/component_wise.hpp>
-// Reduced version of https://tavianator.com/2011/ray_box.html
+
 bool BoundingBox::intersect(const Ray &ray, double &t) const
 {
-    glm::dvec3 t0{ (min - ray.start) * ray.inv_direction };
-    glm::dvec3 t1{ (max - ray.start) * ray.inv_direction };
+    const glm::dvec3 t0{ (min - ray.start) * ray.inv_direction };
+    const glm::dvec3 t1{ (max - ray.start) * ray.inv_direction };
 
-    t = std::max(glm::compMax(glm::min(t0, t1)), 0.0);
+    t = std::max(compMax(glm::min(t0, t1)), 0.0);
 
-    return glm::compMin(glm::max(t0, t1)) >= t;
+    return compMin(glm::max(t0, t1)) >= t;
 }
 
 bool BoundingBox::contains(const glm::dvec3 &p) const
@@ -35,30 +34,28 @@ glm::dvec3 BoundingBox::centroid() const
 double BoundingBox::area() const
 {
     if (!valid()) return 0.0;
-    glm::dvec3 d = dimensions();
-    return 2.0 * (d.x * d.y + d.x * d.z + d.y * d.z);
+    const glm::dvec3 dim = dimensions();
+    return 2.0 * (dim.x * dim.y + dim.x * dim.z + dim.y * dim.z);
 }
 
-// Smallest possible squared distance to a point in the bounding box
-double BoundingBox::distance2(const glm::dvec3 &p) const
+double BoundingBox::smallest_possible_squared_distance_to_box(const glm::dvec3 &point) const
 {
-    glm::dvec3 d = glm::max(glm::max(min - p, p - max), glm::dvec3(0.0));
-    return glm::dot(d, d);
+    const glm::dvec3 distance = glm::max(glm::max(min - point, point - max), glm::dvec3(0.0));
+    return dot(distance, distance);
 }
 
-// Largest possible squared distance to a point in the bounding box
-double BoundingBox::max_distance2(const glm::dvec3& p) const
+double BoundingBox::largest_possible_squared_distance_to_box(const glm::dvec3& point) const
 {
-    glm::dvec3 d = glm::max(max - p, p - min);
-    return glm::dot(d, d);
+    const glm::dvec3 distance = glm::max(max - point, point - min);
+    return dot(distance, distance);
 }
 
-void BoundingBox::merge(const BoundingBox &BB)
+void BoundingBox::merge(const BoundingBox &bb)
 {
     for (int i = 0; i < 3; i++)
     {
-        if (min[i] > BB.min[i]) min[i] = BB.min[i];
-        if (max[i] < BB.max[i]) max[i] = BB.max[i];
+        if (min[i] > bb.min[i]) min[i] = bb.min[i];
+        if (max[i] < bb.max[i]) max[i] = bb.max[i];
     }
 }
 

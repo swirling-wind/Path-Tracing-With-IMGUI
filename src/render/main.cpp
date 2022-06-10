@@ -372,7 +372,7 @@ void main()
                 nlohmann::json preview_total_render_properties = shot_params;
                 camera_for_preview->import_camera_and_image_properties(preview_total_render_properties);
 
-                std::thread f(&Camera::previewImage, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status), std::ref(render_progress));
+                std::thread f(&Camera::preview_image, camera_for_preview.get(), std::ref(preview_image), std::ref(current_status), std::ref(render_progress));
                 f.detach();
 
                 std::cout << "Start render preview scene, ready to display\n";

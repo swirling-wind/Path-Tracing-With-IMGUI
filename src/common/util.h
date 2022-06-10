@@ -4,6 +4,7 @@
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -17,15 +18,26 @@ inline glm::dvec3 intToColor(uint32_t i)
     return glm::dvec3((i >> 16) & 0xFF, (i >> 8) & 0xFF, i & 0xFF) / 255.0;
 }
 
-void Log(const std::string& message);
-
-void waitForInput();
-
 struct Transform
 {
-    Transform(const glm::dvec3 &position, const glm::dvec3 &scale, const glm::dvec3 &rotation);
+    Transform(const glm::dvec3& p, const glm::dvec3& s, const glm::dvec3& r)
+        : position(p), scale(s), rotation(r)
+    {
+        negative_determinant = s.x * s.y * s.z < 0.0;
 
-    glm::dvec3 transformNormal(const glm::dvec3& normal) const;
+        rotation_matrix = rotate(r.z, glm::dvec3(0.0, 0.0, 1.0)) *
+            rotate(r.y, glm::dvec3(0.0, 1.0, 0.0)) *
+            rotate(r.x, glm::dvec3(1.0, 0.0, 0.0));
+
+        matrix = glm::translate(glm::dmat4(1.0), p) *
+            rotation_matrix *
+            glm::scale(glm::dmat4(1.0), s);
+    }
+
+    glm::dvec3 transformNormal(const glm::dvec3& normal) const
+    {
+        return rotation_matrix * glm::dvec4(normalize(normal / scale), 1.0);
+    }
 
     glm::dmat4 matrix, rotation_matrix;
     const glm::dvec3 position, scale, rotation;
@@ -34,11 +46,17 @@ struct Transform
 
 namespace glm
 {
-    void from_json(const nlohmann::json &j, dvec3 &v);
+    inline void from_json(const nlohmann::json& j, dvec3& v)
+    {
+        if (j.type() == nlohmann::json::value_t::array)
+            for (int i = 0; i < 3; i++) j.at(i).get_to(v[i]);
+        else
+            for (int i = 0; i < 3; i++) j.get_to(v[i]);
+    }
 }
 
 template <class T>
-inline T getOptional(const nlohmann::json &j, std::string field, T default_value)
+T getOptional(const nlohmann::json &j, std::string field, T default_value)
 {
     T ret = default_value;
     if (j.find(field) != j.end())
@@ -49,7 +67,7 @@ inline T getOptional(const nlohmann::json &j, std::string field, T default_value
 }
 
 template <class T>
-inline void getToOptional(const nlohmann::json &j, std::string field, T& value)
+void getToOptional(const nlohmann::json &j, std::string field, T& value)
 {
     if (j.find(field) != j.end())
     {
@@ -89,7 +107,7 @@ inline double powerHeuristic(double a_pdf, double b_pdf)
 }
 
 template<class T>
-inline std::priority_queue<T> reservedPriorityQueue(size_t size)
+std::priority_queue<T> reservedPriorityQueue(size_t size)
 {
     std::vector<T> container; container.reserve(size);
     return std::priority_queue<T, std::vector<T>, std::less<T>>(std::less<T>(), std::move(container));

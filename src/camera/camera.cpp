@@ -17,15 +17,15 @@
 #include "../common/constants.h"
 #include "render/gui_param_tool.h"
 
-void Camera::init_integrator_and_scene(nlohmann::json j, const bool is_photon_map, std::atomic<gui_params_space::render_status>& status)
+void Camera::init_integrator_and_scene(const nlohmann::json& j, const bool is_photon_map, std::atomic<gui_params_space::render_status>& status)
 {
     if (is_photon_map)
     {
-        integrator = std::make_shared<PhotonMapper>(j);
+        integrator_ = std::make_shared<PhotonMapper>(j);
     }
     else
     {
-        integrator = std::make_shared<PathTracer>(j);
+        integrator_ = std::make_shared<PathTracer>(j);
     }
     status = gui_params_space::render_status::scene_prepared_ready_to_preview;
     std::cout << "Successfully Prepare the scene, ready to preview\n";
@@ -48,11 +48,11 @@ void Camera::import_camera_and_image_properties(const nlohmann::json& j)
 
     if (cam_json.find("look_at") != cam_json.end())
     {
-        const glm::dvec3 look_at = cam_json.at("look_at");
-        lookAt(look_at);
+        const glm::dvec3 look_at_property = cam_json.at("look_at");
+        look_at(look_at_property);
         if (focus_distance < 0.0)
         {
-            focus_distance = distance(eye, look_at);
+            focus_distance = distance(eye, look_at_property);
         }
     }
     else
@@ -66,7 +66,7 @@ void Camera::import_camera_and_image_properties(const nlohmann::json& j)
 }
 
 
-void Camera::samplePixel(size_t x, size_t y)
+void Camera::sample_pixel(size_t x, size_t y)
 {
     double pixel_size = sensor_width / image.width;
     size_t spp = pow2(sqrtspp);
@@ -75,17 +75,17 @@ void Camera::samplePixel(size_t x, size_t y)
 
     Sampler::initiate(static_cast<uint32_t>(y * image.width + x));
 
-    for (int i = 0; i < spp; i++)
+    for (size_t i = 0; i < spp; i++)
     {
         Sampler::setIndex(i);
 
-        auto u = Sampler::get<Dim::PIXEL, 2>();
+        auto u = Sampler::get<PIXEL, 2>();
         glm::dvec2 px(x + u[0], y + u[1]);
         glm::dvec2 local = pixel_size * (half_dim - px);
         glm::dvec3 direction = glm::normalize(forward * focal_length + left * local.x + up * local.y);
 
         // Pinhole camera ray
-        Ray ray(eye, direction, integrator->scene.ior);
+        Ray ray(eye, direction, integrator_->scene.ior);
 
         if (thin_lens)
         {
@@ -94,26 +94,26 @@ void Camera::samplePixel(size_t x, size_t y)
             glm::dvec2 aperture_sample = Sampling::uniformDisk(u[0], u[1]) * aperture_radius;
             glm::dvec3 focus_point = ray(focus_distance / glm::dot(ray.direction, forward));
             glm::dvec3 start = eye + left * aperture_sample.x + up * aperture_sample.y;
-            ray = Ray(start, glm::normalize(focus_point - start), integrator->scene.ior);
+            ray = Ray(start, glm::normalize(focus_point - start), integrator_->scene.ior);
         }
-        film.deposit(px, integrator->sampleRay(ray));
+        film.deposit(px, integrator_->sampleRay(ray));
     }
-    ++num_sampled_pixels;
+    ++num_sampled_pixels_;
 }
 
 
-void Camera::sampleImageForPreview(double& render_progress)
+void Camera::sample_image_for_preview(double& render_progress)
 {
     std::vector<Bucket> buckets_vec;
-    for (size_t x = 0; x < image.width; x += bucket_size)
+    for (size_t x = 0; x < image.width; x += bucket_size_)
     {
-        size_t x_end = x + bucket_size;
+        size_t x_end = x + bucket_size_;
         if (x_end >= image.width) x_end = image.width;
-        for (size_t y = 0; y < image.height; y += bucket_size)
+        for (size_t y = 0; y < image.height; y += bucket_size_)
         {
-            size_t y_end = y + bucket_size;
+            size_t y_end = y + bucket_size_;
             if (y_end >= image.height) y_end = image.height;
-            buckets_vec.push_back(Bucket(glm::ivec2(x, y), glm::ivec2(x_end, y_end)));
+            buckets_vec.emplace_back(glm::ivec2(x, y), glm::ivec2(x_end, y_end));
         }
     }
 
@@ -121,19 +121,19 @@ void Camera::sampleImageForPreview(double& render_progress)
     WorkQueue<Bucket> buckets(buckets_vec);
     buckets_vec.clear();
 
-    std::function<void(Camera*, WorkQueue<Bucket>&)> f = &Camera::sampleImageThread;
+    std::function<void(Camera*, WorkQueue<Bucket>&)> f = &Camera::sample_image_thread;
 
-    std::vector<std::unique_ptr<std::thread>> threads(integrator->num_threads);
+    std::vector<std::unique_ptr<std::thread>> threads(integrator_->num_threads);
     for (auto& thread : threads)
     {
         thread = std::make_unique<std::thread>(f, this, std::ref(buckets));
     }
 
-    std::function<void(Camera*, WorkQueue<Bucket>&, double&)> p = &Camera::printPreviewInfoThread;
+    std::function<void(Camera*, WorkQueue<Bucket>&, double&)> p = &Camera::print_preview_info_thread;
     std::thread print_thread(p, this, std::ref(buckets), std::ref(render_progress));
     print_thread.join();
 
-    for (auto& thread : threads)
+    for (const auto& thread : threads)
     {
         thread->join();
     }
@@ -147,53 +147,8 @@ void Camera::sampleImageForPreview(double& render_progress)
     }
 }
 
-void Camera::sampleImage()
-{
-    std::vector<Bucket> buckets_vec;
-    for (size_t x = 0; x < image.width; x += bucket_size)
-    {
-        size_t x_end = x + bucket_size;
-        if (x_end >= image.width) x_end = image.width;
-        for (size_t y = 0; y < image.height; y += bucket_size)
-        {
-            size_t y_end = y + bucket_size;
-            if (y_end >= image.height) y_end = image.height;
-            buckets_vec.push_back(Bucket(glm::ivec2(x, y), glm::ivec2(x_end, y_end)));
-        }
-    }
 
-    std::shuffle(buckets_vec.begin(), buckets_vec.end(), Random::engine);
-    WorkQueue<Bucket> buckets(buckets_vec);
-    buckets_vec.clear();
-
-    std::function<void(Camera*, WorkQueue<Bucket>&)> f = &Camera::sampleImageThread;
-
-    std::vector<std::unique_ptr<std::thread>> threads(integrator->num_threads);
-    for (auto& thread : threads)
-    {
-        thread = std::make_unique<std::thread>(f, this, std::ref(buckets));
-    }
-
-    std::function<void(Camera*, WorkQueue<Bucket>&)> p = &Camera::printInfoThread;
-    std::thread print_thread(p, this, std::ref(buckets));
-
-    print_thread.join();
-
-    for (auto& thread : threads)
-    {
-        thread->join();
-    }
-
-    for (int y = 0; y < image.height; y++)
-    {
-        for (int x = 0; x < image.width; x++)
-        {
-            image(x, y) = film.scan(x, y);
-        }
-    }
-}
-
-void Camera::sampleImageThread(WorkQueue<Bucket>& buckets)
+void Camera::sample_image_thread(WorkQueue<Bucket>& buckets)
 {
     Bucket bucket;
     while (buckets.getWork(bucket))
@@ -202,13 +157,13 @@ void Camera::sampleImageThread(WorkQueue<Bucket>& buckets)
         {
             for (size_t x = bucket.min.x; x < bucket.max.x; x++)
             {
-                samplePixel(x, y);
+                sample_pixel(x, y);
             }
         }
     }
 }
 
-void Camera::lookAt(const glm::dvec3& p)
+void Camera::look_at(const glm::dvec3& p)
 {
     forward = normalize(p - eye);
     left = cross({ 0.0, 1.0, 0.0 }, forward);
@@ -216,14 +171,14 @@ void Camera::lookAt(const glm::dvec3& p)
     up = normalize(glm::cross(forward, left));
 }
 
-void Camera::previewImage(std::vector<glm::vec3>& gui_image, std::atomic<gui_params_space::render_status>& status, double& render_progress)
+void Camera::preview_image(std::vector<glm::vec3>& gui_image, std::atomic<gui_params_space::render_status>& status, double& render_progress)
 {
     std::cout << std::endl << std::string(28, '-') << "| CHILD THREAD PREVIEW RENDERING PASS |" << std::string(28, '-') << std::endl;
     std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
 
-    auto before = std::chrono::system_clock::now();
-    sampleImageForPreview(render_progress);
-    auto now = std::chrono::system_clock::now();
+    const auto before = std::chrono::system_clock::now();
+    sample_image_for_preview(render_progress);
+    const auto now = std::chrono::system_clock::now();
     std::cout << "\r" + std::string(100, ' ') + "\r";
     std::cout << "Preview Completed: " << Format::date(now);
     std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
@@ -233,24 +188,11 @@ void Camera::previewImage(std::vector<glm::vec3>& gui_image, std::atomic<gui_par
     std::cerr << "Finish inner preview render\n";
 }
 
-void Camera::capture()
+void Camera::print_preview_info_thread(WorkQueue<Bucket>& buckets, double& render_progress)
 {
-    std::cout << std::endl << std::string(28, '-') << "| MAIN RENDERING PASS |" << std::string(28, '-') << std::endl;
-    std::cout << std::endl << "Samples per pixel: " << pow2(static_cast<double>(sqrtspp)) << std::endl << std::endl;
-    auto before = std::chrono::system_clock::now();
-    sampleImage();
-    saveImage();
-    auto now = std::chrono::system_clock::now();
-    std::cout << "\r" + std::string(100, ' ') + "\r";
-    std::cout << "Render Completed: " << Format::date(now);
-    std::cout << ", Elapsed Time: " << Format::timeDuration(std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count()) << std::endl;
-}
-
-void Camera::printPreviewInfoThread(WorkQueue<Bucket>& buckets, double& render_progress)
-{
-    auto printProgressInfo = [](double progress, size_t milliseconds_duration, double& render_progress, std::ostream& output)
+    auto print_progress_info = [](double progress, size_t milliseconds_duration, double& render_progress, std::ostream& output)
     {
-        auto estimated_time = std::chrono::system_clock::now() + std::chrono::milliseconds(milliseconds_duration);
+        const auto estimated_time = std::chrono::system_clock::now() + std::chrono::milliseconds(milliseconds_duration);
         render_progress = progress;
 
         std::stringstream string_stream;
@@ -261,80 +203,35 @@ void Camera::printPreviewInfoThread(WorkQueue<Bucket>& buckets, double& render_p
         output << string_stream.str();
     };
 
-    times.clear();
-    num_sampled_pixels = 0;
-    last_num_sampled_pixels = 0;
-    last_update = std::chrono::steady_clock::now();
+    times_.clear();
+    num_sampled_pixels_ = 0;
+    last_num_sampled_pixels_ = 0;
+    last_update_ = std::chrono::steady_clock::now();
 
     while (!buckets.empty())
     {
-        if (num_sampled_pixels != last_num_sampled_pixels)
+        if (num_sampled_pixels_ != last_num_sampled_pixels_)
         {
-            const size_t delta_pixels = num_sampled_pixels - last_num_sampled_pixels;
-            const size_t pixels_left = image.num_pixels - num_sampled_pixels;
+            const size_t delta_pixels = num_sampled_pixels_ - last_num_sampled_pixels_;
+            const size_t pixels_left = image.num_pixels - num_sampled_pixels_;
 
             auto now = std::chrono::steady_clock::now();
-            auto delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update);
+            auto delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update_);
 
-            times.push_back(static_cast<double>(delta_pixels) / delta_t.count());
+            times_.push_back(static_cast<double>(delta_pixels) / delta_t.count());
 
-            if (times.size() > num_times)
-                times.pop_front();
+            if (times_.size() > num_times_)
+                times_.pop_front();
 
             // moving average
-            const double pixels_per_milliseconds = std::accumulate(times.begin(), times.end(), 0.0) / times.size();
-            const double progress = static_cast<double>(num_sampled_pixels) / image.num_pixels;
+            const double pixels_per_milliseconds = std::accumulate(times_.begin(), times_.end(), 0.0) / times_.size();
+            const double progress = static_cast<double>(num_sampled_pixels_) / image.num_pixels;
             const size_t milliseconds_left = static_cast<size_t>(pixels_left / pixels_per_milliseconds);
 
-            printProgressInfo(progress, milliseconds_left, render_progress, std::cout);
+            print_progress_info(progress, milliseconds_left, render_progress, std::cout);
 
-            last_update = now;
-            last_num_sampled_pixels = num_sampled_pixels;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
-}
-
-void Camera::printInfoThread(WorkQueue<Bucket>& buckets)
-{
-    auto printProgressInfo = [](double progress, size_t msec_duration, size_t sps, std::ostream& out)
-    {
-        auto ETA = std::chrono::system_clock::now() + std::chrono::milliseconds(msec_duration);
-
-        std::stringstream ss;
-        ss << "\rTime remaining: " << Format::timeDuration(msec_duration)
-            << " || " << Format::progress(progress)
-            << " || ETA: " << Format::date(ETA)
-            << " || Samples/s: " << Format::largeNumber(sps) + "    ";
-
-        out << ss.str();
-    };
-
-    while (!buckets.empty())
-    {
-        if (num_sampled_pixels != last_num_sampled_pixels)
-        {
-            size_t delta_pixels = num_sampled_pixels - last_num_sampled_pixels;
-            size_t pixels_left = image.num_pixels - num_sampled_pixels;
-
-            auto now = std::chrono::steady_clock::now();
-            auto delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update);
-
-            times.push_back(static_cast<double>(delta_pixels) / delta_t.count());
-            if (times.size() > num_times)
-                times.pop_front();
-
-            // moving average
-            double pixels_per_msec = std::accumulate(times.begin(), times.end(), 0.0) / times.size();
-
-            double progress = 100.0 * static_cast<double>(num_sampled_pixels) / image.num_pixels;
-            size_t msec_left = static_cast<size_t>(pixels_left / pixels_per_msec);
-            size_t sps = static_cast<size_t>(pixels_per_msec * 1000.0 * pow2(static_cast<double>(sqrtspp)));
-
-            printProgressInfo(progress, msec_left, sps, std::cout);
-
-            last_update = now;
-            last_num_sampled_pixels = num_sampled_pixels;
+            last_update_ = now;
+            last_num_sampled_pixels_ = num_sampled_pixels_;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

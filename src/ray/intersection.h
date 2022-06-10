@@ -8,12 +8,12 @@ namespace Surface { class Base; }
 
 struct Intersection
 {
-    Intersection() { }
+    Intersection() = default;
     Intersection(double t) : t(t) { }
     std::shared_ptr<Surface::Base> surface;
     double t = (std::numeric_limits<double>::max)();
 
-    glm::dvec2 uv;
+    glm::dvec2 uv{};
     bool interpolate = false;
 
     explicit operator bool() const

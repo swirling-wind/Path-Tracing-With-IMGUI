@@ -1,8 +1,7 @@
 #pragma once
 
 #include <array>
-#include <random> // Only used for non-deterministic global seed
-
+#include <random>
 #include "../sampling/sobol.h"
 #include "../common/unrolled-loop.h"
 

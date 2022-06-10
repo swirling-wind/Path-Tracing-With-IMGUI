@@ -43,7 +43,7 @@ void LinearOctree<Data>::knnSearch(const glm::dvec3& p, size_t k, PriorityQueue<
 
     thread_local PriorityQueue<DNode> to_visit; to_visit.clear();
 
-    DNode current{ linear_tree[ROOT_IDX].BB.distance2(p), ROOT_IDX };
+    DNode current{ linear_tree[ROOT_IDX].BB.smallest_possible_squared_distance_to_box(p), ROOT_IDX };
 
     while (true)
     {
@@ -88,7 +88,7 @@ void LinearOctree<Data>::knnSearch(const glm::dvec3& p, size_t k, PriorityQueue<
             {
                 const auto& child_node = linear_tree[child_octant];
 
-                double distance2 = child_node.BB.distance2(p);
+                double distance2 = child_node.BB.smallest_possible_squared_distance_to_box(p);
                 if (distance2 <= max_distance2)
                 {
                     to_visit.push({ distance2, child_octant });
@@ -96,7 +96,7 @@ void LinearOctree<Data>::knnSearch(const glm::dvec3& p, size_t k, PriorityQueue<
                     if (child_node.contained_data >= k)
                     {
                         // No k-NN element can be farther than the farthest corner in a node that contains k elements.
-                        updateMaxDistance(child_node.BB.max_distance2(p));
+                        updateMaxDistance(child_node.BB.largest_possible_squared_distance_to_box(p));
                     }
                 }
                 child_octant = child_node.next_sibling;
