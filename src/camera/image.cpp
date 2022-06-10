@@ -75,7 +75,7 @@ void Image::save(const std::string& filename) const
     std::cerr << "\nPPM save Done.\n";
 
     // Save in .tga
-    HeaderTGA header((uint16_t)width, (uint16_t)height);
+    HeaderTGA header(static_cast<uint16_t>(width), static_cast<uint16_t>(height));
     std::ofstream out_tonemapped(gui_constant_params::image_file_path / (filename + ".tga"), std::ios::binary);
     out_tonemapped.write(reinterpret_cast<char*>(&header), sizeof(header));
     for (const auto& p : blob_) //Image::Blob <vec3>

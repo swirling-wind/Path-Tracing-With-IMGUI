@@ -1,11 +1,8 @@
 #include "../octree/linear-octree.h"
 
-#include <algorithm>
-
 #include <glm/gtx/norm.hpp>
 
 #include "../common/constexpr-math.h"
-#include "../common/util.h"
 
 template <class Data>
 LinearOctree<Data>::LinearOctree(Octree<Data> &octree_root)

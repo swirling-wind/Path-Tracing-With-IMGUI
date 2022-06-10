@@ -96,7 +96,7 @@ void Camera::sample_pixel(size_t x, size_t y)
             glm::dvec3 start = eye + left * aperture_sample.x + up * aperture_sample.y;
             ray = Ray(start, glm::normalize(focus_point - start), integrator_->scene.ior);
         }
-        film.deposit(px, integrator_->sampleRay(ray));
+        film.deposit(px, integrator_->sample_ray(ray));
     }
     ++num_sampled_pixels_;
 }

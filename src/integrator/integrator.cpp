@@ -20,7 +20,7 @@ Integrator::Integrator(const nlohmann::json &j) : scene(j)
     std::cout << "\nThreads used for rendering: " << num_threads << std::endl;
 }
 
-glm::dvec3 Integrator::sampleDirect(const Interaction& interaction, LightSample& ls) const
+glm::dvec3 Integrator::sample_direct(const Interaction& interaction, LightSample& ls) const
 {
     if (scene.emissives.empty() || interaction.material->dirac_delta)
     {
@@ -50,11 +50,8 @@ glm::dvec3 Integrator::sampleDirect(const Interaction& interaction, LightSample&
         {
             return glm::dvec3(0.0);
         }
-        else
-        {
-            // Try transmission
-            shadow_ray = Ray(interaction.position - interaction.normal * Constant::EPSILON, light_pos);
-        }
+        // Try transmission
+        shadow_ray = Ray(interaction.position - interaction.normal * Constant::EPSILON, light_pos);
     }
 
     Intersection shadow_intersection = scene.intersect(shadow_ray);
@@ -82,7 +79,7 @@ glm::dvec3 Integrator::sampleDirect(const Interaction& interaction, LightSample&
 Adds emittance from interaction surface if applicable, or samples 
 the emissive using the BSDF from the previous interaction using MIS.
 ********************************************************************/
-glm::dvec3 Integrator::sampleEmissive(const Interaction& interaction, const LightSample &ls) const
+glm::dvec3 Integrator::sample_emissive(const Interaction& interaction, const LightSample &ls) const
 {
     if (interaction.material->emissive && !interaction.inside)
     {

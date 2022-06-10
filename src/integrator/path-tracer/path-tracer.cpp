@@ -5,10 +5,8 @@
 #include "../../material/material.h"
 #include "../../surface/surface.h"
 #include "../../ray/interaction.h"
-#include "../../common/constexpr-math.h"
-#include "../../surface/surface.h"
 #include <glm/gtx/component_wise.hpp>
-glm::dvec3 PathTracer::sampleRay(Ray ray)
+glm::dvec3 PathTracer::sample_ray(Ray ray)
 {
     glm::dvec3 radiance(0.0), throughput(1.0);
     RefractionHistory refraction_history(ray);
@@ -28,8 +26,8 @@ glm::dvec3 PathTracer::sampleRay(Ray ray)
 
         Interaction interaction(intersection, ray, refraction_history.externalIOR(ray));
 
-        radiance += Integrator::sampleEmissive(interaction, ls) * throughput;
-        radiance += Integrator::sampleDirect(interaction, ls) * throughput;
+        radiance += Integrator::sample_emissive(interaction, ls) * throughput;
+        radiance += Integrator::sample_direct(interaction, ls) * throughput;
 
         if (!interaction.sampleBSDF(bsdf_absIdotN, ls.bsdf_pdf, ray))
         {

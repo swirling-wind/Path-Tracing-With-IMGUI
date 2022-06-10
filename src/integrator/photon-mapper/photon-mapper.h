@@ -16,7 +16,7 @@ public:
 
     void emitPhoton(Ray ray, glm::dvec3 flux, size_t thread);
 
-    virtual glm::dvec3 sampleRay(Ray ray);
+    virtual glm::dvec3 sample_ray(Ray ray);
     
     glm::dvec3 estimateGlobalRadiance(const Interaction& interaction); // All radiance except caustic
     glm::dvec3 estimateCausticRadiance(const Interaction& interaction);

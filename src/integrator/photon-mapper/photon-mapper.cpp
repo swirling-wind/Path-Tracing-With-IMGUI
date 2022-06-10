@@ -5,8 +5,6 @@
 #include <thread>
 #include <atomic>
 
-
-
 #include "../../sampling/sampling.h"
 #include "../../sampling/sampler.h"
 #include "../../common/util.h"
@@ -275,7 +273,7 @@ void PhotonMapper::emitPhoton(Ray ray, glm::dvec3 flux, size_t thread)
     }
 }
 
-glm::dvec3 PhotonMapper::sampleRay(Ray ray)
+glm::dvec3 PhotonMapper::sample_ray(Ray ray)
 {
     glm::dvec3 radiance(0.0), throughput(1.0);
     RefractionHistory refraction_history(ray);
@@ -295,7 +293,7 @@ glm::dvec3 PhotonMapper::sampleRay(Ray ray)
 
         Interaction interaction(intersection, ray, refraction_history.externalIOR(ray));
 
-        radiance += Integrator::sampleEmissive(interaction, ls) * throughput;
+        radiance += Integrator::sample_emissive(interaction, ls) * throughput;
 
         if (interaction.dirac_delta)
         {
@@ -316,7 +314,7 @@ glm::dvec3 PhotonMapper::sampleRay(Ray ray)
             if (!direct_visualization && (ray.dirac_delta || ray.depth == 0))
             {
                 // Delay global evaluation
-                radiance += Integrator::sampleDirect(interaction, ls) * throughput;
+                radiance += Integrator::sample_direct(interaction, ls) * throughput;
                 if (!interaction.sampleBSDF(bsdf_absIdotN, ls.bsdf_pdf, ray))
                 {
                     return radiance;

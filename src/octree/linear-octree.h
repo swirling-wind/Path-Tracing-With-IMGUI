@@ -8,7 +8,7 @@ template <class Data>
 class LinearOctree
 {
 public:
-    LinearOctree() { }
+    LinearOctree() = default;
 
     // This destroys the input octree for memory reasons.
     LinearOctree(Octree<Data> &octree_root);

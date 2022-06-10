@@ -8,8 +8,7 @@ class Integrator
 {
 public:
     Integrator(const nlohmann::json &j);
-
-    virtual ~Integrator() { }
+    virtual ~Integrator() = default;
 
     struct LightSample
     {
@@ -17,9 +16,9 @@ public:
         std::shared_ptr<Surface::Base> light;
     };
 
-    virtual glm::dvec3 sampleRay(Ray ray) = 0;
-    glm::dvec3 sampleDirect(const Interaction& interaction, LightSample& ls) const;
-    glm::dvec3 sampleEmissive(const Interaction& interaction, const LightSample& ls) const;
+    virtual glm::dvec3 sample_ray(Ray ray) = 0;
+    glm::dvec3 sample_direct(const Interaction& interaction, LightSample& ls) const;
+    glm::dvec3 sample_emissive(const Interaction& interaction, const LightSample& ls) const;
     bool absorb(const Ray& ray, glm::dvec3& throughput) const;
 
     size_t num_threads;

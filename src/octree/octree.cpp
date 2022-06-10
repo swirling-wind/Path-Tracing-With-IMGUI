@@ -3,20 +3,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>
 
-#include "../common/constexpr-math.h"
-#include "../common/util.h"
-
-/**************
-Octant:  x y z
-     0:  0 0 0
-     1:  0 0 1
-     2:  0 1 0
-     3:  0 1 1
-     4:  1 0 0
-     5:  1 0 1
-     6:  1 1 0
-     7:  1 1 1
-***************/
 
 template <class Data>
 Octree<Data>::Octree(const glm::dvec3& origin, const glm::dvec3& half_size, size_t max_node_data)
