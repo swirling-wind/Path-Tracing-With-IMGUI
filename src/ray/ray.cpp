@@ -13,9 +13,9 @@ Ray::Ray(const glm::dvec3& start, const glm::dvec3& direction, double medium_ior
     : start(start), direction(direction), inv_direction(1.0 / direction), medium_ior(medium_ior) { }
 
 Ray::Ray(const Interaction &ia) : 
-    depth(ia.ray.depth + 1), diffuse_depth(ia.ray.diffuse_depth),
-    refraction_scale(ia.ray.refraction_scale), start(ia.position),
-    refraction_level(ia.ray.refraction_level), dirac_delta(ia.dirac_delta)
+    start(ia.position), refraction_scale(ia.ray.refraction_scale),
+    dirac_delta(ia.dirac_delta), depth(ia.ray.depth + 1),
+    diffuse_depth(ia.ray.diffuse_depth), refraction_level(ia.ray.refraction_level)
 {
     switch (ia.type)
     {

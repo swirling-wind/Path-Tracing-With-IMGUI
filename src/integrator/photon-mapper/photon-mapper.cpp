@@ -40,7 +40,7 @@ PhotonMapper::PhotonMapper(const nlohmann::json& j) : Integrator(j)
     double total_add_flux = 0.0;
     for (const auto& light : scene.emissives)
     {
-        total_add_flux += glm::compAdd(light->material->emittance * light->area());
+        total_add_flux += compAdd(light->material->emittance * light->area());
     }
 
     struct EmissionWork
@@ -95,7 +95,7 @@ PhotonMapper::PhotonMapper(const nlohmann::json& j) : Integrator(j)
                     Sampler::initiate(static_cast<uint32_t>(work.light_index));
                     for (size_t i = 0; i < work.num_emissions; i++)
                     {
-                        Sampler::setIndex(static_cast<uint32_t>(work.emissions_offset + i));
+                        Sampler::set_index(static_cast<uint32_t>(work.emissions_offset + i));
 
                         auto u = Sampler::get<Dim::PM_LIGHT, 4>();
                         glm::dvec3 pos = (*light)(u[0], u[1]);
@@ -309,7 +309,7 @@ glm::dvec3 PhotonMapper::sample_ray(Ray ray)
         }
         else
         {
-            radiance += estimateCausticRadiance(interaction) * throughput;
+            radiance += estimate_caustic_radiance(interaction) * throughput;
 
             if (!direct_visualization && (ray.dirac_delta || ray.depth == 0))
             {
@@ -324,7 +324,7 @@ glm::dvec3 PhotonMapper::sample_ray(Ray ray)
             else
             {
                 // Global evaluation
-                return radiance + estimateGlobalRadiance(interaction) * throughput;
+                return radiance + estimate_global_radiance(interaction) * throughput;
             }
         }
 
@@ -337,7 +337,7 @@ glm::dvec3 PhotonMapper::sample_ray(Ray ray)
     }
 }
 
-glm::dvec3 PhotonMapper::estimateGlobalRadiance(const Interaction& interaction)
+glm::dvec3 PhotonMapper::estimate_global_radiance(const Interaction& interaction)
 {
     thread_local PriorityQueue<SearchResult<Photon>> photons;
     global_map.knnSearch(interaction.position, k_nearest_photons, photons);
@@ -362,7 +362,7 @@ glm::dvec3 PhotonMapper::estimateGlobalRadiance(const Interaction& interaction)
 /********************************************************************
 Cone filtering method used for sharper caustics. Simplified for k = 1
 *********************************************************************/
-glm::dvec3 PhotonMapper::estimateCausticRadiance(const Interaction& interaction)
+glm::dvec3 PhotonMapper::estimate_caustic_radiance(const Interaction& interaction)
 {
     thread_local PriorityQueue<SearchResult<Photon>> photons;
     caustic_map.knnSearch(interaction.position, k_nearest_photons, photons);

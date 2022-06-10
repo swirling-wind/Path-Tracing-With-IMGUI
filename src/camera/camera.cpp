@@ -77,7 +77,7 @@ void Camera::sample_pixel(size_t x, size_t y)
 
     for (size_t i = 0; i < spp; i++)
     {
-        Sampler::setIndex(i);
+        Sampler::set_index(i);
 
         auto u = Sampler::get<PIXEL, 2>();
         glm::dvec2 px(x + u[0], y + u[1]);

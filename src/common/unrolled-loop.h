@@ -5,15 +5,15 @@
 
 namespace detail
 {
-    template<class T, T... inds, class F>
-    constexpr void unrolledLoop(std::integer_sequence<T, inds...>, F&& f)
+    template<class T, T... Indexes, class F>
+    constexpr void unrolled_loop(std::integer_sequence<T, Indexes...>, F&& f)
     {
-        (f(std::integral_constant<T, inds>{}), ...);
+        (f(std::integral_constant<T, Indexes>{}), ...);
     }
 }
 
 template<class T, T count, class F>
-constexpr void unrolledLoop(F&& f)
+constexpr void unrolled_loop(F&& f)
 {
-    detail::unrolledLoop(std::make_integer_sequence<T, count>{}, std::forward<F>(f));
+    detail::unrolled_loop(std::make_integer_sequence<T, count>{}, std::forward<F>(f));
 }

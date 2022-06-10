@@ -5,21 +5,15 @@
 #include "../sampling/sobol.h"
 #include "../common/unrolled-loop.h"
 
-// Hash-based Owen-scrambled Sobol sequence generator based on:
-// Practical Hash-based Owen Scrambling - Brent Burley
-// https://jcgt.org/published/0009/04/01/
-
 struct Sampler
 {
     Sampler() = delete;
-
-    // Non-type template dimension-range and loop-unrolling is about 4% faster 
-    // for my use, but probably doesn't work well for more Sobol dimensions.
+    
     template<int START_DIM, int NUM_DIMS = 1>
     static auto get()
     {
         std::array<double, NUM_DIMS> res;
-        unrolledLoop<int, NUM_DIMS>([&](auto i)
+        unrolled_loop<int, NUM_DIMS>([&](auto i)
         {
             constexpr int DIM = START_DIM + i;
             res[i] = scramble(Sobol::bitReversedSample<DIM>(shuffled_index), hashCombine(seed, hash(DIM))) * 0x1p-32;
@@ -34,7 +28,7 @@ struct Sampler
     }
 
     // Called with e.g. ray path index before each pixel sample
-    static void setIndex(uint32_t index)
+    static void set_index(uint32_t index)
     {
         sequence = 0u;
         seed = base_seed;
@@ -59,8 +53,6 @@ private:
     // nested_uniform_scramble, but mostly avoids the first bit-reversal.
     static constexpr uint32_t scramble(uint32_t bit_reversed_x, uint32_t seed)
     {
-        // Improved Laine-Karras hash by Nathan Vegdahl
-        // https://psychopath.io/post/2021_01_30_building_a_better_lk_hash
         bit_reversed_x ^= bit_reversed_x * 0x3d20adea;
         bit_reversed_x += seed;
         bit_reversed_x *= (seed >> 16) | 1;
@@ -69,9 +61,7 @@ private:
 
         return Sobol::reverseBits(bit_reversed_x);
     }
-
-    // 2-round constants with lowest bias from:
-    // https://github.com/skeeto/hash-prospector
+    
     static constexpr uint32_t hash(uint32_t x)
     {
         x ^= x >> 15;

@@ -47,24 +47,6 @@ Surface::Quadric::Quadric(const nlohmann::json &j, std::shared_ptr<Material> mat
     computeBoundingBox();
 }
 
-/**********************************************************************
- Ray equation: r = o + d*t
- Quadric equation: transpose(p)*Q*p = 0
- Ray quadric intersection: transpose(r)*Q*r = 0
- 
-   transpose(r)*Q*r = dot(r,Q*r) =
- = dot(o + d*t, Q * ((o + d*t))) = 
- = dot(d, Q*d) * t^2 + (dot(o, Q*d) + dot(d, Q*o)) * t + dot(o, Q*o) =
- = dot(d, Q*d) * t^2 + 2*dot(d, Q*o) * t + dot(o, Q*o) = 0
- 
- i.e. if we set:
- a = dot(d, Q*d)
- b = dot(d, Q*o) * 2
- c = dot(o, Q*o)
- 
- then we can find eventual ray intersections by solving the quadratic equation: 
- a*t^2 + b*t + c = 0
-/**********************************************************************/
 bool Surface::Quadric::intersect(const Ray& ray, Intersection& intersection) const
 {
     // Intersect with bounding box and start at this 

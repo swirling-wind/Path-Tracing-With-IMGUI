@@ -18,15 +18,13 @@ public:
 
     virtual glm::dvec3 sample_ray(Ray ray);
     
-    glm::dvec3 estimateGlobalRadiance(const Interaction& interaction); // All radiance except caustic
-    glm::dvec3 estimateCausticRadiance(const Interaction& interaction);
+    glm::dvec3 estimate_global_radiance(const Interaction& interaction); // All radiance except caustic
+    glm::dvec3 estimate_caustic_radiance(const Interaction& interaction);
 
 private:
     LinearOctree<Photon> caustic_map;
     LinearOctree<Photon> global_map; // all photons except caustic photons
-
-    // Temporary photon maps which are filled by each thread in the first pass. The Octree can't handle
-    // concurrent inserts, so this has to be done if multi-threading is to be used in the first pass.
+    
     std::vector<std::vector<Photon>> caustic_vecs;
     std::vector<std::vector<Photon>> global_vecs;
 

@@ -13,7 +13,7 @@ inline std::ostream& operator<<(std::ostream& out, const glm::dvec3& v)
     return out << std::string("( " + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + " )");
 }
 
-inline glm::dvec3 intToColor(uint32_t i)
+inline glm::dvec3 int_to_color(uint32_t i)
 {
     return glm::dvec3((i >> 16) & 0xFF, (i >> 8) & 0xFF, i & 0xFF) / 255.0;
 }
@@ -21,10 +21,8 @@ inline glm::dvec3 intToColor(uint32_t i)
 struct Transform
 {
     Transform(const glm::dvec3& p, const glm::dvec3& s, const glm::dvec3& r)
-        : position(p), scale(s), rotation(r)
+        : position(p), scale(s), rotation(r), negative_determinant(s.x * s.y * s.z < 0.0)
     {
-        negative_determinant = s.x * s.y * s.z < 0.0;
-
         rotation_matrix = rotate(r.z, glm::dvec3(0.0, 0.0, 1.0)) *
             rotate(r.y, glm::dvec3(0.0, 1.0, 0.0)) *
             rotate(r.x, glm::dvec3(1.0, 0.0, 0.0));

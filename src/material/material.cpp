@@ -126,7 +126,7 @@ void from_json(const nlohmann::json& j, Material& m)
                     uint32_t color_int;
                     ss >> color_int;
 
-                    reflectance = intToColor(color_int);
+                    reflectance = int_to_color(color_int);
                 }
             }
             else
