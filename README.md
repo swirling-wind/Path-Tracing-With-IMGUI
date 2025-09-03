@@ -2,6 +2,9 @@
 
 一个从零实现的、基于CPU的离线渲染器，支持全局光照（GI）与基于物理的渲染（PBR），旨在生成高度真实的画面。
 
+<img width="1200" height="720" alt="图片2" src="https://github.com/user-attachments/assets/7847becc-45e5-4f6e-8c21-e65961bd60e3" />
+
+
 ## ✨ 核心特性
 
 - **双渲染引擎**：集成了**路径追踪（Path Tracing）** 与**光子映射（Photon Mapping）** 两大核心渲染引擎。
